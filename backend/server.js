@@ -32,15 +32,22 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-    // Set static folder
-    app.use(express.static(path.join(__dirname, '../../dist')));
-
-    app.get('/*', (req, res) => res.sendFile(path.resolve(__dirname, '../../dist', 'index.html')));
-} else {
+// Development default route (se não estiver em produção)
+if (process.env.NODE_ENV !== 'production') {
     app.get('/', (req, res) => {
         res.send('API is running...');
+    });
+}
+
+// Serve frontend em produção (este bloco DEVE ser o último antes do tratamento de erros)
+if (process.env.NODE_ENV === 'production') {
+    // Define a pasta estática para os arquivos do front-end
+    app.use(express.static(path.join(__dirname, '../../dist')));
+
+    // Rota curinga para servir o index.html para todas as outras rotas não tratadas
+    // Isso é essencial para aplicações SPA (Single Page Applications) onde o roteamento é feito no cliente.
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../../dist', 'index.html'));
     });
 }
 
