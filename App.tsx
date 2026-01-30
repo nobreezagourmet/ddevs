@@ -6,8 +6,6 @@ import PaymentPage from './components/PaymentPage';
 import ResultsPage from './components/ResultsPage';
 import RulesPage from './components/RulesPage';
 import Header from './components/Header';
-import AdminLoginPage from './components/AdminLoginPage';
-import AdminPage from './components/AdminPage';
 import { AppView, Raffle, User, Purchase } from './types';
 
 // Mock data for the raffle
@@ -39,11 +37,7 @@ const App: React.FC = () => {
   const handleAuthSuccess = useCallback((user: User, token: string) => {
     setCurrentUser(user);
     setAuthToken(token);
-    if (user.isAdmin) {
-      setCurrentView(AppView.ADMIN_DASHBOARD);
-    } else {
-      setCurrentView(AppView.PAYMENT);
-    }
+    setCurrentView(AppView.PAYMENT);
   }, []);
 
   const handlePaymentSuccess = useCallback(() => {
@@ -87,7 +81,6 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     const totalPrice = (selectedQuotas * mockRaffle.pricePerQuota);
-    const isAdmin = currentUser?.isAdmin || false;
 
     switch (currentView) {
       case AppView.RAFFLE:
@@ -102,13 +95,6 @@ const App: React.FC = () => {
         return <ResultsPage onBack={() => handleNavigate(AppView.RAFFLE)} />;
       case AppView.RULES:
         return <RulesPage onBack={() => handleNavigate(AppView.RAFFLE)} />;
-      case AppView.ADMIN_LOGIN:
-        return <AdminLoginPage onAuthSuccess={handleAuthSuccess} onBack={() => handleNavigate(AppView.RAFFLE)} />;
-      case AppView.ADMIN_DASHBOARD:
-        if (!isAdmin) {
-          return <AdminLoginPage onAuthSuccess={handleAuthSuccess} onBack={() => handleNavigate(AppView.RAFFLE)} />;
-        }
-        return <AdminPage onLogout={handleLogout} authToken={authToken} />;
       default:
         return <RafflePage raffle={mockRaffle} onPurchase={handlePurchaseClick} onNavigate={handleNavigate} />;
     }

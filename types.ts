@@ -14,8 +14,7 @@ export enum AppView {
   MY_NUMBERS,
   RESULTS,
   RULES,
-  ADMIN_LOGIN,
-  ADMIN_DASHBOARD,
+
 }
 
 export enum AuthMode {
