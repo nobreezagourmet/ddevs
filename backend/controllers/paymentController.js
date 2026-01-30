@@ -3,7 +3,7 @@ const Quota = require('../models/Quota');
 const Raffle = require('../models/Raffle');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const xflowService = require('../services/xflowService'); // Importa o novo serviço XFLOW
+const xflowService = require('../services/xflowService');
 
 // MOCK: Definição de pacotes promocionais para demonstração
 // Em um sistema real, isso viria de um banco de dados
@@ -16,15 +16,17 @@ const promotionalPackages = [
 // Função para verificar a assinatura do webhook da XFLOW
 // === CRÍTICO: ADAPTAR ESTA FUNÇÃO CONFORME A DOCUMENTAÇÃO DA XFLOW ===
 const verifyXflowSignature = (rawBody, signatureHeader, secret) => {
-    // A forma exata de calcular o hash (algoritmo, ordem dos dados) DEVE
-    // ser especificada na documentação da XFLOW.
-    // Exemplo comum (HMAC-SHA256):
+    // A XFLOW deve fornecer na documentação:
+    // 1. O ALGORITMO de hash (ex: 'sha256').
+    // 2. A FORMA exata como a 'payload' (corpo da requisição) é usada para gerar o hash.
+    // 3. Se há outros dados (ex: timestamp, id) que precisam ser incluídos no hash.
     
     if (!signatureHeader) {
         console.error('Webhook: Signature header missing.');
         return false;
     }
 
+    // === SUBSTITUIR: 'sha256' pelo algoritmo real da XFLOW se for diferente ===
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(rawBody); // Use o corpo bruto da requisição
     const expectedSignature = hmac.digest('hex');
@@ -107,7 +109,7 @@ const createOrder = asyncHandler(async (req, res) => {
         );
 
         // Gerar PIX usando a API da XFLOW através do serviço
-        const orderId = new mongoose.Types.ObjectId().toString(); // ID único para a ordem XFLOW
+        const orderId = new mongoose.Types.ObjectId().toString();
         const description = `Rifa: ${raffle.title} - ${numQuotasToReserve} Cotas`;
         const xflowPixData = await xflowService.generatePixPayment(amount, orderId, description);
 
@@ -115,7 +117,7 @@ const createOrder = asyncHandler(async (req, res) => {
         session.endSession();
 
         res.status(200).json({
-            orderId: orderId, // Retorna o ID da ordem para o front-end
+            orderId: orderId,
             pixQRCode: xflowPixData.pixQRCode,
             pixCopyPaste: xflowPixData.pixCopyPaste,
             reservedQuotaNumbers,
@@ -137,9 +139,10 @@ const createOrder = asyncHandler(async (req, res) => {
 const handleWebhook = asyncHandler(async (req, res) => {
     // === CRÍTICO: VERIFICAÇÃO DE ASSINATURA DO WEBHOOK DA XFLOW ===
     const xflowWebhookSecret = process.env.XFLOW_WEBHOOK_SECRET;
-    // === SUBSTITUIR: 'x-xflow-signature' pelo nome real do cabeçalho da XFLOW ===
-    // Exemplo de nomes de cabeçalho comuns: 'X-Hub-Signature', 'X-Webhook-Signature', 'x-xflow-signature'
-    const signature = req.headers['x-xflow-signature']; 
+    // === CRÍTICO: SUBSTITUIR PELO NOME REAL DO CABEÇALHO DA XFLOW ===
+    // Exemplos de nomes de cabeçalho comuns: 'X-Hub-Signature', 'X-Webhook-Signature', 'x-xflow-signature'
+    const signatureHeaderName = 'x-xflow-signature'; // Assumindo este nome por padrão
+    const signature = req.headers[signatureHeaderName]; 
     const rawBody = req.rawBody; // Capturado pelo middleware em server.js
 
     if (!xflowWebhookSecret) {
@@ -148,7 +151,14 @@ const handleWebhook = asyncHandler(async (req, res) => {
         return;
     }
 
-    if (!verifyXflowSignature(rawBody, signature, xflowWebhookSecret)) {
+    // O corpo bruto é uma string. A XFLOW pode esperar que ele seja usado como está
+    // ou parseado como JSON antes de ser assinado. Confirme na documentação da XFLOW.
+    let parsedRawBodyForSignature = rawBody;
+    // Exemplo: se a XFLOW assina o JSON do corpo:
+    // try { parsedRawBodyForSignature = JSON.parse(rawBody); } catch (e) { /* ignore if not JSON */ }
+
+
+    if (!verifyXflowSignature(parsedRawBodyForSignature, signature, xflowWebhookSecret)) {
         console.error('Webhook: Invalid signature received.');
         res.status(403).send('Invalid webhook signature');
         return;
@@ -161,7 +171,7 @@ const handleWebhook = asyncHandler(async (req, res) => {
     // Durante o desenvolvimento local, você pode precisar de ferramentas como ngrok
     // para expor seu localhost à internet e testar o webhook.
 
-    // O corpo da requisição já está parseado por express.json() aqui (exceto rawBody)
+    // O req.body já está parseado por express.json() aqui (exceto rawBody)
     const { transactionId, status, customData } = req.body; // Adapte para o payload real da XFLOW
     // customData pode conter raffleId, reservedQuotaNumbers, userId para identificar a ordem
 
