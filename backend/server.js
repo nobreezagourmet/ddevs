@@ -46,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
 
     // Rota curinga para servir o index.html para todas as outras rotas não tratadas
     // Isso é essencial para aplicações SPA (Single Page Applications) onde o roteamento é feito no cliente.
-    app.get('*', (req, res) => {
+    app.use('/*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../../dist', 'index.html'));
     });
 }
