@@ -1,0 +1,37 @@
+import React from 'react';
+import { User } from '../types';
+import LogoutIcon from './icons/LogoutIcon';
+
+interface HeaderProps {
+  user: User;
+  onLogout: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
+  const isAdmin = user.isAdmin || false;
+
+  return (
+    <header className="w-full max-w-4xl mx-auto mb-4 py-4 border-b border-gray-700/50">
+      <div className="flex justify-between items-center">
+        <p className="text-lg text-gray-300">
+          {isAdmin ? (
+            <span className="font-bold text-amber-400">Painel Admin</span>
+          ) : (
+            <>
+              Olá, <span className="font-bold text-emerald-400">{user.name.split(' ')[0]}</span>!
+            </>
+          )}
+        </p>
+        <button 
+          onClick={onLogout}
+          className="flex items-center bg-red-600/20 text-red-400 py-2 px-4 rounded-lg hover:bg-red-600/40 hover:text-red-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
+        >
+          <LogoutIcon className="mr-2" />
+          Sair
+        </button>
+      </div>
+    </header>
+  );
+};
+
+export default Header;

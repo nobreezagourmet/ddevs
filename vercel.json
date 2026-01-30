@@ -1,0 +1,9 @@
+
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://sua-api-no-render.onrender.com/api/:path*"
+    }
+  ]
+}
