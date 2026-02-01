@@ -8,19 +8,11 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
-  const isAdmin = user.isAdmin || false;
-
   return (
     <header className="w-full max-w-4xl mx-auto mb-4 py-4 border-b border-gray-700/50">
       <div className="flex justify-between items-center">
         <p className="text-lg text-gray-300">
-          {isAdmin ? (
-            <span className="font-bold text-amber-400">Painel Admin</span>
-          ) : (
-            <>
-              Olá, <span className="font-bold text-emerald-400">{user.name.split(' ')[0]}</span>!
-            </>
-          )}
+          Olá, <span className="font-bold text-emerald-400">{user.name.split(' ')[0]}</span>!
         </p>
         <button 
           onClick={onLogout}
