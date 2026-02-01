@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="glass rounded-2xl shadow-xl p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-crown text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Painel Administrativo</h1>
+                        <p class="text-white/80">Sistema de Gestão de Rifas</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-white/80 text-sm">Bem-vindo,</p>
+                        <p class="text-white font-semibold" id="userName">Administrador</p>
+                    </div>
+                    <button onclick="logout()" 
+                            class="bg-red-500/20 hover:bg-red-500/30 text-red-200 px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Stats Cards -->
+            <div class="glass rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-blue-400 text-2xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Usuários</h3>
+                <p class="text-3xl font-bold text-white" id="totalUsers">0</p>
+                <p class="text-white/60 text-sm mt-1">Total cadastrados</p>
+            </div>
+
+            <div class="glass rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-ticket-alt text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Cotas Vendidas</h3>
+                <p class="text-3xl font-bold text-white" id="totalSold">0</p>
+                <p class="text-white/60 text-sm mt-1">Total vendidas</p>
+            </div>
+
+            <div class="glass rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Receita</h3>
+                <p class="text-3xl font-bold text-white" id="totalRevenue">R$ 0</p>
+                <p class="text-white/60 text-sm mt-1">Total arrecadado</p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Create Raffle -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Criar Nova Rifa
+                </h2>
+                <form id="createRaffleForm" class="space-y-4">
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">Título</label>
+                        <input type="text" id="raffleTitle" required
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="Ex: Rifa Especial de Natal">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">Preço (R$)</label>
+                            <input type="number" id="pricePerQuota" required step="0.01" min="1"
+                                   class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                   placeholder="10.00">
+                        </div>
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">Total Cotas</label>
+                            <input type="number" id="totalQuotas" required min="1" max="10000"
+                                   class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                   placeholder="100">
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all">
+                        <i class="fas fa-plus mr-2"></i>Criar Rifa
+                    </button>
+                </form>
+                <div id="raffleStatus" class="mt-4 hidden"></div>
+            </div>
+
+            <!-- Swap Quota -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-exchange-alt mr-2"></i>
+                    Trocar Cota
+                </h2>
+                <form id="swapQuotaForm" class="space-y-4">
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">ID Usuário Atual</label>
+                        <input type="text" id="originUserId" required
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="ID do usuário atual">
+                    </div>
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">ID Novo Usuário</label>
+                        <input type="text" id="destinationUserId" required
+                               class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               placeholder="ID do novo usuário">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">ID Rifa</label>
+                            <input type="text" id="raffleId" required
+                                   class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                   placeholder="ID da rifa">
+                        </div>
+                        <div>
+                            <label class="block text-white/80 text-sm font-medium mb-2">Nº Cota</label>
+                            <input type="number" id="quotaNumber" required min="1"
+                                   class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                   placeholder="1">
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all">
+                        <i class="fas fa-exchange-alt mr-2"></i>Trocar Cota
+                    </button>
+                </form>
+                <div id="swapStatus" class="mt-4 hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin.replace(/\/admin$/, '');
+        let authToken = localStorage.getItem('adminToken');
+        let currentUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+
+        // Check authentication
+        if (!authToken) {
+            window.location.href = `${API_URL}/login`;
+            exit();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('userName').textContent = currentUser.name || 'Administrador';
+            loadDashboardStats();
+        });
+
+        // Show status message
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = 'mt-4 p-3 rounded-lg text-sm font-medium';
+            
+            if (type === 'success') {
+                element.classList.add('bg-green-500/20', 'text-green-200', 'border', 'border-green-500/30');
+            } else if (type === 'error') {
+                element.classList.add('bg-red-500/20', 'text-red-200', 'border', 'border-red-500/30');
+            } else {
+                element.classList.add('bg-blue-500/20', 'text-blue-200', 'border', 'border-blue-500/30');
+            }
+            
+            element.textContent = message;
+            element.classList.remove('hidden');
+            
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                // Mock stats for now - you can implement real API calls
+                document.getElementById('totalUsers').textContent = '127';
+                document.getElementById('totalSold').textContent = '1,847';
+                document.getElementById('totalRevenue').textContent = 'R$ 18.470';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Create raffle
+        document.getElementById('createRaffleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('raffleTitle').value;
+            const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
+            const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ title, pricePerQuota, totalQuotas })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
+                    document.getElementById('createRaffleForm').reset();
+                    loadDashboardStats();
+                } else {
+                    showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
+                }
+            } catch (error) {
+                showStatus('raffleStatus', `Erro: ${error.message}`, 'error');
+            }
+        });
+
+        // Swap quota
+        document.getElementById('swapQuotaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const originUserId = document.getElementById('originUserId').value;
+            const destinationUserId = document.getElementById('destinationUserId').value;
+            const raffleId = document.getElementById('raffleId').value;
+            const quotaNumber = parseInt(document.getElementById('quotaNumber').value);
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/swap-quota`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ originUserId, destinationUserId, raffleId, quotaNumber })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus('swapStatus', 'Cota trocada com sucesso!', 'success');
+                    document.getElementById('swapQuotaForm').reset();
+                } else {
+                    showStatus('swapStatus', data.message || 'Erro ao trocar cota', 'error');
+                }
+            } catch (error) {
+                showStatus('swapStatus', `Erro: ${error.message}`, 'error');
+            }
+        });
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            window.location.href = `${API_URL}/login`;
+        }
+    </script>
+</body>
+</html>

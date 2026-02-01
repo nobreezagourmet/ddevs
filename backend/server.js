@@ -32,10 +32,26 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Default route
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
+// Serve frontend em produção
+if (process.env.NODE_ENV === 'production') {
+    // Servir arquivos estáticos da pasta public
+    app.use(express.static(path.join(__dirname, 'public')));
+
+    // Rota principal - página de login
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    });
+
+    // Rota de login
+    app.get('/login', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    });
+
+    // Rota do painel admin
+    app.get('/admin', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    });
+}
 
 // Error handling middleware (optional, but good practice)
 app.use((err, req, res, next) => {

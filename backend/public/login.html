@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <!-- Logo/Header -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-crown text-3xl text-purple-600"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-2">Painel Admin</h1>
+            <p class="text-white/80">Rifa Management System</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-white/80 text-sm font-medium mb-2">Email</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-white/60"></i>
+                    </div>
+                    <input type="email" id="email" required
+                           class="w-full pl-10 pr-3 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="admin@rifa.com">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-white/80 text-sm font-medium mb-2">Senha</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-white/60"></i>
+                    </div>
+                    <input type="password" id="password" required
+                           class="w-full pl-10 pr-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="••••••••">
+                    <button type="button" id="togglePassword" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <i class="fas fa-eye text-white/60 hover:text-white transition-colors"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="loginBtn"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Entrar
+            </button>
+        </form>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
+
+        <!-- Quick Access -->
+        <div class="mt-6 pt-6 border-t border-white/20">
+            <p class="text-center text-white/60 text-sm mb-3">Acesso Rápido</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="quickLogin()" 
+                        class="text-white/80 hover:text-white text-sm underline">
+                    Usar Admin Padrão
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = 'mt-4 p-3 rounded-lg text-sm font-medium';
+            
+            if (type === 'success') {
+                statusEl.classList.add('bg-green-500/20', 'text-green-200', 'border', 'border-green-500/30');
+            } else if (type === 'error') {
+                statusEl.classList.add('bg-red-500/20', 'text-red-200', 'border', 'border-red-500/30');
+            } else {
+                statusEl.classList.add('bg-blue-500/20', 'text-blue-200', 'border', 'border-blue-500/30');
+            }
+            
+            statusEl.textContent = message;
+            statusEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Quick login
+        function quickLogin() {
+            document.getElementById('email').value = 'admin@rifa.com';
+            document.getElementById('password').value = 'admin123';
+            showStatus('Credenciais preenchidas. Clique em Entrar.', 'info');
+        }
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Autenticando...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.user?.isAdmin) {
+                    showStatus('Login successful! Redirecionando...', 'success');
+                    // Store token
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminUser', JSON.stringify(data.user));
+                    
+                    // Redirect to admin panel
+                    setTimeout(() => {
+                        window.location.href = `${API_URL}/admin`;
+                    }, 1500);
+                } else if (response.ok && !data.user?.isAdmin) {
+                    showStatus('Acesso negado. Usuário não é administrador.', 'error');
+                } else {
+                    showStatus(data.message || 'Erro no login. Verifique suas credenciais.', 'error');
+                }
+            } catch (error) {
+                showStatus(`Erro de conexão: ${error.message}`, 'error');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Entrar';
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                showStatus('Você já está logado. Redirecionando...', 'info');
+                setTimeout(() => {
+                    window.location.href = `${API_URL}/admin`;
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>
