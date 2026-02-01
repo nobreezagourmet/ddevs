@@ -15,7 +15,7 @@ const app = express();
 
 // CORS middleware
 app.use(cors({
-    origin: ['https://ddevs-ds5v.onrender.com', 'http://localhost:3000', 'http://localhost:5173'],
+    origin: ['https://ddevs-86w2.onrender.com', 'http://localhost:3000', 'http://localhost:5173'],
     credentials: true
 }));
 
