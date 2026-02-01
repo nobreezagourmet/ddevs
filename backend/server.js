@@ -5,12 +5,19 @@ const userRoutes = require('./routes/userRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const path = require('path');
+const cors = require('cors');
 
 dotenv.config();
 
 connectDB();
 
 const app = express();
+
+// CORS middleware
+app.use(cors({
+    origin: ['https://ddevs-ds5v.onrender.com', 'http://localhost:3000', 'http://localhost:5173'],
+    credentials: true
+}));
 
 app.use((req, res, next) => {
     if (req.originalUrl === '/api/payment/webhook') {
