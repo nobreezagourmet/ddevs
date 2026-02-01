@@ -25,6 +25,7 @@ const createAdmin = async () => {
     const admin = new User({
       name: 'Administrador',
       email: 'admin@rifa.com',
+      phone: '11999999999', // Telefone obrigatório
       password: hashedPassword,
       isAdmin: true
     });
