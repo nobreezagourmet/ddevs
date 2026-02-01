@@ -60,10 +60,14 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Error handling middleware (optional, but good practice)
+// Error handling middleware - retorna JSON
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ 
+        success: false, 
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
 const PORT = process.env.PORT || 5000;
