@@ -111,8 +111,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
       console.error('ERRO COMPLETO:', error);
       console.error('URL FALHOU:', endpoint);
+      console.error('URL COMPLETA TENTADA:', error.config?.url || 'N/A');
+      console.error('BASE URL:', 'https://ddevs-86w2.onrender.com/api');
       
-      setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      if (error.message.includes('Unexpected token')) {
+        setError('Erro de comunicação com o servidor. Tente novamente.');
+      } else {
+        setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
