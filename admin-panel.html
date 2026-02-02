@@ -248,7 +248,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://ddevs-86w2.onrender.com/   ';
+        const API_URL = 'https://ddevs-86w2.onrender.com';
         let authToken = null;
         let currentUser = null;
 
@@ -285,10 +285,13 @@
                 });
 
                 const data = await response.json();
+                console.log('Login Response Data:', data);
 
-                if (response.ok) {
-                    authToken = data.token;
-                    currentUser = data.user;
+                if (response.ok && data.data && data.data.isAdmin) {
+                    authToken = data.data.token;
+                    currentUser = data.data;
+                    
+                    console.log('User is ADMIN:', currentUser.isAdmin);
                     
                     // Store token
                     localStorage.setItem('adminToken', authToken);
@@ -301,7 +304,7 @@
                     
                     showStatus('loginStatus', 'Login realizado com sucesso!', 'success');
                 } else {
-                    showStatus('loginStatus', data.message || 'Erro no login', 'error');
+                    showStatus('loginStatus', data.message || 'Acesso negado. Usuário não é administrador.', 'error');
                 }
             } catch (error) {
                 showStatus('loginStatus', `Erro de conexão: ${error.message}`, 'error');
@@ -329,6 +332,13 @@
             const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
             const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
             
+            console.log('=== DEBUG CREATE RAFFLE ===');
+            console.log('Title:', title);
+            console.log('Price Per Quota:', pricePerQuota);
+            console.log('Total Quotas:', totalQuotas);
+            console.log('Auth Token:', authToken ? 'Present' : 'Missing');
+            console.log('API URL:', API_URL);
+            
             if (!title || !pricePerQuota || !totalQuotas) {
                 showStatus('raffleStatus', 'Preencha todos os campos', 'error');
                 return;
@@ -344,7 +354,11 @@
                     body: JSON.stringify({ title, pricePerQuota, totalQuotas })
                 });
 
+                console.log('Response Status:', response.status);
+                console.log('Response OK:', response.ok);
+
                 const data = await response.json();
+                console.log('Response Data:', data);
 
                 if (response.ok) {
                     showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
