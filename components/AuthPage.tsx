@@ -84,7 +84,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       console.log('📡 RESPOSTA SERVIDOR:', response.status);
       console.log('🔗 ENDPOINT CHAMADO:', endpoint);
       
-      const data = await response.json();
+      const data = await response.json(); // api.post já retorna o JSON
 
       if (!response.ok) {
         throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');
@@ -94,14 +94,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         // Após registro bem-sucedido, tenta fazer login para obter o token
         console.log('🚀 CHAMANDO API LOGIN EM:', '/auth/login');
          const loginResponse = await api.post('/auth/login', { email, password });
-         const loginData = await loginResponse.json();
+         const loginData = await loginResponse.json(); // api.post já retorna o JSON
          if (!loginResponse.ok) {
              throw new Error(loginData.message || 'Falha ao fazer login após o registro.');
          }
-         onAuthSuccess(loginData.user, loginData.token);
+         onAuthSuccess(loginData.data, loginData.data.token);
 
       } else {
-        onAuthSuccess(data.user, data.token);
+        onAuthSuccess(data.data, data.data.token);
       }
 
     } catch (error) {

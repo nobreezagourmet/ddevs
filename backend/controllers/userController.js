@@ -12,9 +12,21 @@ const authUser = asyncHandler(async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user && (await user.matchPassword(password))) {
-            return res.status(200).json({ success: true });
+            return res.status(200).json({ 
+                success: true,
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: user.isAdmin,
+                    token: generateToken(user._id, user.isAdmin)
+                }
+            });
         } else {
-            return res.status(401).json({ success: false });
+            return res.status(401).json({ 
+                success: false,
+                message: 'Invalid credentials'
+            });
         }
     } catch (error) {
         return res.status(error.status || 500).json({ 
