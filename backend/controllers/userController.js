@@ -6,14 +6,21 @@ const User = require('../models/User');
 // @route   POST /api/auth/login
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+        const user = await User.findOne({ email });
 
-    if (user && (await user.matchPassword(password))) {
-        return res.status(200).json({ success: true });
-    } else {
-        return res.status(401).json({ success: false });
+        if (user && (await user.matchPassword(password))) {
+            return res.status(200).json({ success: true });
+        } else {
+            return res.status(401).json({ success: false });
+        }
+    } catch (error) {
+        return res.status(error.status || 500).json({ 
+            success: false, 
+            message: error.message || 'Authentication failed' 
+        });
     }
 });
 
@@ -21,40 +28,47 @@ const authUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, phone, password } = req.body;
+    try {
+        const { name, email, phone, password } = req.body;
 
-    const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ email });
 
-    if (userExists) {
-        return res.status(400).json({ 
-            success: false,
-            message: 'User already exists'
+        if (userExists) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'User already exists'
+            });
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            phone,
+            password,
         });
-    }
 
-    const user = await User.create({
-        name,
-        email,
-        phone,
-        password,
-    });
-
-    if (user) {
-        return res.status(201).json({ 
-            success: true,
-            message: 'User created successfully',
-            data: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id, user.isAdmin)
-            }
-        });
-    } else {
-        return res.status(400).json({ 
-            success: false,
-            message: 'Invalid user data'
+        if (user) {
+            return res.status(201).json({ 
+                success: true,
+                message: 'User created successfully',
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: user.isAdmin,
+                    token: generateToken(user._id, user.isAdmin)
+                }
+            });
+        } else {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid user data'
+            });
+        }
+    } catch (error) {
+        return res.status(error.status || 500).json({ 
+            success: false, 
+            message: error.message || 'Registration failed' 
         });
     }
 });

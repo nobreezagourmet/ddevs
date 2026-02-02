@@ -13,8 +13,21 @@ connectDB();
 
 const app = express();
 
-// JSON PARSER NO TOPO - ANTES DE TUDO
+// MIDDLEWARE ESSENCIAIS NO TOPO - ANTES DE TUDO
+app.use(require('cors')({ 
+    origin: [
+        'https://ddevss.vercel.app', // Frontend na Vercel - URL CORRETA
+        'https://ddevs-86w2.onrender.com', // Backend (painel admin)
+        'http://localhost:3000', 
+        'http://localhost:5173'
+    ], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
+}));
+
 app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
 
 // MIDDLEWARE DE LOG CRÍTICO - ACIMA DE TUDO
 app.use((req, res, next) => {
@@ -100,10 +113,13 @@ if (process.env.NODE_ENV === 'production') {
     // Servir arquivos estáticos da pasta public
     app.use(express.static(path.join(__dirname, 'public')));
 
-    // Rota principal - redireciona para /admin
+    // Rota principal - retorna JSON
     app.get('/', (req, res) => {
-        console.log('🔄 Redirecionando / para /admin');
-        res.redirect('/admin');
+        res.json({ 
+            success: true, 
+            message: 'API is running',
+            endpoints: ['/api/test', '/api/auth/login', '/api/auth/register']
+        });
     });
 
     // Rota de login
