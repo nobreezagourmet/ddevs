@@ -31,11 +31,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
 
       setPaymentStatus('PENDING');
       try {
+        // FORÇADO: URL manual completa
+        const manualUrl = 'https://ddevs-86w2.onrender.com/api/payment/create-order';
+        
         // DEBUG: Log da URL sendo chamada
-        console.log('🚀 CHAMANDO API PAYMENT EM:', API_ENDPOINTS.PAYMENT.CREATE_ORDER);
+        console.log('🚀 CHAMANDO API PAYMENT EM:', manualUrl);
         console.log('💾 BODY:', { raffleId, quantity });
         
-        const response = await fetch(API_ENDPOINTS.PAYMENT.CREATE_ORDER, {
+        const response = await fetch(manualUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

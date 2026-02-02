@@ -56,10 +56,13 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
       }
 
       try {
-        // DEBUG: Log da URL sendo chamada
-        console.log('🚀 CHAMANDO API MY-NUMBERS EM:', API_ENDPOINTS.PAYMENT.MY_NUMBERS);
+        // FORÇADO: URL manual completa
+        const manualUrl = 'https://ddevs-86w2.onrender.com/api/user/my-numbers';
         
-        const response = await fetch(API_ENDPOINTS.PAYMENT.MY_NUMBERS, {
+        // DEBUG: Log da URL sendo chamada
+        console.log('🚀 CHAMANDO API MY-NUMBERS EM:', manualUrl);
+        
+        const response = await fetch(manualUrl, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
         

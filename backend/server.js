@@ -100,9 +100,10 @@ if (process.env.NODE_ENV === 'production') {
     // Servir arquivos estáticos da pasta public
     app.use(express.static(path.join(__dirname, 'public')));
 
-    // Rota principal - página de login
+    // Rota principal - redireciona para /admin
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+        console.log('🔄 Redirecionando / para /admin');
+        res.redirect('/admin');
     });
 
     // Rota de login

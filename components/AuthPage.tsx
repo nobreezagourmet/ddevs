@@ -59,12 +59,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // DEBUG: Alert para confirmar clique
+    alert('Botão clicado! Função handleSubmit disparada!');
+    
     if (!validateForm()) return;
 
     setIsLoading(true);
     setError('');
 
-    const endpoint = mode === AuthMode.LOGIN ? API_ENDPOINTS.AUTH.LOGIN : API_ENDPOINTS.AUTH.REGISTER;
+    // FORÇADO: URL manual completa
+    const endpoint = mode === AuthMode.LOGIN 
+      ? 'https://ddevs-86w2.onrender.com/api/auth/login'
+      : 'https://ddevs-86w2.onrender.com/api/auth/register';
+    
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
     // DEBUG: Log da URL sendo chamada
@@ -87,8 +95,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
       if (mode === AuthMode.REGISTER) {
         // Após registro bem-sucedido, tenta fazer login para obter o token
-        console.log('🚀 CHAMANDO API LOGIN EM:', API_ENDPOINTS.AUTH.LOGIN);
-         const loginResponse = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        console.log('🚀 CHAMANDO API LOGIN EM:', 'https://ddevs-86w2.onrender.com/api/auth/login');
+         const loginResponse = await fetch('https://ddevs-86w2.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })

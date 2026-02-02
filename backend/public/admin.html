@@ -210,16 +210,22 @@
         document.getElementById('createRaffleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // DEBUG: Alert para confirmar clique
+            alert('Botão Criar Rifa clicado! Função disparada!');
+            
             const title = document.getElementById('raffleTitle').value;
             const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
             const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
 
             try {
+                // FORÇADO: URL manual completa
+                const manualUrl = 'https://ddevs-86w2.onrender.com/api/admin/create-raffle';
+                
                 // DEBUG: Log da URL sendo chamada
-                console.log('🚀 CHAMANDO API CREATE-RAFFLE EM:', `${API_URL}/api/admin/create-raffle`);
+                console.log('🚀 CHAMANDO API CREATE-RAFFLE EM:', manualUrl);
                 console.log('💾 BODY:', { title, pricePerQuota, totalQuotas });
                 
-                const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
+                const response = await fetch(manualUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
