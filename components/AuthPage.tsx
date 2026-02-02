@@ -75,12 +75,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
-    // DEBUG: Log da URL sendo chamada
-    console.log('🚀 CHAMANDO API EM:', endpoint);
-    console.log('📋 MÉTODO:', 'POST');
-    console.log('💾 PAYLOAD:', payload);
+    // --- TESTE DE ENVIO ---
+    console.log('--- TESTE DE ENVIO ---');
+    console.log('URL de Destino:', endpoint);
+    console.log('Dados enviados:', payload);
+    console.log('Método:', 'POST');
 
     try {
+      console.log('--- INICIANDO FETCH ---');
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,11 +119,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       }
 
     } catch (error) {
-      // DEBUG: Erro completo
-      console.error('❌ ERRO COMPLETO:', error);
-      console.error('🔗 URL FALHOU:', endpoint);
-      console.error('📋 STATUS:', error.response?.status);
-      console.error('📡 RESPOSTA:', error.response?.data);
+      // CAPTURA DE ERRO REAL
+      console.error('--- ERRO CAPTURADO ---');
+      console.error('STATUS DO ERRO:', error.response?.status);
+      console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
+      console.error('ERRO COMPLETO:', error);
+      console.error('URL FALHOU:', endpoint);
       
       setError(error.message || 'Ocorreu um erro. Tente novamente.');
     } finally {

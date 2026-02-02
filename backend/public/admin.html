@@ -216,14 +216,16 @@
             const title = document.getElementById('raffleTitle').value;
             const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
             const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
+            const manualUrl = 'https://ddevs-86w2.onrender.com/api/admin/create-raffle';
+
+            // --- TESTE DE ENVIO ---
+            console.log('--- TESTE DE ENVIO ---');
+            console.log('URL de Destino:', manualUrl);
+            console.log('Dados enviados:', { title, pricePerQuota, totalQuotas });
+            console.log('Token:', authToken ? 'Present' : 'Missing');
 
             try {
-                // FORÇADO: URL manual completa
-                const manualUrl = 'https://ddevs-86w2.onrender.com/api/admin/create-raffle';
-                
-                // DEBUG: Log da URL sendo chamada
-                console.log('🚀 CHAMANDO API CREATE-RAFFLE EM:', manualUrl);
-                console.log('💾 BODY:', { title, pricePerQuota, totalQuotas });
+                console.log('--- INICIANDO FETCH ---');
                 
                 const response = await fetch(manualUrl, {
                     method: 'POST',
@@ -248,11 +250,11 @@
                     showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
                 }
             } catch (error) {
-                // DEBUG: Erro completo
-                console.error('❌ ERRO COMPLETO:', error);
-                console.error('🔗 URL FALHOU:', manualUrl);
-                console.error('📋 STATUS:', error.response?.status);
-                console.error('📡 RESPOSTA:', error.response?.data);
+                // CAPTURA DE ERRO REAL
+                console.error('--- ERRO CAPTURADO ---');
+                console.error('STATUS DO ERRO:', error.response?.status);
+                console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
+                console.error('ERRO COMPLETO:', error);
                 
                 showStatus('raffleStatus', `Erro: ${error.message}`, 'error');
             }

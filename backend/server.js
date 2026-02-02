@@ -40,12 +40,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// CORS middleware - FORÇADO PARA TESTE
-app.use(cors({
-    origin: '*', // Wildcard para teste imediato
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With']
+// CORS RADICAL - Simplificado
+app.use(require('cors')({ 
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 
 app.use((req, res, next) => {
