@@ -75,6 +75,21 @@ app.get('/api/test', (req, res) => {
     });
 });
 
+// ROTA DE TESTE POST IDÊNTICA - SOBRESCREVENDO TEMPORARIAMENTE
+app.post('/api/admin/create-raffle', (req, res) => {
+    console.log('🧪 ROTA CREATE-RAFFLE TESTE ACIONADA!');
+    console.log('📋 BODY:', req.body);
+    console.log('🔗 HEADERS:', req.headers);
+    res.json({ 
+        ok: true, 
+        message: 'ROTA CREATE-RAFFLE FUNCIONANDO!',
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl,
+        body: req.body
+    });
+});
+
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
