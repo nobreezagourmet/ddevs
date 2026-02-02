@@ -73,6 +73,9 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// ROTA DE TESTE TEMPORÁRIA
+app.get('/api/test', (req, res) => res.json({ msg: 'Backend Online' }));
+
 // 404 handler FORÇADO para APIs - captura TUDO que não foi encontrado
 app.use('/api/*', (req, res) => {
     console.log('❌ 404 API não encontrada:', req.originalUrl);
