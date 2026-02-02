@@ -56,6 +56,9 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
       }
 
       try {
+        // DEBUG: Log da URL sendo chamada
+        console.log('🚀 CHAMANDO API MY-NUMBERS EM:', API_ENDPOINTS.PAYMENT.MY_NUMBERS);
+        
         const response = await fetch(API_ENDPOINTS.PAYMENT.MY_NUMBERS, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });

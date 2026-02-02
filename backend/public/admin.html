@@ -215,6 +215,10 @@
             const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
 
             try {
+                // DEBUG: Log da URL sendo chamada
+                console.log('🚀 CHAMANDO API CREATE-RAFFLE EM:', `${API_URL}/api/admin/create-raffle`);
+                console.log('💾 BODY:', { title, pricePerQuota, totalQuotas });
+                
                 const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
                     method: 'POST',
                     headers: {

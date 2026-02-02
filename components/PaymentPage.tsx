@@ -31,6 +31,10 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
 
       setPaymentStatus('PENDING');
       try {
+        // DEBUG: Log da URL sendo chamada
+        console.log('🚀 CHAMANDO API PAYMENT EM:', API_ENDPOINTS.PAYMENT.CREATE_ORDER);
+        console.log('💾 BODY:', { raffleId, quantity });
+        
         const response = await fetch(API_ENDPOINTS.PAYMENT.CREATE_ORDER, {
           method: 'POST',
           headers: {

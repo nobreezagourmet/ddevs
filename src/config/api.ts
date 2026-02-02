@@ -1,18 +1,18 @@
-// CONFIGURAÇÃO CENTRAL DA API - SEM VARIÁVEIS DINÂMICAS
+// CONFIGURAÇÃO CENTRAL DA API - URL MANUAL FIXA - SEM VARIÁVEIS
 export const API_URL = 'https://ddevs-86w2.onrender.com/api';
 
-// Constantes para endpoints
+// Constantes para endpoints - URL COMPLETA E FIXA
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: `${API_URL}/auth/login`,
-    REGISTER: `${API_URL}/auth/register`
+    LOGIN: 'https://ddevs-86w2.onrender.com/api/auth/login',
+    REGISTER: 'https://ddevs-86w2.onrender.com/api/auth/register'
   },
   ADMIN: {
-    CREATE_RAFFLE: `${API_URL}/admin/create-raffle`,
-    SWAP_QUOTA: `${API_URL}/admin/swap-quota`
+    CREATE_RAFFLE: 'https://ddevs-86w2.onrender.com/api/admin/create-raffle',
+    SWAP_QUOTA: 'https://ddevs-86w2.onrender.com/api/admin/swap-quota'
   },
   PAYMENT: {
-    CREATE_ORDER: `${API_URL}/payment/create-order`,
-    MY_NUMBERS: `${API_URL}/user/my-numbers`
+    CREATE_ORDER: 'https://ddevs-86w2.onrender.com/api/payment/create-order',
+    MY_NUMBERS: 'https://ddevs-86w2.onrender.com/api/user/my-numbers'
   }
 };
