@@ -204,11 +204,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pricePerQuota">Preço por Cota (R$):</label>
-                        <input type="number" id="pricePerQuota" placeholder="10.00" step="0.01" min="1">
+                        <input type="number" id="pricePerQuota" placeholder="10.00" step="0.01" min="0.01">
                     </div>
                     <div class="form-group">
                         <label for="totalQuotas">Total de Cotas:</label>
-                        <input type="number" id="totalQuotas" placeholder="100" min="1" max="10000">
+                        <input type="number" id="totalQuotas" placeholder="100" min="1" max="100000">
                     </div>
                     <button class="btn" onclick="createRaffle()">Criar Rifa</button>
                     <div id="raffleStatus"></div>

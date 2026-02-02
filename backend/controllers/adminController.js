@@ -66,17 +66,17 @@ const createRaffle = asyncHandler(async (req, res) => {
             });
         }
 
-        if (!pricePerQuota || isNaN(pricePerQuota) || parseFloat(pricePerQuota) <= 0) {
+        if (!pricePerQuota || isNaN(pricePerQuota) || parseFloat(pricePerQuota) < 0.01) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Preço por cota é obrigatório e deve ser maior que zero' 
+                message: 'O total de cotas é obrigatório, deve ser maior que zero e até 100.000. O valor unitário deve ser de no mínimo R$ 0,01.' 
             });
         }
 
-        if (!totalQuotas || isNaN(totalQuotas) || parseInt(totalQuotas) <= 0 || parseInt(totalQuotas) > 10000) {
+        if (!totalQuotas || isNaN(totalQuotas) || parseInt(totalQuotas) <= 0 || parseInt(totalQuotas) > 100000) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Total de cotas é obrigatório, deve ser maior que zero e menor que 10000' 
+                message: 'O total de cotas é obrigatório, deve ser maior que zero e até 100.000. O valor unitário deve ser de no mínimo R$ 0,01.' 
             });
         }
 
