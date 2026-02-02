@@ -56,16 +56,6 @@ app.use('/api/:path', (req, res) => {
 
 // Serve frontend em produção
 if (process.env.NODE_ENV === 'production') {
-    // 404 handler geral - apenas para rotas não-API
-    app.use((req, res) => {
-        res.status(404).json({ 
-            success: false, 
-            message: 'Route not found',
-            path: req.originalUrl,
-            method: req.method
-        });
-    });
-
     // Servir arquivos estáticos da pasta public
     app.use(express.static(path.join(__dirname, 'public')));
 
@@ -82,6 +72,16 @@ if (process.env.NODE_ENV === 'production') {
     // Rota do painel admin
     app.get('/admin', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    });
+
+    // 404 handler geral - apenas para rotas não-API e não-estáticas
+    app.use((req, res) => {
+        res.status(404).json({ 
+            success: false, 
+            message: 'Route not found',
+            path: req.originalUrl,
+            method: req.method
+        });
     });
 }
 
