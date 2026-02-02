@@ -359,15 +359,15 @@
         // Create raffle function
         async function createRaffle() {
             const title = document.getElementById('raffleTitle').value;
-            const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
-            const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
+            const pricePerQuota = document.getElementById('pricePerQuota').value;  // Manter como string
+            const totalQuotas = document.getElementById('totalQuotas').value;      // Manter como string
             const quickSelectPackages = document.getElementById('quickSelectPackages').value;
             const imageFile = document.getElementById('raffleImage').files[0];
             
             console.log('=== DEBUG CREATE RAFFLE ===');
             console.log('Title:', title);
-            console.log('Price Per Quota:', pricePerQuota);
-            console.log('Total Quotas:', totalQuotas);
+            console.log('Price Per Quota (string):', pricePerQuota);
+            console.log('Total Quotas (string):', totalQuotas);
             console.log('Quick Select Packages:', quickSelectPackages);
             console.log('Image File:', imageFile ? imageFile.name : 'No image');
             console.log('Auth Token:', authToken ? 'Present' : 'Missing');
@@ -378,17 +378,31 @@
                 return;
             }
 
+            // Validar valores no frontend antes de enviar
+            const priceNum = parseFloat(pricePerQuota);
+            const quotasNum = parseInt(totalQuotas);
+            
+            if (isNaN(priceNum) || priceNum < 0.01) {
+                showStatus('raffleStatus', 'Preço por cota deve ser no mínimo R$ 0,01', 'error');
+                return;
+            }
+            
+            if (isNaN(quotasNum) || quotasNum <= 0 || quotasNum > 100000) {
+                showStatus('raffleStatus', 'Total de cotas deve ser entre 1 e 100.000', 'error');
+                return;
+            }
+
             // Processar pacotes
             let packages = [];
             if (quickSelectPackages) {
-                packages = quickSelectPackages.split(',').map(p => parseInt(p.trim())).filter(p => p > 0 && p <= totalQuotas);
+                packages = quickSelectPackages.split(',').map(p => parseInt(p.trim())).filter(p => p > 0 && p <= quotasNum);
             }
 
-            // Criar FormData para upload
+            // Criar FormData para upload (enviar como strings)
             const formData = new FormData();
             formData.append('title', title);
-            formData.append('pricePerQuota', pricePerQuota);
-            formData.append('totalQuotas', totalQuotas);
+            formData.append('pricePerQuota', pricePerQuota);  // Enviar como string
+            formData.append('totalQuotas', totalQuotas);        // Enviar como string
             formData.append('quickSelectPackages', JSON.stringify(packages));
             
             if (imageFile) {

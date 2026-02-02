@@ -57,14 +57,22 @@ const swapQuota = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const createRaffle = asyncHandler(async (req, res) => {
     try {
-        console.log('=== DEBUG BACKEND CREATE RAFFLE ===');
-        console.log('req.body:', req.body);
-        console.log('req.file:', req.file);
-
+        console.log('=== AUDITORIA BACKEND CREATE RAFFLE ===');
+        console.log('req.body:', JSON.stringify(req.body, null, 2));
+        console.log('req.file:', req.file ? req.file.filename : 'No file');
+        console.log('Content-Type:', req.get('Content-Type'));
+        
         const { title, pricePerQuota, totalQuotas, quickSelectPackages } = req.body;
+        
+        console.log('=== VARIÁVEIS EXTRAÍDAS ===');
+        console.log('title:', title, '(tipo:', typeof title, ')');
+        console.log('pricePerQuota:', pricePerQuota, '(tipo:', typeof pricePerQuota, ')');
+        console.log('totalQuotas:', totalQuotas, '(tipo:', typeof totalQuotas, ')');
+        console.log('quickSelectPackages:', quickSelectPackages, '(tipo:', typeof quickSelectPackages, ')');
 
         // VALIDAÇÃO DETALHADA
         if (!title || typeof title !== 'string' || title.trim().length === 0) {
+            console.log('❌ ERRO: Título inválido');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Título da rifa é obrigatório e deve ser um texto válido' 
@@ -74,8 +82,13 @@ const createRaffle = asyncHandler(async (req, res) => {
         // Converter para número se for string (FormData)
         const priceNum = typeof pricePerQuota === 'string' ? parseFloat(pricePerQuota) : pricePerQuota;
         const quotasNum = typeof totalQuotas === 'string' ? parseInt(totalQuotas) : totalQuotas;
+        
+        console.log('=== APÓS CONVERSÃO ===');
+        console.log('priceNum:', priceNum, '(tipo:', typeof priceNum, ')');
+        console.log('quotasNum:', quotasNum, '(tipo:', typeof quotasNum, ')');
 
         if (!pricePerQuota || isNaN(priceNum) || priceNum < 0.01) {
+            console.log('❌ ERRO: Preço inválido - pricePerQuota:', pricePerQuota, 'priceNum:', priceNum);
             return res.status(400).json({ 
                 success: false, 
                 message: 'Preço por cota é obrigatório e deve ser no mínimo R$ 0,01' 
@@ -83,11 +96,14 @@ const createRaffle = asyncHandler(async (req, res) => {
         }
 
         if (!totalQuotas || isNaN(quotasNum) || quotasNum <= 0 || quotasNum > 100000) {
+            console.log('❌ ERRO: Total de cotas inválido - totalQuotas:', totalQuotas, 'quotasNum:', quotasNum);
             return res.status(400).json({ 
                 success: false, 
                 message: 'Total de cotas é obrigatório, deve ser maior que zero e no máximo 100.000' 
             });
         }
+        
+        console.log('✅ VALIDAÇÃO PASSOU - Prosseguindo com criação...');
 
         // Processar pacotes de seleção rápida
         let packages = [];
@@ -100,7 +116,7 @@ const createRaffle = asyncHandler(async (req, res) => {
                 // Validar pacotes
                 packages = packages.filter(pkg => {
                     const num = parseInt(pkg);
-                    return num > 0 && num <= parseInt(totalQuotas);
+                    return num > 0 && num <= quotasNum;
                 });
 
                 // Remover duplicados e ordenar
