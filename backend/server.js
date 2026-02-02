@@ -13,6 +13,9 @@ connectDB();
 
 const app = express();
 
+// JSON PARSER NO TOPO - ANTES DE TUDO
+app.use(express.json());
+
 // MIDDLEWARE DE LOG CRÍTICO - ACIMA DE TUDO
 app.use((req, res, next) => {
     console.log('🚨 REQ RECEBIDA:', req.method, req.url);
@@ -64,28 +67,6 @@ app.use((req, res, next) => {
     } else {
         next();
     }
-});
-
-app.use(express.json());
-
-// ROTA DE TESTE FORÇADA - SEM MIDDLEWARE
-app.post('/api/admin/create-raffle', (req, res) => {
-    console.log('🧪 ROTA CREATE-RAFFLE FORÇADA ACIONADA!');
-    console.log('📋 BODY:', req.body);
-    console.log('🔗 HEADERS:', req.headers);
-    
-    // SIMULAR SUCESSO IMEDIATO
-    res.status(201).json({ 
-        success: true, 
-        message: 'Rifa criada com sucesso (TESTE FORÇADO)!',
-        data: {
-            _id: 'test_' + Date.now(),
-            title: req.body.title || 'Teste',
-            pricePerQuota: req.body.pricePerQuota || 10,
-            totalQuotas: req.body.totalQuotas || 100,
-            isActive: false
-        }
-    });
 });
 
 app.use('/api/auth', userRoutes);

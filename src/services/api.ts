@@ -15,6 +15,7 @@ class ApiClient {
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json', // FORÇAR JSON
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
