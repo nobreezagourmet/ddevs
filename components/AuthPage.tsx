@@ -106,6 +106,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       }
 
     } catch (error) {
+      // ALERTA PARA DEBUG
+      alert(JSON.stringify(error));
+      
       // CAPTURA DE ERRO REAL
       console.error('--- ERRO CAPTURADO ---');
       console.error('STATUS DO ERRO:', error.response?.status);
