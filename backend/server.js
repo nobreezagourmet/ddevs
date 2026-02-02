@@ -6,12 +6,16 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const path = require('path');
 const cors = require('cors');
+const { configureUploads } = require('./middleware/uploadMiddleware');
 
 dotenv.config();
 
 connectDB();
 
 const app = express();
+
+// Configurar uploads ANTES de outros middlewares
+configureUploads(app);
 
 // MIDDLEWARE NO TOPO ABSOLUTO
 app.use(express.json());

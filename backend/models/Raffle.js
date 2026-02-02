@@ -4,15 +4,19 @@ const raffleSchema = mongoose.Schema({
     title: {
         type: String,
         required: true,
+        trim: true,
     },
     pricePerQuota: {
         type: Number,
         required: true,
+        min: 0.01,
         default: 0,
     },
     totalQuotas: {
         type: Number,
         required: true,
+        min: 1,
+        max: 100000,
         default: 0,
     },
     isActive: {
@@ -20,6 +24,19 @@ const raffleSchema = mongoose.Schema({
         required: true,
         default: false,
     },
+    imageUrl: {
+        type: String,
+        default: null,
+    },
+    imageFileName: {
+        type: String,
+        default: null,
+    },
+    quickSelectPackages: [{
+        type: Number,
+        min: 1,
+        max: 100000,
+    }],
 }, {
     timestamps: true,
 });

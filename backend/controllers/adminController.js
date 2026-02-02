@@ -51,12 +51,12 @@ const swapQuota = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Create a new raffle
+// @desc    Create a new raffle with image upload
 // @route   POST /api/admin/create-raffle
 // @access  Private/Admin
 const createRaffle = asyncHandler(async (req, res) => {
     try {
-        const { title, pricePerQuota, totalQuotas } = req.body;
+        const { title, pricePerQuota, totalQuotas, quickSelectPackages } = req.body;
 
         // VALIDAÇÃO DETALHADA
         if (!title || typeof title !== 'string' || title.trim().length === 0) {
@@ -80,19 +80,55 @@ const createRaffle = asyncHandler(async (req, res) => {
             });
         }
 
+        // Processar pacotes de seleção rápida
+        let packages = [];
+        if (quickSelectPackages) {
+            try {
+                packages = Array.isArray(quickSelectPackages) 
+                    ? quickSelectPackages 
+                    : JSON.parse(quickSelectPackages);
+                
+                // Validar pacotes
+                packages = packages.filter(pkg => {
+                    const num = parseInt(pkg);
+                    return num > 0 && num <= parseInt(totalQuotas);
+                });
+
+                // Remover duplicados e ordenar
+                packages = [...new Set(packages)].sort((a, b) => a - b);
+            } catch (error) {
+                console.warn('Erro ao processar pacotes:', error.message);
+                packages = [10, 50, 100, 500]; // Padrão
+            }
+        } else {
+            packages = [10, 50, 100, 500]; // Padrão
+        }
+
+        // Filtrar pacotes que não excedem o total de cotas
+        packages = packages.filter(pkg => pkg <= parseInt(totalQuotas));
+
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
-            console.log(' Criando raffle:', { title, pricePerQuota, totalQuotas });
+            console.log(' Criando raffle:', { title, pricePerQuota, totalQuotas, packages });
             
-            const raffle = await Raffle.create([{
+            // Construir objeto da rifa
+            const raffleData = {
                 title: title.trim(),
                 pricePerQuota: parseFloat(pricePerQuota),
                 totalQuotas: parseInt(totalQuotas),
                 isActive: false,
-            }], { session });
+                quickSelectPackages: packages,
+            };
 
+            // Adicionar informações da imagem se existir
+            if (req.file) {
+                raffleData.imageUrl = `/uploads/${req.file.filename}`;
+                raffleData.imageFileName = req.file.filename;
+            }
+            
+            const raffle = await Raffle.create([raffleData], { session });
             const createdRaffle = raffle[0];
             console.log(' Raffle criado:', createdRaffle._id);
 
@@ -113,11 +149,24 @@ const createRaffle = asyncHandler(async (req, res) => {
             await session.commitTransaction();
             session.endSession();
 
-            return res.status(201).json({ success: true, message: 'Rifa criada!' });
+            return res.status(201).json({ 
+                success: true, 
+                message: 'Rifa criada com sucesso!',
+                data: {
+                    ...createdRaffle.toObject(),
+                    imageUrl: createdRaffle.imageUrl ? `${req.protocol}://${req.get('host')}${createdRaffle.imageUrl}` : null
+                }
+            });
 
         } catch (error) {
             await session.abortTransaction();
             session.endSession();
+            
+            // Deletar imagem se houver erro
+            if (req.file) {
+                deleteImage(req.file.filename);
+            }
+            
             throw error;
         }
     } catch (error) {
@@ -128,4 +177,68 @@ const createRaffle = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { swapQuota, createRaffle };
+// @desc    Get all raffles
+// @route   GET /api/admin/raffles
+// @access  Private/Admin
+const getRaffles = asyncHandler(async (req, res) => {
+    try {
+        const raffles = await Raffle.find({}).sort({ createdAt: -1 });
+        
+        const rafflesWithImageUrl = raffles.map(raffle => ({
+            ...raffle.toObject(),
+            imageUrl: raffle.imageUrl ? `${req.protocol}://${req.get('host')}${raffle.imageUrl}` : null
+        }));
+
+        return res.status(200).json({
+            success: true,
+            data: rafflesWithImageUrl
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to fetch raffles'
+        });
+    }
+});
+
+// @desc    Get single raffle
+// @route   GET /api/admin/raffle/:id
+// @access  Private/Admin
+const getRaffle = asyncHandler(async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID de rifa inválido'
+            });
+        }
+
+        const raffle = await Raffle.findById(id);
+        
+        if (!raffle) {
+            return res.status(404).json({
+                success: false,
+                message: 'Rifa não encontrada'
+            });
+        }
+
+        const raffleWithImageUrl = {
+            ...raffle.toObject(),
+            imageUrl: raffle.imageUrl ? `${req.protocol}://${req.get('host')}${raffle.imageUrl}` : null
+        };
+
+        return res.status(200).json({
+            success: true,
+            data: raffleWithImageUrl
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to fetch raffle'
+        });
+    }
+});
+
+module.exports = { swapQuota, createRaffle, deleteRaffle, getRaffles, getRaffle };
