@@ -135,44 +135,60 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
-            
-            // Show loading state
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Autenticando...';
-            
-            try {
-                const response = await fetch(`${API_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password })
-                });
 
-                const data = await response.json();
-
-                if (response.ok && data.user?.isAdmin) {
-                    showStatus('Login successful! Redirecionando...', 'success');
-                    // Store token
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('adminUser', JSON.stringify(data.user));
+            // Login function with retry
+            async function login(email, password) {
+                const statusEl = document.getElementById('statusMessage');
+                
+                try {
+                    showStatus('Autenticando...', 'info');
                     
-                    // Redirect to admin panel
-                    setTimeout(() => {
-                        window.location.href = `${API_URL}/admin`;
-                    }, 1500);
-                } else if (response.ok && !data.user?.isAdmin) {
-                    showStatus('Acesso negado. Usuário não é administrador.', 'error');
-                } else {
-                    showStatus(data.message || 'Erro no login. Verifique suas credenciais.', 'error');
+                    const response = await fetch(`${API_URL}/api/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success !== false) {
+                        // Salvar token e usuário
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminUser', JSON.stringify({
+                            _id: data._id,
+                            name: data.name,
+                            email: data.email,
+                            isAdmin: data.isAdmin
+                        }));
+                        
+                        showStatus('Login successful! Redirecting...', 'success');
+                        
+                        // Redirecionar para painel admin
+                        setTimeout(() => {
+                            window.location.href = `${API_URL}/admin`;
+                        }, 1000);
+                    } else {
+                        // Se for erro de timeout, tentar novamente
+                        if (data.retry) {
+                            showStatus('Connection timeout. Retrying...', 'warning');
+                            setTimeout(() => login(email, password), 2000);
+                        } else {
+                            showStatus(data.message || 'Login failed', 'error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showStatus('Connection error. Please try again.', 'error');
                 }
-            } catch (error) {
-                showStatus(`Erro de conexão: ${error.message}`, 'error');
-            } finally {
+            }
+
+            login(email, password).finally(() => {
                 // Reset button state
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Entrar';
-            }
+            });
         });
 
         // Check if already logged in

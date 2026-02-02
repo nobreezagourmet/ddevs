@@ -60,14 +60,31 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Error handling middleware - retorna JSON
+// Error handling middleware - retorna JSON com retry info
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ 
-        success: false, 
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    console.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString(),
+        url: req.originalUrl,
+        method: req.method
     });
+    
+    // Se for erro de timeout do MongoDB
+    if (err.message.includes('buffering timed out') || err.message.includes('server selection timeout')) {
+        res.status(503).json({ 
+            success: false, 
+            message: 'Database connection timeout. Please try again.',
+            retry: true,
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    } else {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error',
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
 const PORT = process.env.PORT || 5000;
