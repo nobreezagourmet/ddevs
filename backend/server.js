@@ -113,13 +113,9 @@ if (process.env.NODE_ENV === 'production') {
     // Servir arquivos estáticos da pasta public
     app.use(express.static(path.join(__dirname, 'public')));
 
-    // Rota principal - retorna JSON
+    // Rota principal - redireciona para frontend
     app.get('/', (req, res) => {
-        res.json({ 
-            success: true, 
-            message: 'API is running',
-            endpoints: ['/api/test', '/api/auth/login', '/api/auth/register']
-        });
+        res.redirect('https://ddevss.vercel.app');
     });
 
     // Rota de login

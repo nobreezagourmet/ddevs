@@ -60,9 +60,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // DEBUG: Alert para confirmar clique
-    alert('Botão clicado! Função handleSubmit disparada!');
-    
     if (!validateForm()) return;
 
     setIsLoading(true);
