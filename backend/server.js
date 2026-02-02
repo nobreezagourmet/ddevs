@@ -4,7 +4,6 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const path = require('path');
 const cors = require('cors');
 
 dotenv.config();
@@ -86,6 +85,13 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// ROTA RAIZ LIMPA - APENAS INFO DA API
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'API operando. Use o frontend em https://ddevss.vercel.app' 
+    });
+});
+
 // ROTA DE TESTE TEMPORÁRIA
 app.get('/api/test', (req, res) => res.json({ msg: 'Backend Online' }));
 
@@ -107,37 +113,6 @@ app.use('/api/*', (req, res) => {
         ]
     });
 });
-
-// Serve frontend em produção
-if (process.env.NODE_ENV === 'production') {
-    // Servir arquivos estáticos da pasta public
-    app.use(express.static(path.join(__dirname, 'public')));
-
-    // Rota principal - redireciona para frontend
-    app.get('/', (req, res) => {
-        res.redirect('https://ddevss.vercel.app');
-    });
-
-    // Rota de login
-    app.get('/login', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
-    });
-
-    // Rota do painel admin
-    app.get('/admin', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-    });
-
-    // 404 handler geral - apenas para rotas não-API e não-estáticas
-    app.use((req, res) => {
-        res.status(404).json({ 
-            success: false, 
-            message: 'Route not found',
-            path: req.originalUrl,
-            method: req.method
-        });
-    });
-}
 
 // Error handling middleware - retorna JSON com retry info
 app.use((err, req, res, next) => {
