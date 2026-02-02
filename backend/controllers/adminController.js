@@ -57,6 +57,10 @@ const swapQuota = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const createRaffle = asyncHandler(async (req, res) => {
     try {
+        console.log('=== DEBUG BACKEND CREATE RAFFLE ===');
+        console.log('req.body:', req.body);
+        console.log('req.file:', req.file);
+
         const { title, pricePerQuota, totalQuotas, quickSelectPackages } = req.body;
 
         // VALIDAÇÃO DETALHADA
@@ -67,17 +71,21 @@ const createRaffle = asyncHandler(async (req, res) => {
             });
         }
 
-        if (!pricePerQuota || isNaN(pricePerQuota) || parseFloat(pricePerQuota) < 0.01) {
+        // Converter para número se for string (FormData)
+        const priceNum = typeof pricePerQuota === 'string' ? parseFloat(pricePerQuota) : pricePerQuota;
+        const quotasNum = typeof totalQuotas === 'string' ? parseInt(totalQuotas) : totalQuotas;
+
+        if (!pricePerQuota || isNaN(priceNum) || priceNum < 0.01) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'O total de cotas é obrigatório, deve ser maior que zero e até 100.000. O valor unitário deve ser de no mínimo R$ 0,01.' 
+                message: 'Preço por cota é obrigatório e deve ser no mínimo R$ 0,01' 
             });
         }
 
-        if (!totalQuotas || isNaN(totalQuotas) || parseInt(totalQuotas) <= 0 || parseInt(totalQuotas) > 100000) {
+        if (!totalQuotas || isNaN(quotasNum) || quotasNum <= 0 || quotasNum > 100000) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'O total de cotas é obrigatório, deve ser maior que zero e até 100.000. O valor unitário deve ser de no mínimo R$ 0,01.' 
+                message: 'Total de cotas é obrigatório, deve ser maior que zero e no máximo 100.000' 
             });
         }
 
@@ -106,7 +114,7 @@ const createRaffle = asyncHandler(async (req, res) => {
         }
 
         // Filtrar pacotes que não excedem o total de cotas
-        packages = packages.filter(pkg => pkg <= parseInt(totalQuotas));
+        packages = packages.filter(pkg => pkg <= quotasNum);
 
         const session = await mongoose.startSession();
         session.startTransaction();
@@ -117,8 +125,8 @@ const createRaffle = asyncHandler(async (req, res) => {
             // Construir objeto da rifa
             const raffleData = {
                 title: title.trim(),
-                pricePerQuota: parseFloat(pricePerQuota),
-                totalQuotas: parseInt(totalQuotas),
+                pricePerQuota: priceNum,
+                totalQuotas: quotasNum,
                 isActive: false,
                 quickSelectPackages: packages,
             };
@@ -135,10 +143,10 @@ const createRaffle = asyncHandler(async (req, res) => {
 
             // Generate quotas for the new raffle
             const quotas = [];
-            for (let i = 1; i <= parseInt(totalQuotas); i++) {
+            for (let i = 1; i <= quotasNum; i++) {
                 quotas.push({
                     raffleId: createdRaffle._id,
-                    number: String(i).padStart(String(totalQuotas).length, '0'),
+                    number: String(i).padStart(String(quotasNum).length, '0'),
                     status: 'available',
                 });
             }
