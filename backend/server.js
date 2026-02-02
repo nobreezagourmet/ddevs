@@ -45,7 +45,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
 // 404 handler para APIs - retorna JSON em vez de HTML
-app.use('/api/(.*)', (req, res) => {
+app.use('/api/:path', (req, res) => {
     res.status(404).json({ 
         success: false, 
         message: 'API route not found',
