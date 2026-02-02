@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Rifa - Versão Final</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; font-size: 28px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; font-size: 16px; }
+        input, button { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        input:focus { border-color: #27ae60; outline: none; box-shadow: 0 0 10px rgba(39, 174, 96, 0.2); }
+        button { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border: none; cursor: pointer; font-weight: bold; font-size: 18px; transition: all 0.3s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3); }
+        .status { margin-top: 20px; padding: 15px; border-radius: 10px; font-weight: bold; text-align: center; }
+        .success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 2px solid #bee5eb; }
+        .image-preview { margin-top: 10px; max-width: 100%; max-height: 200px; border-radius: 10px; border: 3px solid #27ae60; display: none; }
+        .required { color: #e74c3c; }
+        .highlight { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #27ae60; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 CRIAR RIFA - VERSÃO FINAL</h1>
+        
+        <div class="highlight">
+            <strong>📋 INSTRUÇÕES:</strong><br>
+            1️⃣ Preencha o título da rifa<br>
+            2️⃣ Selecione uma imagem (OBRIGATÓRIO)<br>
+            3️⃣ Defina o preço por cota<br>
+            4️⃣ Defina o total de cotas<br>
+            5️⃣ Pacotes já configurados: 10, 50, 100, 500
+        </div>
+
+        <form id="raffleForm" onsubmit="return false;">
+            <!-- TÍTULO -->
+            <div class="form-group">
+                <label for="title">📝 Título da Rifa <span class="required">*</span></label>
+                <input type="text" id="title" placeholder="Ex: Rifa de Premiação Especial" required>
+            </div>
+            
+            <!-- IMAGEM -->
+            <div class="form-group">
+                <label for="image">🖼️ Imagem da Rifa <span class="required">*</span></label>
+                <input type="file" id="image" accept="image/*" required onchange="previewImage(event)">
+                <img id="imagePreview" class="image-preview" alt="Preview da imagem">
+                <small style="color: #e74c3c; font-weight: bold;">⚠️ Imagem obrigatória</small>
+            </div>
+            
+            <!-- PREÇO -->
+            <div class="form-group">
+                <label for="price">💰 Preço por Cota (R$) <span class="required">*</span></label>
+                <input type="number" id="price" placeholder="10.00" step="0.01" min="0.01" value="10.00" required>
+                <small style="color: #666;">Valor mínimo: R$ 0,01</small>
+            </div>
+            
+            <!-- TOTAL DE COTAS -->
+            <div class="form-group">
+                <label for="quotas">🎟️ Total de Cotas <span class="required">*</span></label>
+                <input type="number" id="quotas" placeholder="1000" min="1" max="100000" value="1000" required>
+                <small style="color: #666;">Mínimo: 1 | Máximo: 100.000</small>
+            </div>
+            
+            <!-- PACOTES (ESCONDIDO) -->
+            <input type="hidden" id="packages" value="10, 50, 100, 500">
+            
+            <!-- BOTÃO -->
+            <button type="button" onclick="createRaffle()">🚀 CRIAR RIFA AGORA</button>
+        </form>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://ddevs-86w2.onrender.com';
+        let authToken = localStorage.getItem('adminToken');
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function createRaffle() {
+            const title = document.getElementById('title').value;
+            const price = document.getElementById('price').value;
+            const quotas = document.getElementById('quotas').value;
+            const packages = document.getElementById('packages').value;
+            const imageFile = document.getElementById('image').files[0];
+            
+            // VALIDAÇÃO
+            if (!title || !price || !quotas || !imageFile) {
+                showStatus('❌ Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            if (!authToken) {
+                showStatus('❌ Faça login primeiro!', 'error');
+                return;
+            }
+
+            showStatus('🔄 Enviando...', 'info');
+
+            try {
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('pricePerQuota', price);
+                formData.append('totalQuotas', quotas);
+                formData.append('quickSelectPackages', JSON.stringify([10, 50, 100, 500]));
+                formData.append('image', imageFile);
+
+                const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showStatus('✅ RIFA CRIADA COM SUCESSO!', 'success');
+                    // Limpar formulário
+                    document.getElementById('raffleForm').reset();
+                    document.getElementById('imagePreview').style.display = 'none';
+                } else {
+                    showStatus(`❌ ERRO: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ ERRO: ${error.message}`, 'error');
+            }
+        }
+
+        // Verificar login ao carregar
+        window.onload = function() {
+            if (!authToken) {
+                showStatus('⚠️ Você precisa estar logado como administrador!', 'error');
+            } else {
+                showStatus('✅ Administrador logado! Pode criar rifas.', 'success');
+            }
+        };
+    </script>
+</body>
+</html>
