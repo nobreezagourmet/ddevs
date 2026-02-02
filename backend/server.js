@@ -40,9 +40,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// CORS RADICAL - Simplificado
+// CORS RADICAL - URL VERCEL CORRIGIDA
 app.use(require('cors')({ 
-    origin: '*', 
+    origin: [
+        'https://ddevs.vercel.app', // Frontend na Vercel - URL CORRETA
+        'https://ddevs-86w2.onrender.com', // Backend (painel admin)
+        'http://localhost:3000', 
+        'http://localhost:5173'
+    ], 
     methods: ['GET', 'POST', 'PUT', 'DELETE'], 
     allowedHeaders: ['Content-Type', 'Authorization'] 
 }));

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import { API_URLS } from '../src/config/api';
+import api from '../src/services/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
@@ -68,31 +68,24 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // FORÇADO: URLs manuais diretas
-    const endpoint = mode === AuthMode.LOGIN 
-      ? API_URLS.LOGIN
-      : API_URLS.REGISTER;
-    
+    // FORÇADO: API global com endpoints relativos
+    const endpoint = mode === AuthMode.LOGIN ? '/auth/login' : '/auth/register';
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
     // --- TESTE DE ENVIO ---
     console.log('--- TESTE DE ENVIO ---');
-    console.log('URL de Destino:', endpoint);
+    console.log('Endpoint:', endpoint);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
 
     try {
-      console.log('--- INICIANDO FETCH ---');
+      console.log('--- INICIANDO FETCH COM API GLOBAL ---');
       
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const response = await api.post(endpoint, payload);
 
-      // DEBUG: Mostrar resposta completa antes de JSON
-      console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
-      console.log('🔗 URL CHAMADA:', endpoint);
+      // DEBUG: Mostrar resposta completa
+      console.log('📡 RESPOSTA SERVIDOR:', response.status);
+      console.log('🔗 ENDPOINT CHAMADO:', endpoint);
       
       const data = await response.json();
 
@@ -102,12 +95,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
       if (mode === AuthMode.REGISTER) {
         // Após registro bem-sucedido, tenta fazer login para obter o token
-        console.log('🚀 CHAMANDO API LOGIN EM:', API_URLS.LOGIN);
-         const loginResponse = await fetch(API_URLS.LOGIN, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-         });
+        console.log('🚀 CHAMANDO API LOGIN EM:', '/auth/login');
+         const loginResponse = await api.post('/auth/login', { email, password });
          const loginData = await loginResponse.json();
          if (!loginResponse.ok) {
              throw new Error(loginData.message || 'Falha ao fazer login após o registro.');

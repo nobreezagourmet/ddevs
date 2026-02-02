@@ -157,8 +157,48 @@
     </div>
 
     <script>
-        const API_URL = 'https://ddevs-86w2.onrender.com';
-        let authToken = localStorage.getItem('adminToken');
+        // CONFIGURAÇÃO GLOBAL MANUAL - FETCH NATIVO
+        const API_BASE_URL = 'https://ddevs-86w2.onrender.com/api';
+
+        class ApiClient {
+            constructor(baseURL) {
+                this.baseURL = baseURL;
+            }
+
+            async request(endpoint, options = {}) {
+                const token = localStorage.getItem('authToken');
+                const url = `${this.baseURL}${endpoint}`;
+                
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token && { Authorization: `Bearer ${token}` }),
+                        ...options.headers,
+                    },
+                    ...options,
+                };
+
+                const response = await fetch(url, config);
+                return response;
+            }
+
+            async post(endpoint, data) {
+                return this.request(endpoint, {
+                    method: 'POST',
+                    body: data ? JSON.stringify(data) : undefined,
+                });
+            }
+
+            async get(endpoint) {
+                return this.request(endpoint, {
+                    method: 'GET',
+                });
+            }
+        }
+
+        const api = new ApiClient(API_BASE_URL);
+
+        let authToken = localStorage.getItem('authToken');
         let currentUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
 
         // Check authentication
@@ -216,29 +256,21 @@
             const title = document.getElementById('raffleTitle').value;
             const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
             const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
-            const manualUrl = 'https://ddevs-86w2.onrender.com/api/admin/create-raffle';
 
             // --- TESTE DE ENVIO ---
             console.log('--- TESTE DE ENVIO ---');
-            console.log('URL de Destino:', manualUrl);
+            console.log('Endpoint:', '/admin/create-raffle');
             console.log('Dados enviados:', { title, pricePerQuota, totalQuotas });
             console.log('Token:', authToken ? 'Present' : 'Missing');
 
             try {
-                console.log('--- INICIANDO FETCH ---');
+                console.log('--- INICIANDO FETCH COM API GLOBAL ---');
                 
-                const response = await fetch(manualUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify({ title, pricePerQuota, totalQuotas })
-                });
+                const response = await api.post('/admin/create-raffle', { title, pricePerQuota, totalQuotas });
 
                 // DEBUG: Mostrar resposta completa
-                console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
-                console.log('🔗 URL CHAMADA:', manualUrl);
+                console.log('📡 RESPOSTA SERVIDOR:', response.status);
+                console.log('🔗 ENDPOINT CHAMADO:', '/admin/create-raffle');
 
                 const data = await response.json();
 
