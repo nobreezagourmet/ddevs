@@ -13,6 +13,15 @@ connectDB();
 
 const app = express();
 
+// MIDDLEWARE DE LOG CRÍTICO - ACIMA DE TUDO
+app.use((req, res, next) => {
+    console.log('🚨 REQ RECEBIDA:', req.method, req.url);
+    console.log('🌐 ORIGEM:', req.headers.origin);
+    console.log('📋 PATH:', req.path);
+    console.log('🔗 ORIGINAL URL:', req.originalUrl);
+    next();
+});
+
 // Middleware de auditoria - log TODAS as requisições
 app.use((req, res, next) => {
     const timestamp = new Date().toISOString();
@@ -31,15 +40,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// CORS middleware
+// CORS middleware - FORÇADO E EXPLÍCITO
 app.use(cors({
     origin: [
         'https://ddevs-86w2.onrender.com', // Backend (painel admin)
-        'https://ddevs.vercel.app', // Frontend na Vercel
+        'https://ddevs.vercel.app', // Frontend na Vercel - EXPLÍCITO
         'http://localhost:3000', 
         'http://localhost:5173'
     ],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With']
 }));
 
 app.use((req, res, next) => {
@@ -57,6 +68,18 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+// ROTA DE TESTE TEMPORÁRIA
+app.get('/api/test', (req, res) => {
+    console.log('🧪 ROTA DE TESTE ACIONADA!');
+    res.json({ 
+        ok: true, 
+        message: 'API funcionando!',
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.originalUrl
+    });
+});
 
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);

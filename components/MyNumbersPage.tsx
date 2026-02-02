@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../src/config/api';
 import { Purchase, User } from '../types';
 import SpinnerIcon from './icons/SpinnerIcon';
 
@@ -55,7 +56,7 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
       }
 
       try {
-        const response = await fetch('https://ddevs-86w2.onrender.com/api/user/my-numbers', {
+        const response = await fetch(API_ENDPOINTS.PAYMENT.MY_NUMBERS, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
         

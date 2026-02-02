@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../src/config/api';
 import CopyIcon from './icons/CopyIcon';
 import SpinnerIcon from './icons/SpinnerIcon';
 import CheckIcon from './icons/CheckIcon';
@@ -30,7 +31,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
 
       setPaymentStatus('PENDING');
       try {
-        const response = await fetch('https://ddevs-86w2.onrender.com/api/payment/create-order', {
+        const response = await fetch(API_ENDPOINTS.PAYMENT.CREATE_ORDER, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
