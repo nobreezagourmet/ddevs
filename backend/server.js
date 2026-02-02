@@ -44,8 +44,28 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// 404 handler para APIs - retorna JSON em vez de HTML
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ 
+        success: false, 
+        message: 'API route not found',
+        path: req.originalUrl,
+        method: req.method
+    });
+});
+
 // Serve frontend em produção
 if (process.env.NODE_ENV === 'production') {
+    // 404 handler geral - apenas para rotas não-API
+    app.use((req, res) => {
+        res.status(404).json({ 
+            success: false, 
+            message: 'Route not found',
+            path: req.originalUrl,
+            method: req.method
+        });
+    });
+
     // Servir arquivos estáticos da pasta public
     app.use(express.static(path.join(__dirname, 'public')));
 
