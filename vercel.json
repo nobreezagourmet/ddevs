@@ -2,8 +2,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://ddevs-86w2.onrender.com/api/:path*"
+      "source": "/api/*",
+      "destination": "https://ddevs-86w2.onrender.com/api/*"
     }
   ]
 }

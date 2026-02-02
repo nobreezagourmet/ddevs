@@ -40,6 +40,18 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Middleware de debug - log todas as requisições
+app.use((req, res, next) => {
+    console.log('=== REQUISIÇÃO RECEBIDA ===');
+    console.log(' ROTA:', req.originalUrl);
+    console.log(' MÉTODO:', req.method);
+    console.log(' ORIGEM:', req.headers.origin);
+    console.log(' HEADERS:', Object.keys(req.headers));
+    console.log(' BODY:', req.method !== 'GET' ? req.body : 'N/A');
+    console.log('========================');
+    next();
+});
+
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
