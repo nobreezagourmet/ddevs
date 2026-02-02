@@ -112,7 +112,7 @@ const createRaffle = asyncHandler(async (req, res) => {
         await session.commitTransaction();
         session.endSession();
 
-        return res.status(201).json({ success: true });
+        return res.status(201).json({ success: true, message: 'Rifa criada!' });
 
     } catch (error) {
         console.error(' ERRO AO CRIAR RIFA:', error);

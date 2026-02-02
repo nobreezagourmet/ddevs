@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 // CORS RADICAL - URL VERCEL CORRIGIDA
 app.use(require('cors')({ 
     origin: [
-        'https://ddevs.vercel.app', // Frontend na Vercel - URL CORRETA
+        'https://ddevss.vercel.app', // Frontend na Vercel - URL CORRETA
         'https://ddevs-86w2.onrender.com', // Backend (painel admin)
         'http://localhost:3000', 
         'http://localhost:5173'
