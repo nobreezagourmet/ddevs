@@ -55,16 +55,20 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
         return;
       }
 
+      // FORÇADO: URL manual completa
+      const manualUrl = 'https://ddevs-86w2.onrender.com/api/user/my-numbers';
+      
       try {
-        // FORÇADO: URL manual completa
-        const manualUrl = 'https://ddevs-86w2.onrender.com/api/user/my-numbers';
-        
         // DEBUG: Log da URL sendo chamada
         console.log('🚀 CHAMANDO API MY-NUMBERS EM:', manualUrl);
         
         const response = await fetch(manualUrl, {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
+        
+        // DEBUG: Mostrar resposta completa
+        console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
+        console.log('🔗 URL CHAMADA:', manualUrl);
         
         if (!response.ok) {
            throw new Error("Falha ao buscar seus números. Tente novamente mais tarde.");
@@ -77,8 +81,14 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
            // Abre o último (mais recente) acordeão por padrão
            setOpenAccordionId(data[data.length - 1].id); 
         }
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: any) {
+        // DEBUG: Erro completo
+        console.error('❌ ERRO COMPLETO:', error);
+        console.error('🔗 URL FALHOU:', manualUrl);
+        console.error('📋 STATUS:', error.response?.status);
+        console.error('📡 RESPOSTA:', error.response?.data);
+        
+        setError(error.message || "Falha ao buscar seus números. Tente novamente mais tarde.");
       } finally {
         setIsLoading(false);
       }

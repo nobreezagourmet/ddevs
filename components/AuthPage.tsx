@@ -87,6 +87,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload)
       });
 
+      // DEBUG: Mostrar resposta completa antes de JSON
+      console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
+      console.log('🔗 URL CHAMADA:', endpoint);
+      
       const data = await response.json();
 
       if (!response.ok) {
@@ -111,8 +115,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         onAuthSuccess(data.user, data.token);
       }
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error) {
+      // DEBUG: Erro completo
+      console.error('❌ ERRO COMPLETO:', error);
+      console.error('🔗 URL FALHOU:', endpoint);
+      console.error('📋 STATUS:', error.response?.status);
+      console.error('📡 RESPOSTA:', error.response?.data);
+      
+      setError(error.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setIsLoading(false);
     }

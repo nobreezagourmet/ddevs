@@ -30,10 +30,10 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
       }
 
       setPaymentStatus('PENDING');
+      // FORÇADO: URL manual completa
+      const manualUrl = 'https://ddevs-86w2.onrender.com/api/payment/create-order';
+      
       try {
-        // FORÇADO: URL manual completa
-        const manualUrl = 'https://ddevs-86w2.onrender.com/api/payment/create-order';
-        
         // DEBUG: Log da URL sendo chamada
         console.log('🚀 CHAMANDO API PAYMENT EM:', manualUrl);
         console.log('💾 BODY:', { raffleId, quantity });
@@ -49,13 +49,23 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
         
         const data = await response.json();
 
+        // DEBUG: Mostrar resposta completa
+        console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
+        console.log('🔗 URL CHAMADA:', manualUrl);
+
         if (!response.ok) {
-          throw new Error(data.message || "Não foi possível gerar a ordem de pagamento.");
+          throw new Error(data.message || 'Falha ao criar ordem de pagamento.');
         }
 
         setPixKey(data.pixCopyPaste);
         setPaymentStatus('LISTENING');
       } catch (err: any) {
+        // DEBUG: Erro completo
+        console.error('❌ ERRO COMPLETO:', err);
+        console.error('🔗 URL FALHOU:', manualUrl);
+        console.error('📋 STATUS:', err.response?.status);
+        console.error('📡 RESPOSTA:', err.response?.data);
+        
         setError(err.message);
         setPaymentStatus('ERROR');
       }

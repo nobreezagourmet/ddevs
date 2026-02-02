@@ -234,6 +234,10 @@
                     body: JSON.stringify({ title, pricePerQuota, totalQuotas })
                 });
 
+                // DEBUG: Mostrar resposta completa
+                console.log('📡 RESPOSTA SERVIDOR:', response.status, response.statusText);
+                console.log('🔗 URL CHAMADA:', manualUrl);
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -244,6 +248,12 @@
                     showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
                 }
             } catch (error) {
+                // DEBUG: Erro completo
+                console.error('❌ ERRO COMPLETO:', error);
+                console.error('🔗 URL FALHOU:', manualUrl);
+                console.error('📋 STATUS:', error.response?.status);
+                console.error('📡 RESPOSTA:', error.response?.data);
+                
                 showStatus('raffleStatus', `Erro: ${error.message}`, 'error');
             }
         });

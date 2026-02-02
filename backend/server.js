@@ -40,14 +40,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// CORS middleware - FORÇADO E EXPLÍCITO
+// CORS middleware - FORÇADO PARA TESTE
 app.use(cors({
-    origin: [
-        'https://ddevs-86w2.onrender.com', // Backend (painel admin)
-        'https://ddevs.vercel.app', // Frontend na Vercel - EXPLÍCITO
-        'http://localhost:3000', 
-        'http://localhost:5173'
-    ],
+    origin: '*', // Wildcard para teste imediato
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With']
