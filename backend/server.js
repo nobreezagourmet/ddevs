@@ -8,14 +8,41 @@ const path = require('path');
 const cors = require('cors');
 const { configureUploads } = require('./middleware/uploadMiddleware');
 
+// Carregar variáveis de ambiente primeiro
 dotenv.config();
 
-connectDB();
+// Verificar variáveis de ambiente críticas
+if (!process.env.MONGO_URI) {
+    console.error('❌ FATAL: MONGO_URI não está definido nas variáveis de ambiente');
+    process.exit(1);
+}
+
+if (!process.env.JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET não está definido nas variáveis de ambiente');
+    process.exit(1);
+}
+
+// Tentar conectar ao banco com tratamento de erro
+let dbConnected = false;
+try {
+    connectDB();
+    dbConnected = true;
+    console.log('✅ Banco de dados conectado com sucesso');
+} catch (error) {
+    console.error('❌ FATAL: Erro ao conectar ao banco de dados:', error.message);
+    process.exit(1);
+}
 
 const app = express();
 
-// Configurar uploads ANTES de outros middlewares
-configureUploads(app);
+// Tentar configurar uploads com tratamento de erro
+try {
+    configureUploads(app);
+    console.log('✅ Sistema de upload configurado com sucesso');
+} catch (error) {
+    console.error('❌ FATAL: Erro ao configurar sistema de upload:', error.message);
+    process.exit(1);
+}
 
 // MIDDLEWARE NO TOPO ABSOLUTO
 app.use(express.json());
@@ -147,6 +174,36 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Tratamento de erros globais
+process.on('uncaughtException', (error) => {
+    console.error('❌ UNCAUGHT EXCEPTION:', error);
+    process.exit(1);
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+    process.exit(1);
+});
+
+process.on('SIGTERM', () => {
+    console.log('🔄 SIGTERM received. Shutting down gracefully...');
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('🔄 SIGINT received. Shutting down gracefully...');
+    process.exit(0);
+});
+
+const server = app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`✅ Database connected: ${dbConnected}`);
+});
+
+// Graceful shutdown
+server.on('close', () => {
+    console.log('🔄 Server closed');
+});
+
+module.exports = server;

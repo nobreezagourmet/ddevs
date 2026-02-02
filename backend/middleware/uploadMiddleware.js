@@ -33,14 +33,17 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Configuração do multer
+// Configuração do multer otimizada para uso de memória
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
+        fileSize: 2 * 1024 * 1024, // Reduzido para 2MB para economizar memória
         files: 1 // Apenas um arquivo por vez
-    }
+    },
+    // Otimizações para ambiente de produção
+    fileEncoding: 'utf8',
+    preservePath: false
 });
 
 // Middleware para servir arquivos estáticos
