@@ -1,5 +1,5 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import { API_ENDPOINTS } from '../src/config/api';
+import { API_URLS } from '../src/config/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
@@ -68,10 +68,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // FORÇADO: URL manual completa
+    // FORÇADO: URLs manuais diretas
     const endpoint = mode === AuthMode.LOGIN 
-      ? 'https://ddevs-86w2.onrender.com/api/auth/login'
-      : 'https://ddevs-86w2.onrender.com/api/auth/register';
+      ? API_URLS.LOGIN
+      : API_URLS.REGISTER;
     
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
@@ -102,8 +102,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
       if (mode === AuthMode.REGISTER) {
         // Após registro bem-sucedido, tenta fazer login para obter o token
-        console.log('🚀 CHAMANDO API LOGIN EM:', 'https://ddevs-86w2.onrender.com/api/auth/login');
-         const loginResponse = await fetch('https://ddevs-86w2.onrender.com/api/auth/login', {
+        console.log('🚀 CHAMANDO API LOGIN EM:', API_URLS.LOGIN);
+         const loginResponse = await fetch(API_URLS.LOGIN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })

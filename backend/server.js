@@ -63,33 +63,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// ROTA DE TESTE TEMPORÁRIA
-app.get('/api/test', (req, res) => {
-    console.log('🧪 ROTA DE TESTE ACIONADA!');
-    res.json({ 
-        ok: true, 
-        message: 'API funcionando!',
-        timestamp: new Date().toISOString(),
-        method: req.method,
-        url: req.originalUrl
-    });
-});
-
-// ROTA DE TESTE POST IDÊNTICA - SOBRESCREVENDO TEMPORARIAMENTE
-app.post('/api/admin/create-raffle', (req, res) => {
-    console.log('🧪 ROTA CREATE-RAFFLE TESTE ACIONADA!');
-    console.log('📋 BODY:', req.body);
-    console.log('🔗 HEADERS:', req.headers);
-    res.json({ 
-        ok: true, 
-        message: 'ROTA CREATE-RAFFLE FUNCIONANDO!',
-        timestamp: new Date().toISOString(),
-        method: req.method,
-        url: req.originalUrl,
-        body: req.body
-    });
-});
-
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
