@@ -277,6 +277,12 @@
                 if (response.ok) {
                     showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
                     document.getElementById('createRaffleForm').reset();
+                    
+                    // RECARREGAR PÁGINA PARA ATUALIZAR DADOS
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                    
                     loadDashboardStats();
                 } else {
                     showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');

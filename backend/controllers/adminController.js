@@ -57,43 +57,92 @@ const swapQuota = asyncHandler(async (req, res) => {
 const createRaffle = asyncHandler(async (req, res) => {
     const { title, pricePerQuota, totalQuotas } = req.body;
 
-    if (!title || !pricePerQuota || !totalQuotas || pricePerQuota <= 0 || totalQuotas <= 0) {
-        res.status(400);
-        throw new Error('Please provide valid title, price per quota, and total quotas');
+    // VALIDAÇÃO DETALHADA
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Título da rifa é obrigatório e deve ser um texto válido' 
+        });
+    }
+
+    if (!pricePerQuota || isNaN(pricePerQuota) || parseFloat(pricePerQuota) <= 0) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Preço por cota é obrigatório e deve ser maior que zero' 
+        });
+    }
+
+    if (!totalQuotas || isNaN(totalQuotas) || parseInt(totalQuotas) <= 0 || parseInt(totalQuotas) > 10000) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Total de cotas é obrigatório, deve ser maior que zero e menor que 10000' 
+        });
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        const raffle = await Raffle.create({
-            title,
-            pricePerQuota,
-            totalQuotas,
-            isActive: false, // Newly created raffles are inactive by default
-        });
+        console.log(' Criando raffle:', { title, pricePerQuota, totalQuotas });
+        
+        const raffle = await Raffle.create([{
+            title: title.trim(),
+            pricePerQuota: parseFloat(pricePerQuota),
+            totalQuotas: parseInt(totalQuotas),
+            isActive: false,
+        }], { session });
+
+        const createdRaffle = raffle[0];
+        console.log(' Raffle criado:', createdRaffle._id);
 
         // Generate quotas for the new raffle
         const quotas = [];
-        for (let i = 1; i <= totalQuotas; i++) {
+        for (let i = 1; i <= parseInt(totalQuotas); i++) {
             quotas.push({
-                raffleId: raffle._id,
+                raffleId: createdRaffle._id,
                 number: String(i).padStart(String(totalQuotas).length, '0'),
                 status: 'available',
             });
         }
+        
+        console.log(' Criando', quotas.length, 'cotas...');
         await Quota.insertMany(quotas, { session });
+        console.log(' Cotass criadas com sucesso!');
 
         await session.commitTransaction();
         session.endSession();
 
-        res.status(201).json(raffle);
+        res.status(201).json({ 
+            success: true, 
+            message: 'Rifa criada com sucesso!',
+            data: createdRaffle 
+        });
 
     } catch (error) {
+        console.error(' ERRO AO CRIAR RIFA:', error);
         await session.abortTransaction();
         session.endSession();
-        res.status(400);
-        throw new Error(`Error creating raffle: ${error.message}`);
+        
+        // ERRO ESPECÍFICO DO MONGODB
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Erro de validação: ' + errors.join(', ') 
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Rifa duplicada detectada' 
+            });
+        }
+        
+        res.status(400).json({ 
+            success: false, 
+            message: `Erro ao criar rifa: ${error.message}` 
+        });
     }
 });
 
