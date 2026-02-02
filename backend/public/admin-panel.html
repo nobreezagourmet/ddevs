@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Rifa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .token-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            word-break: break-all;
+            color: #495057;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .current-user {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .current-user strong {
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Painel Admin</h1>
+            <p>Gerenciamento de Rifas e Usuários</p>
+        </div>
+        
+        <div class="content">
+            <!-- Login Section -->
+            <div id="loginSection" class="section">
+                <h2>🔐 Login Administrativo</h2>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="admin@exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" placeholder="Sua senha">
+                </div>
+                <button class="btn" onclick="login()">Entrar</button>
+                <div id="loginStatus"></div>
+            </div>
+            
+            <!-- Admin Panel (hidden initially) -->
+            <div id="adminPanel" class="hidden">
+                <div class="current-user">
+                    <strong>Usuário logado:</strong> <span id="currentUserEmail"></span>
+                    <button class="btn" style="float: right; padding: 8px 20px;" onclick="logout()">Sair</button>
+                </div>
+                
+                <!-- Create Raffle Section -->
+                <div class="section">
+                    <h2>🎲 Criar Nova Rifa</h2>
+                    <div class="form-group">
+                        <label for="raffleTitle">Título da Rifa:</label>
+                        <input type="text" id="raffleTitle" placeholder="Ex: Rifa de Premiação Especial">
+                    </div>
+                    <div class="form-group">
+                        <label for="pricePerQuota">Preço por Cota (R$):</label>
+                        <input type="number" id="pricePerQuota" placeholder="10.00" step="0.01" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="totalQuotas">Total de Cotas:</label>
+                        <input type="number" id="totalQuotas" placeholder="100" min="1" max="10000">
+                    </div>
+                    <button class="btn" onclick="createRaffle()">Criar Rifa</button>
+                    <div id="raffleStatus"></div>
+                </div>
+                
+                <!-- Swap Quota Section -->
+                <div class="section">
+                    <h2>🔄 Trocar Cota de Usuário</h2>
+                    <div class="form-group">
+                        <label for="originUserId">ID do Usuário Atual:</label>
+                        <input type="text" id="originUserId" placeholder="ID do usuário que vai perder a cota">
+                    </div>
+                    <div class="form-group">
+                        <label for="destinationUserId">ID do Novo Usuário:</label>
+                        <input type="text" id="destinationUserId" placeholder="ID do usuário que vai receber a cota">
+                    </div>
+                    <div class="form-group">
+                        <label for="raffleId">ID da Rifa:</label>
+                        <input type="text" id="raffleId" placeholder="ID da rifa">
+                    </div>
+                    <div class="form-group">
+                        <label for="quotaNumber">Número da Cota:</label>
+                        <input type="number" id="quotaNumber" placeholder="1" min="1">
+                    </div>
+                    <button class="btn" onclick="swapQuota()">Trocar Cota</button>
+                    <div id="swapStatus"></div>
+                </div>
+                
+                <!-- API Test Section -->
+                <div class="section">
+                    <h2>🧪 Testar API</h2>
+                    <button class="btn" onclick="testAPI()">Testar Conexão</button>
+                    <div id="apiStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://ddevs-86w2.onrender.com/';
+        let authToken = null;
+        let currentUser = null;
+
+        // Show status message
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+            element.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Login function
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('loginStatus', 'Preencha todos os campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    
+                    // Store token
+                    localStorage.setItem('adminToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update UI
+                    document.getElementById('currentUserEmail').textContent = currentUser.email;
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    
+                    showStatus('loginStatus', 'Login realizado com sucesso!', 'success');
+                } else {
+                    showStatus('loginStatus', data.message || 'Erro no login', 'error');
+                }
+            } catch (error) {
+                showStatus('loginStatus', `Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('currentUser');
+            
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            
+            // Clear form
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Create raffle function
+        async function createRaffle() {
+            const title = document.getElementById('raffleTitle').value;
+            const pricePerQuota = parseFloat(document.getElementById('pricePerQuota').value);
+            const totalQuotas = parseInt(document.getElementById('totalQuotas').value);
+            
+            if (!title || !pricePerQuota || !totalQuotas) {
+                showStatus('raffleStatus', 'Preencha todos os campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ title, pricePerQuota, totalQuotas })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
+                    // Clear form
+                    document.getElementById('raffleTitle').value = '';
+                    document.getElementById('pricePerQuota').value = '';
+                    document.getElementById('totalQuotas').value = '';
+                } else {
+                    showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
+                }
+            } catch (error) {
+                showStatus('raffleStatus', `Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        // Swap quota function
+        async function swapQuota() {
+            const originUserId = document.getElementById('originUserId').value;
+            const destinationUserId = document.getElementById('destinationUserId').value;
+            const raffleId = document.getElementById('raffleId').value;
+            const quotaNumber = parseInt(document.getElementById('quotaNumber').value);
+            
+            if (!originUserId || !destinationUserId || !raffleId || !quotaNumber) {
+                showStatus('swapStatus', 'Preencha todos os campos', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/swap-quota`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ originUserId, destinationUserId, raffleId, quotaNumber })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus('swapStatus', 'Cota trocada com sucesso!', 'success');
+                    // Clear form
+                    document.getElementById('originUserId').value = '';
+                    document.getElementById('destinationUserId').value = '';
+                    document.getElementById('raffleId').value = '';
+                    document.getElementById('quotaNumber').value = '';
+                } else {
+                    showStatus('swapStatus', data.message || 'Erro ao trocar cota', 'error');
+                }
+            } catch (error) {
+                showStatus('swapStatus', `Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        // Test API function
+        async function testAPI() {
+            try {
+                const response = await fetch(`${API_URL}/`);
+                const text = await response.text();
+                
+                if (response.ok) {
+                    showStatus('apiStatus', `API funcionando! Resposta: ${text}`, 'success');
+                } else {
+                    showStatus('apiStatus', `Erro: ${response.status} - ${text}`, 'error');
+                }
+            } catch (error) {
+                showStatus('apiStatus', `Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        // Check for existing session on page load
+        window.onload = function() {
+            const storedToken = localStorage.getItem('adminToken');
+            const storedUser = localStorage.getItem('currentUser');
+            
+            if (storedToken && storedUser) {
+                authToken = storedToken;
+                currentUser = JSON.parse(storedUser);
+                
+                document.getElementById('currentUserEmail').textContent = currentUser.email;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -68,20 +68,30 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// SERVIR ARQUIVOS ESTÁTICOS DO FRONTEND
-app.use(express.static(path.join(__dirname, 'public')));
+// SERVIR ARQUIVOS ESTÁTICOS DA RAIZ DO BACKEND
+app.use(express.static(__dirname));
 
-// ROTA RAIZ - SERVE O INDEX.HTML DO FRONTEND
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// ROTA DE ACESSO AO PAINEL ADMIN - ANTES DE QUALQUER ROTA GENÉRICA
+app.get('/admin-painel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// ROTA DO PAINEL ADMIN
+// ROTA ADMIN-PANEL.HTML
+app.get('/admin-panel.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
+});
+
+// ROTA RAIZ - CARREGA O PAINEL ADMIN
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ROTA ADMIN PADRÃO
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// ROTA DO PAINEL ADMIN (HTML)
+// ROTA ADMIN.HTML
 app.get('/admin.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
