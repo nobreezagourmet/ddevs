@@ -71,6 +71,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
     // --- TESTE DE ENVIO ---
     console.log('--- TESTE DE ENVIO ---');
+    console.log('Tentando conectar em:', 'https://ddevs-86w2.onrender.com/api');
     console.log('Endpoint:', endpoint);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
