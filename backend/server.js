@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const path = require('path');
 const cors = require('cors');
 
 dotenv.config();
@@ -67,34 +68,41 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// ROTA RAIZ LIMPA - APENAS INFO DA API
+// SERVIR ARQUIVOS ESTÁTICOS DO FRONTEND
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ROTA RAIZ - SERVE O INDEX.HTML DO FRONTEND
 app.get('/', (req, res) => {
-    res.json({ 
-        message: 'API operando. Use o frontend em https://ddevss.vercel.app' 
-    });
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ROTA DO PAINEL ADMIN
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ROTA DO PAINEL ADMIN (HTML)
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ROTA CORINGA - PEGA TUDO O QUE NÃO É API E SERVE O INDEX
+app.get('*', (req, res) => {
+    // Se for rota de API que não existe, retorna 404 JSON
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ 
+            success: false, 
+            message: 'API route not found',
+            path: req.originalUrl,
+            method: req.method
+        });
+    }
+    // Senão, serve o index.html (SPA routing)
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ROTA DE TESTE TEMPORÁRIA
 app.get('/api/test', (req, res) => res.json({ msg: 'Backend Online' }));
-
-// 404 handler FORÇADO para APIs - captura TUDO que não foi encontrado
-app.use('/api/*', (req, res) => {
-    console.log('❌ 404 API não encontrada:', req.originalUrl);
-    res.status(404).json({ 
-        success: false, 
-        message: 'API route not found',
-        path: req.originalUrl,
-        method: req.method,
-        availableRoutes: [
-            'GET /api/test',
-            'POST /api/auth/login',
-            'POST /api/auth/register',
-            'POST /api/admin/create-raffle',
-            'POST /api/admin/swap-quota',
-            'POST /api/payment/create-order'
-        ]
-    });
-});
 
 // Error handling middleware - retorna JSON com retry info
 app.use((err, req, res, next) => {
