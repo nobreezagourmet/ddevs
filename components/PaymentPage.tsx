@@ -30,7 +30,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
 
       setPaymentStatus('PENDING');
       try {
-        const response = await fetch('/api/payment/create-order', {
+        const response = await fetch('https://ddevs-86w2.onrender.com/api/payment/create-order', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

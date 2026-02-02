@@ -55,7 +55,7 @@ const MyNumbersPage: React.FC<MyNumbersPageProps> = ({ user, onNewPurchase, auth
       }
 
       try {
-        const response = await fetch('/api/user/my-numbers', {
+        const response = await fetch('https://ddevs-86w2.onrender.com/api/user/my-numbers', {
           headers: { 'Authorization': `Bearer ${authToken}` }
         });
         

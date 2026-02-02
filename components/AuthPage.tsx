@@ -81,7 +81,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
       if (mode === AuthMode.REGISTER) {
         // Após registro bem-sucedido, tenta fazer login para obter o token
-         const loginResponse = await fetch('/api/auth/login', {
+         const loginResponse = await fetch('https://ddevs-86w2.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })

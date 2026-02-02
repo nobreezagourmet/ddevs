@@ -13,6 +13,24 @@ connectDB();
 
 const app = express();
 
+// Middleware de auditoria - log TODAS as requisições
+app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log('\n🚀 ===== AUDITORIA DE REQUISIÇÃO =====');
+    console.log(`⏰ Timestamp: ${timestamp}`);
+    console.log(`📍 URL COMPLETA: ${req.originalUrl}`);
+    console.log(`🔧 MÉTODO HTTP: ${req.method}`);
+    console.log(`🌐 ORIGEM: ${req.headers.origin || 'Direct'}`);
+    console.log(`🌍 USER-AGENT: ${req.headers['user-agent'] || 'Unknown'}`);
+    console.log(`📋 CONTENT-TYPE: ${req.headers['content-type'] || 'Not specified'}`);
+    console.log(`🔑 AUTHORIZATION: ${req.headers.authorization ? 'Present' : 'Missing'}`);
+    if (req.method !== 'GET' && req.body) {
+        console.log(`💾 CORPO DA REQUISIÇÃO:`, JSON.stringify(req.body, null, 2));
+    }
+    console.log('=====================================\n');
+    next();
+});
+
 // CORS middleware
 app.use(cors({
     origin: [
@@ -39,18 +57,6 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-
-// Middleware de debug - log todas as requisições
-app.use((req, res, next) => {
-    console.log('=== REQUISIÇÃO RECEBIDA ===');
-    console.log(' ROTA:', req.originalUrl);
-    console.log(' MÉTODO:', req.method);
-    console.log(' ORIGEM:', req.headers.origin);
-    console.log(' HEADERS:', Object.keys(req.headers));
-    console.log(' BODY:', req.method !== 'GET' ? req.body : 'N/A');
-    console.log('========================');
-    next();
-});
 
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
