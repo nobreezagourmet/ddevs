@@ -288,13 +288,31 @@
                     showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
                 }
             } catch (error) {
-                // CAPTURA DE ERRO REAL
+                // CAPTURA DE ERRO JSON - TRATAMENTO FORÇADO
                 console.error('--- ERRO CAPTURADO ---');
-                console.error('STATUS DO ERRO:', error.response?.status);
-                console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
+                console.error('STATUS:', error.response?.status);
                 console.error('ERRO COMPLETO:', error);
                 
-                showStatus('raffleStatus', `Erro: ${error.message}`, 'error');
+                // SE FOR ERRO DE JSON, TENTAR LER COMO TEXTO
+                if (error.message.includes('JSON')) {
+                    try {
+                        const endpoint = '/admin/create-raffle';
+                        const response = await api.post(endpoint, { title, pricePerQuota, totalQuotas });
+                        
+                        const textResponse = await response.text();
+                        console.error('RESPOSTA COMO TEXTO:', textResponse);
+                        
+                        if (response.status === 404) {
+                            showStatus('raffleStatus', 'Erro 404: Rota não encontrada no servidor!', 'error');
+                        } else {
+                            showStatus('raffleStatus', `Erro ${response.status}: ${textResponse}`, 'error');
+                        }
+                    } catch (textError) {
+                        showStatus('raffleStatus', 'Erro crítico: Servidor não responde!', 'error');
+                    }
+                } else {
+                    showStatus('raffleStatus', `Erro: ${error.message}`, 'error');
+                }
             }
         });
 

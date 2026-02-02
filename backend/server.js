@@ -68,17 +68,46 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// ROTA DE TESTE FORÇADA - SEM MIDDLEWARE
+app.post('/api/admin/create-raffle', (req, res) => {
+    console.log('🧪 ROTA CREATE-RAFFLE FORÇADA ACIONADA!');
+    console.log('📋 BODY:', req.body);
+    console.log('🔗 HEADERS:', req.headers);
+    
+    // SIMULAR SUCESSO IMEDIATO
+    res.status(201).json({ 
+        success: true, 
+        message: 'Rifa criada com sucesso (TESTE FORÇADO)!',
+        data: {
+            _id: 'test_' + Date.now(),
+            title: req.body.title || 'Teste',
+            pricePerQuota: req.body.pricePerQuota || 10,
+            totalQuotas: req.body.totalQuotas || 100,
+            isActive: false
+        }
+    });
+});
+
 app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// 404 handler para APIs - retorna JSON em vez de HTML
-app.use('/api/:path', (req, res) => {
+// 404 handler FORÇADO para APIs - captura TUDO que não foi encontrado
+app.use('/api/*', (req, res) => {
+    console.log('❌ 404 API não encontrada:', req.originalUrl);
     res.status(404).json({ 
         success: false, 
         message: 'API route not found',
         path: req.originalUrl,
-        method: req.method
+        method: req.method,
+        availableRoutes: [
+            'GET /api/test',
+            'POST /api/auth/login',
+            'POST /api/auth/register',
+            'POST /api/admin/create-raffle',
+            'POST /api/admin/swap-quota',
+            'POST /api/payment/create-order'
+        ]
     });
 });
 
