@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { API_ENDPOINTS } from '../src/config/api';
 import { Purchase, User } from '../types';
 import SpinnerIcon from './icons/SpinnerIcon';
 
