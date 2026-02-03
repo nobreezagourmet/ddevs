@@ -217,7 +217,7 @@
                     // REDIRECIONAR PARA PAINEL PRINCIPAL APÓS CADASTRO BEM-SUCEDIDO
                     console.log('✅ Cadastro bem-sucedido! Redirecionando para painel...');
                     setTimeout(() => {
-                        window.location.href = 'https://ddevss.vercel.app';
+                        window.location.href = 'https://devsss-five.vercel.app';
                     }, 2000);
                     
                 } else {
