@@ -50,7 +50,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // MIDDLEWARE CORS OTIMIZADO
 app.use(cors({ 
-    origin: ['*', 'http://localhost:3000', 'https://ddevs-86w2.onrender.com'],
+    origin: ['*', 'http://localhost:3000', 'https://ddevs-86w2.onrender.com', 'https://ddevss.vercel.app'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -252,6 +252,21 @@ app.get('*', (req, res) => {
     }
     // Senão, serve o index.html (SPA routing)
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// MIDDLEWARE DE FALLBACK 404 JSON - EVITA 'Unexpected token N'
+app.use((req, res, next) => {
+    // Se for rota de API que não existe, retorna 404 JSON
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ 
+            success: false, 
+            error: "Rota não encontrada",
+            path: req.originalUrl,
+            method: req.method
+        });
+    }
+    // Se não for API, continua para o próximo middleware
+    next();
 });
 
 // Error handling middleware - retorna JSON com detalhes completos
