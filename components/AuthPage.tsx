@@ -145,12 +145,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
           if (loginData.success) {
             onAuthSuccess(loginData.data, loginData.data.token);
             console.log('🎯 CADASTRO E LOGIN SUCESSO!');
-            window.location.href = 'https://ddevss.vercel.app';
+            // Removido redirect forçado - deixar o App.tsx controlar
           }
         } else {
           onAuthSuccess(data.data, data.data.token);
           console.log('🎯 LOGIN SUCESSO!');
-          window.location.href = 'https://ddevss.vercel.app';
+          // Removido redirect forçado - deixar o App.tsx controlar
         }
       } else {
         throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');

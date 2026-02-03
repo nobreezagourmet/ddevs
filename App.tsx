@@ -37,8 +37,15 @@ const App: React.FC = () => {
   const handleAuthSuccess = useCallback((user: User, token: string) => {
     setCurrentUser(user);
     setAuthToken(token);
-    setCurrentView(AppView.PAYMENT);
-  }, []);
+    
+    // Se veio de "Meus Números" (selectedQuotas = 0), volte para MY_NUMBERS
+    // Se veio de "Comprar" (selectedQuotas > 0), vá para PAYMENT
+    if (selectedQuotas === 0) {
+      setCurrentView(AppView.MY_NUMBERS);
+    } else {
+      setCurrentView(AppView.PAYMENT);
+    }
+  }, [selectedQuotas]);
 
   const handlePaymentSuccess = useCallback(() => {
     // A geração de números agora deve ser feita pelo backend.
