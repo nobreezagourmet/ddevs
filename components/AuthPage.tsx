@@ -1,11 +1,11 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import API_URL from '../src/services/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// 🎯 SOLUÇÃO FINAL - BACKEND FUNCIONANDO!
+// 🎯 SOLUÇÃO FINAL - URL DIRETA DO RENDER
+const API_URL = 'https://ddevs-86w2.onrender.com/api';
 console.log('🎯 API_URL:', API_URL);
 
 interface AuthPageProps {
@@ -29,15 +29,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       return false;
     }
     if (!email.trim()) {
-      setError('Email é obrigatório');
+      setError('E-mail é obrigatório');
       return false;
     }
-    if (!email.includes('@')) {
-      setError('Email inválido');
-      return false;
-    }
-    if (mode === AuthMode.REGISTER && !phone.trim()) {
-      setError('Telefone é obrigatório');
+    if (!password.trim()) {
+      setError('Senha é obrigatória');
       return false;
     }
     if (password.length < 6) {
@@ -46,7 +42,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     }
     setError('');
     return true;
-  }, [email, phone, password, mode, name]);
+  }, [mode, name, email, password]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -56,12 +52,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // 🎯 SOLUÇÃO FINAL - URL DIRETA
-    const registerUrl = `${API_URL}/auth/register`;
-    const loginUrl = `${API_URL}/auth/login`;
+    // 🎯 URL DIRETA DO RENDER - SEM CONFLITOS
+    const endpoint = mode === AuthMode.LOGIN 
+      ? `${API_URL}/auth/login` 
+      : `${API_URL}/auth/register`;
     
-    const endpoint = mode === AuthMode.LOGIN ? loginUrl : registerUrl;
-    const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
+    const payload = mode === AuthMode.LOGIN 
+      ? { email, password } 
+      : { name, email, phone, password };
 
     console.log('🎯 ENVIANDO PARA:', endpoint);
     console.log('🎯 DADOS:', payload);
@@ -76,20 +74,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload),
       });
 
-      // 🚨 VALIDAÇÃO DE RESPOSTA ANTES DO JSON
+      console.log('🎯 STATUS:', response.status);
+      console.log('🎯 OK:', response.ok);
+
       if (!response.ok) {
-        console.error('❌ STATUS ERRO:', response.status);
-        console.error('❌ STATUS TEXT:', response.statusText);
+        const errorText = await response.text();
+        console.error('❌ ERRO SERVIDOR:', errorText);
         
         if (response.status === 404) {
-          throw new Error('Endpoint não encontrado. Verificando conexão...');
-        }
-        
-        const errorText = await response.text();
-        console.error('❌ RESPOSTA TEXTO:', errorText);
-        
-        if (errorText.includes('Not Found')) {
-          throw new Error('Servidor não encontrado. Verificando URL...');
+          throw new Error('Servidor não encontrado. Tente novamente.');
         }
         
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -98,45 +91,37 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       const data = await response.json();
       console.log('🎯 RESPOSTA:', data);
 
-      if (mode === AuthMode.REGISTER) {
-        // Login após registro
-        const loginResponse = await fetch(loginUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-         });
-         
-         if (!loginResponse.ok) {
-             throw new Error('Falha ao fazer login após o registro.');
-         }
-         
-         const loginData = await loginResponse.json();
-         onAuthSuccess(loginData.data, loginData.data.token);
-         
-         console.log('🎯 CADASTRO SUCESSO!');
-         window.location.href = 'https://ddevss.vercel.app';
-
+      if (data.success) {
+        if (mode === AuthMode.REGISTER) {
+          // Login automático após registro
+          const loginResponse = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          
+          const loginData = await loginResponse.json();
+          
+          if (loginData.success) {
+            onAuthSuccess(loginData.data, loginData.data.token);
+            console.log('🎯 CADASTRO E LOGIN SUCESSO!');
+            window.location.href = 'https://ddevss.vercel.app';
+          }
+        } else {
+          onAuthSuccess(data.data, data.data.token);
+          console.log('🎯 LOGIN SUCESSO!');
+          window.location.href = 'https://ddevss.vercel.app';
+        }
       } else {
-        onAuthSuccess(data.data, data.data.token);
-        
-        console.log('🎯 LOGIN SUCESSO!');
-        window.location.href = 'https://ddevss.vercel.app';
+        throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');
       }
 
     } catch (error) {
       console.error('🎯 ERRO:', error);
-      
-      // 🚨 TRATAMENTO ESPECÍFICO PARA ERROS DE JSON
-      if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
-        setError('Erro de comunicação com o servidor. Verificando conexão...');
-      } else if (error.message.includes('404') || error.message.includes('Not Found')) {
-        setError('Servidor não encontrado. Tente novamente em alguns instantes.');
-      } else {
-        setError(error.message || 'Ocorreu um erro. Tente novamente.');
-      }
+      setError(error.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -150,81 +135,105 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
   };
 
   return (
-    <div className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md mx-auto animate-fade-in mt-10">
-      <button onClick={onBack} className="text-emerald-400 hover:text-emerald-300 mb-4">&larr; Voltar para a rifa</button>
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Quase lá!</h1>
-        <p className="text-gray-300">Para comprar suas <span className="font-bold text-white">{selectedQuotas} cotas</span>, por favor, acesse ou crie sua conta.</p>
-      </div>
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-2">
+            {mode === AuthMode.LOGIN ? 'Bem-vindo de volta!' : 'Criar conta'}
+          </h2>
+          <p className="text-gray-400">
+            {mode === AuthMode.LOGIN 
+              ? 'Faça login para continuar' 
+              : 'Preencha os dados para criar sua conta'}
+          </p>
+        </div>
 
-      <div className="flex bg-gray-700 rounded-lg p-1 mb-6">
-        <button
-          onClick={() => setMode(AuthMode.REGISTER)}
-          className={`w-1/2 py-2.5 rounded-md text-sm font-medium transition-colors uppercase ${mode === AuthMode.REGISTER ? 'bg-emerald-600 text-white shadow' : 'text-gray-300 hover:bg-gray-600'}`}
-        >
-          Criar Conta
-        </button>
-        <button
-          onClick={() => setMode(AuthMode.LOGIN)}
-          className={`w-1/2 py-2.5 rounded-md text-sm font-medium transition-colors uppercase ${mode === AuthMode.LOGIN ? 'bg-emerald-600 text-white shadow' : 'text-gray-300 hover:bg-gray-600'}`}
-        >
-          Entrar
-        </button>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {mode === AuthMode.REGISTER && (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {mode === AuthMode.REGISTER && (
             <InputField
-              id="name"
-              label="Nome Completo"
+              label="Nome completo"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder="Seu nome completo"
               required
-              disabled={isLoading}
             />
-        )}
-        <InputField
-          id="email"
-          label="E-mail"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={isLoading}
-        />
-        {mode === AuthMode.REGISTER && (
+          )}
+
           <InputField
-            id="phone"
-            label="Telefone com DDD"
-            type="tel"
-            value={phone}
-            onChange={handlePhoneChange}
+            label="E-mail"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="seu@email.com"
             required
-            maxLength={15}
-            disabled={isLoading}
           />
-        )}
-        <InputField
-          id="password"
-          label="Senha"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={isLoading}
-        />
-        
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+          {mode === AuthMode.REGISTER && (
+            <InputField
+              label="Telefone"
+              type="tel"
+              value={phone}
+              onChange={handlePhoneChange}
+              placeholder="(11) 99999-9999"
+              maxLength={15}
+              required
+            />
+          )}
+
+          <InputField
+            label="Senha"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Mínimo 6 caracteres"
+            required
+          />
+
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-200 p-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {isLoading ? (
+              <>
+                <SpinnerIcon className="w-5 h-5 mr-2 animate-spin" />
+                {mode === AuthMode.LOGIN ? 'Entrando...' : 'Cadastrando...'}
+              </>
+            ) : (
+              <>
+                {mode === AuthMode.LOGIN ? 'Entrar' : 'Criar conta'}
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setMode(mode === AuthMode.LOGIN ? AuthMode.REGISTER : AuthMode.LOGIN)}
+            className="text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            {mode === AuthMode.LOGIN 
+              ? 'Não tem uma conta? Criar conta' 
+              : 'Já tem uma conta? Fazer login'}
+          </button>
+        </div>
 
         <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full btn-primary text-white py-3 px-4 rounded-lg text-lg disabled:bg-gray-600 disabled:cursor-not-allowed uppercase tracking-wider flex items-center justify-center"
+          type="button"
+          onClick={onBack}
+          className="w-full text-gray-400 hover:text-white transition-colors"
         >
-          {isLoading ? <SpinnerIcon /> : (mode === AuthMode.REGISTER ? 'Criar Conta e Continuar' : 'Entrar e Continuar')}
+          ← Voltar
         </button>
-      </form>
+      </div>
     </div>
   );
 };
