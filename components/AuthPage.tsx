@@ -76,12 +76,27 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload),
       });
 
+      // 🚨 VALIDAÇÃO DE RESPOSTA ANTES DO JSON
+      if (!response.ok) {
+        console.error('❌ STATUS ERRO:', response.status);
+        console.error('❌ STATUS TEXT:', response.statusText);
+        
+        if (response.status === 404) {
+          throw new Error('Endpoint não encontrado. Verificando conexão...');
+        }
+        
+        const errorText = await response.text();
+        console.error('❌ RESPOSTA TEXTO:', errorText);
+        
+        if (errorText.includes('Not Found')) {
+          throw new Error('Servidor não encontrado. Verificando URL...');
+        }
+        
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
       console.log('🎯 RESPOSTA:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');
-      }
 
       if (mode === AuthMode.REGISTER) {
         // Login após registro
@@ -94,11 +109,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
           body: JSON.stringify({ email, password }),
          });
          
-         const loginData = await loginResponse.json();
-         
          if (!loginResponse.ok) {
-             throw new Error(loginData.message || 'Falha ao fazer login após o registro.');
+             throw new Error('Falha ao fazer login após o registro.');
          }
+         
+         const loginData = await loginResponse.json();
          onAuthSuccess(loginData.data, loginData.data.token);
          
          console.log('🎯 CADASTRO SUCESSO!');
@@ -113,7 +128,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
     } catch (error) {
       console.error('🎯 ERRO:', error);
-      setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      
+      // 🚨 TRATAMENTO ESPECÍFICO PARA ERROS DE JSON
+      if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+        setError('Erro de comunicação com o servidor. Verificando conexão...');
+      } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+        setError('Servidor não encontrado. Tente novamente em alguns instantes.');
+      } else {
+        setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
