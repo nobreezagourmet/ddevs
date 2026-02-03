@@ -109,6 +109,61 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// ROTA DE CADASTRO DE USUÁRIO - GARANTIDA NO server.js
+app.post('/api/auth/register', async (req, res) => {
+    console.log('👤 CADASTRO DE USUÁRIO (server.js)');
+    console.log('📋 Dados recebidos:', { ...req.body, password: '[HIDDEN]' });
+    
+    try {
+        const { name, email, phone, password } = req.body;
+        const User = require('./models/User');
+
+        // Verificar se o e-mail já existe
+        const userExists = await User.findOne({ email });
+
+        if (userExists) {
+            console.log('❌ E-mail já cadastrado:', email);
+            return res.status(400).json({ 
+                success: false,
+                message: 'E-mail já cadastrado'
+            });
+        }
+
+        // Criar novo usuário
+        const user = await User.create({
+            name,
+            email,
+            phone,
+            password,
+        });
+
+        if (user) {
+            console.log('✅ Usuário criado com sucesso:', email);
+            return res.status(201).json({ 
+                success: true,
+                message: 'Usuário cadastrado com sucesso',
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: user.isAdmin
+                }
+            });
+        } else {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Dados inválidos'
+            });
+        }
+    } catch (error) {
+        console.error('❌ ERRO AO CADASTRAR USUÁRIO:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Erro ao cadastrar usuário: ' + error.message
+        });
+    }
+});
+
 // ROTA DE ESTATÍSTICAS DO ADMIN - GARANTIDA NO server.js
 app.get('/api/admin/stats', async (req, res) => {
     console.log('📊 BUSCANDO ESTATÍSTICAS DO ADMIN (server.js)');
