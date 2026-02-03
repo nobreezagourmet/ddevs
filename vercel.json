@@ -16,19 +16,12 @@
       "dest": "/assets/$1"
     },
     {
+      "src": "/index.css",
+      "dest": "/index.css"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
     }
   ]
 }
