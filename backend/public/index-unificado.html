@@ -300,6 +300,7 @@
         // Load dashboard stats
         async function loadDashboardStats() {
             try {
+                console.log('📊 Carregando estatísticas do dashboard...');
                 const response = await fetch(`${API_URL}/api/admin/stats`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -307,14 +308,24 @@
                 });
 
                 const data = await response.json();
+                console.log('📋 Resposta das estatísticas:', data);
 
                 if (response.ok && data.success) {
                     document.getElementById('totalQuotasCard').textContent = data.data.totalQuotas || 0;
                     document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
                     document.getElementById('activeRaffles').textContent = data.data.activeRaffles || 0;
+                    console.log('✅ Estatísticas carregadas com sucesso');
+                } else {
+                    console.error('❌ Erro ao carregar estatísticas:', data.message);
+                    if (response.status === 404) {
+                        console.error('❌ ERRO 404: Rota /api/admin/stats não encontrada');
+                    }
                 }
             } catch (error) {
-                console.error('Erro ao carregar estatísticas:', error);
+                console.error('❌ Erro ao carregar estatísticas:', error);
+                if (error.message.includes('404')) {
+                    console.error('❌ ERRO 404: Falha ao carregar recurso');
+                }
             }
         }
 
@@ -454,7 +465,11 @@
                     // Limpar formulário
                     document.getElementById('createRaffleForm').reset();
                     
-                    // Recarregar estatísticas
+                    // Alerta de sucesso e atualização imediata
+                    alert('✅ Rifa criada com sucesso!');
+                    
+                    // Recarregar estatísticas imediatamente após o alerta
+                    console.log('🔄 Atualizando estatísticas do dashboard...');
                     loadDashboardStats();
                 } else {
                     // TRATAMENTO DE ERRO DETALHADO

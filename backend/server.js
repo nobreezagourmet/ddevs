@@ -152,62 +152,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ROTA DE TESTE - VALIDAR CONEXÃO
-app.get('/api/test', (req, res) => {
-    console.log('🧪 TESTE - Conexão validada');
-    res.json({ 
-        success: true
-    });
-});
-
-// ROTA DE ESTATÍSTICAS DO ADMIN
-app.get('/api/admin/stats', async (req, res) => {
-    console.log('📊 BUSCANDO ESTATÍSTICAS DO ADMIN');
-    
-    try {
-        const Raffle = require('./models/Raffle');
-        const User = require('./models/User');
-        const Quota = require('./models/Quota');
-        
-        // Buscar estatísticas
-        const totalRaffles = await Raffle.countDocuments();
-        const activeRaffles = await Raffle.countDocuments({ isActive: true });
-        const totalUsers = await User.countDocuments();
-        
-        // Calcular total de cotas
-        let totalQuotas = 0;
-        const raffles = await Raffle.find({});
-        raffles.forEach(raffle => {
-            totalQuotas += raffle.totalQuotas || 0;
-        });
-        
-        console.log('✅ ESTATÍSTICAS CALCULADAS:', {
-            totalQuotas,
-            totalUsers,
-            activeRaffles,
-            totalRaffles
-        });
-        
-        res.json({
-            success: true,
-            data: {
-                totalQuotas,
-                totalUsers,
-                activeRaffles,
-                totalRaffles
-            }
-        });
-        
-    } catch (error) {
-        console.error('❌ ERRO AO BUSCAR ESTATÍSTICAS:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao buscar estatísticas: ' + error.message,
-            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-    }
-});
-
 // Error handling middleware - retorna JSON com detalhes completos
 app.use((err, req, res, next) => {
     console.error('💥 ERRO DETALHADO:', {
