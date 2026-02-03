@@ -97,7 +97,7 @@
                         </div>
                         <span class="text-green-400 text-sm font-medium">+12.5%</span>
                     </div>
-                    <h3 class="text-white text-2xl font-bold mb-1" id="totalQuotas">0</h3>
+                    <h3 class="text-white text-2xl font-bold mb-1" id="totalQuotasCard">0</h3>
                     <p class="text-white/80 text-sm">Total de Cotas</p>
                 </div>
 
@@ -309,7 +309,7 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    document.getElementById('totalQuotas').textContent = data.data.totalQuotas || 0;
+                    document.getElementById('totalQuotasCard').textContent = data.data.totalQuotas || 0;
                     document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
                     document.getElementById('activeRaffles').textContent = data.data.activeRaffles || 0;
                 }
@@ -318,66 +318,149 @@
             }
         }
 
-        // Create raffle - VERSÃO CORRIGIDA COM FormData
+        // Create raffle - VERSÃO CORRIGIDA COM DEBUG COMPLETO
         document.getElementById('createRaffleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const title = document.getElementById('raffleTitle').value;
-            const pricePerQuota = document.getElementById('pricePerQuota').value;
-            const totalQuotas = document.getElementById('totalQuotas').value;
-            const quickSelectPackages = document.getElementById('quickSelectPackages').value;
-            const imageFile = document.getElementById('raffleImage').files[0];
+            console.log('🚀 === INICIANDO CRIAÇÃO DE RIFA ===');
+            
+            // CAPTURAR TODOS OS CAMPOS COM VERIFICAÇÃO
+            const titleElement = document.getElementById('raffleTitle');
+            const priceElement = document.getElementById('pricePerQuota');
+            const quotasElement = document.getElementById('totalQuotas');
+            const packagesElement = document.getElementById('quickSelectPackages');
+            const imageElement = document.getElementById('raffleImage');
+            
+            // VERIFICAR SE ELEMENTOS EXISTEM
+            if (!titleElement || !priceElement || !quotasElement || !packagesElement || !imageElement) {
+                console.error('❌ ERRO: Elementos do formulário não encontrados');
+                showStatus('raffleStatus', 'Erro: Elementos do formulário não encontrados', 'error');
+                return;
+            }
+            
+            const title = titleElement.value;
+            const pricePerQuota = priceElement.value;
+            const totalQuotas = quotasElement.value;
+            const quickSelectPackages = packagesElement.value;
+            const imageFile = imageElement.files[0];
 
-            console.log('=== CRIANDO RIFA ===');
-            console.log('Title:', title);
-            console.log('Price:', pricePerQuota);
-            console.log('Quotas:', totalQuotas);
-            console.log('Packages:', quickSelectPackages);
-            console.log('Image:', imageFile ? imageFile.name : 'Nenhuma');
-            console.log('Token:', authToken ? 'Presente' : 'AUSENTE');
+            console.log('📋 DADOS COLETADOS:');
+            console.log('- Title:', title, '(tipo:', typeof title, ')');
+            console.log('- Price:', pricePerQuota, '(tipo:', typeof pricePerQuota, ')');
+            console.log('- Quotas:', totalQuotas, '(tipo:', typeof totalQuotas, ')');
+            console.log('- Packages:', quickSelectPackages, '(tipo:', typeof quickSelectPackages, ')');
+            console.log('- Image:', imageFile ? imageFile.name : 'Nenhuma', '(size:', imageFile ? imageFile.size : 'N/A', ')');
+            console.log('- Token:', authToken ? 'Presente' : 'AUSENTE');
+            console.log('- API_URL:', API_URL);
+
+            // VALIDAÇÃO OBRIGATÓRIA DETALHADA
+            if (!authToken) {
+                console.error('❌ ERRO: Token ausente');
+                showStatus('raffleStatus', 'Faça login para criar rifa', 'error');
+                return;
+            }
+            
+            if (!title || title.trim().length === 0) {
+                console.error('❌ ERRO: Título inválido');
+                showStatus('raffleStatus', 'Título é obrigatório', 'error');
+                return;
+            }
+            
+            if (!pricePerQuota || isNaN(parseFloat(pricePerQuota)) || parseFloat(pricePerQuota) < 0.01) {
+                console.error('❌ ERRO: Preço inválido');
+                showStatus('raffleStatus', 'Preço deve ser no mínimo R$ 0,01', 'error');
+                return;
+            }
+            
+            if (!totalQuotas || isNaN(parseInt(totalQuotas)) || parseInt(totalQuotas) < 1 || parseInt(totalQuotas) > 100000) {
+                console.error('❌ ERRO: Total de cotas inválido');
+                showStatus('raffleStatus', 'Total de cotas deve ser entre 1 e 100.000', 'error');
+                return;
+            }
 
             try {
-                showStatus('raffleStatus', 'Criando rifa...', 'info');
+                showStatus('raffleStatus', '🔄 Criando rifa...', 'info');
+                console.log('📤 ENVIANDO REQUISIÇÃO PARA O BACKEND...');
 
                 // Criar FormData para upload de imagem
                 const formData = new FormData();
-                formData.append('title', title);
+                formData.append('title', title.trim());
                 formData.append('pricePerQuota', pricePerQuota);
                 formData.append('totalQuotas', totalQuotas);
                 
                 // Processar pacotes
                 let packages = [];
                 if (quickSelectPackages) {
-                    packages = quickSelectPackages.split(',').map(p => parseInt(p.trim())).filter(p => p > 0);
+                    packages = quickSelectPackages.split(',').map(p => {
+                        const num = parseInt(p.trim());
+                        return isNaN(num) ? null : num;
+                    }).filter(p => p !== null && p > 0);
                 }
                 formData.append('quickSelectPackages', JSON.stringify(packages));
                 
                 if (imageFile) {
                     formData.append('image', imageFile);
+                    console.log('📎 Imagem adicionada ao FormData:', imageFile.name);
                 }
+
+                console.log('📊 FormData criado com', formData.entries().length, 'campos');
 
                 const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
-                        // NÃO especificar Content-Type para FormData
+                        // NÃO especificar Content-Type para FormData (browser define automaticamente)
                     },
                     body: formData
                 });
 
-                const data = await response.json();
-                console.log('Resposta:', data);
+                console.log('📥 RESPOSTA RECEBIDA:');
+                console.log('- Status:', response.status);
+                console.log('- Status Text:', response.statusText);
+                console.log('- OK:', response.ok);
 
-                if (response.ok && data.success) {
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                console.log('- Content-Type:', contentType);
+                
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('- Response Text:', text);
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error('❌ ERRO AO FAZER PARSE DA RESPOSTA:', e);
+                        data = { success: false, message: 'Resposta inválida do servidor' };
+                    }
+                }
+                
+                console.log('📋 Data:', data);
+
+                // TRATAMENTO CORRETO DA RESPOSTA
+                if (response.ok && data.success === true) {
+                    console.log('✅ SUCESSO - Rifa criada com sucesso');
                     showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
+                    
+                    // Limpar formulário
                     document.getElementById('createRaffleForm').reset();
+                    
+                    // Recarregar estatísticas
                     loadDashboardStats();
                 } else {
-                    showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
+                    // TRATAMENTO DE ERRO DETALHADO
+                    const errorMessage = data.message || 'Erro ao criar rifa';
+                    console.error('❌ ERRO DO BACKEND:', errorMessage);
+                    console.error('Status:', response.status);
+                    console.error('Data completa:', data);
+                    showStatus('raffleStatus', errorMessage, 'error');
                 }
             } catch (error) {
-                console.error('Erro:', error);
-                showStatus('raffleStatus', 'Erro ao conectar com o servidor', 'error');
+                console.error('💥 ERRO DE CONEXÃO COMPLETO:', error);
+                console.error('Stack:', error.stack);
+                showStatus('raffleStatus', `Erro de conexão: ${error.message}`, 'error');
             }
         });
 

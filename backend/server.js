@@ -154,34 +154,144 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ROTA DE TESTE TEMPORÁRIA
-app.get('/api/test', (req, res) => res.json({ msg: 'Backend Online' }));
+// ROTA DE TESTE - VALIDAR CONEXÃO
+app.get('/api/test', (req, res) => {
+    console.log('🧪 TESTE - Conexão validada');
+    res.json({ 
+        status: "ok",
+        message: "Backend Online",
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 
-// Error handling middleware - retorna JSON com retry info
+// ROTA DE ESTATÍSTICAS DO ADMIN
+app.get('/api/admin/stats', async (req, res) => {
+    console.log('📊 BUSCANDO ESTATÍSTICAS DO ADMIN');
+    
+    try {
+        const Raffle = require('./models/Raffle');
+        const User = require('./models/User');
+        const Quota = require('./models/Quota');
+        
+        // Buscar estatísticas
+        const totalRaffles = await Raffle.countDocuments();
+        const activeRaffles = await Raffle.countDocuments({ isActive: true });
+        const totalUsers = await User.countDocuments();
+        
+        // Calcular total de cotas
+        let totalQuotas = 0;
+        const raffles = await Raffle.find({});
+        raffles.forEach(raffle => {
+            totalQuotas += raffle.totalQuotas || 0;
+        });
+        
+        console.log('✅ ESTATÍSTICAS CALCULADAS:', {
+            totalQuotas,
+            totalUsers,
+            activeRaffles,
+            totalRaffles
+        });
+        
+        res.json({
+            success: true,
+            data: {
+                totalQuotas,
+                totalUsers,
+                activeRaffles,
+                totalRaffles
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ ERRO AO BUSCAR ESTATÍSTICAS:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar estatísticas: ' + error.message,
+            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// Error handling middleware - retorna JSON com detalhes completos
 app.use((err, req, res, next) => {
-    console.error('Error details:', {
+    console.error('💥 ERRO DETALHADO:', {
         message: err.message,
         stack: err.stack,
         timestamp: new Date().toISOString(),
         url: req.originalUrl,
-        method: req.method
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        query: req.query,
+        params: req.params
     });
+    
+    // Erro de validação do Mongoose
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({
+            success: false,
+            message: 'Erro de validação: ' + Object.values(err.errors).map(e => e.message).join(', '),
+            error: process.env.NODE_ENV === 'development' ? err.errors : undefined
+        });
+    }
+    
+    // Erro de duplicação do Mongoose
+    if (err.code === 11000) {
+        return res.status(400).json({
+            success: false,
+            message: 'Registro duplicado: ' + Object.keys(err.keyValue).join(', ') + ' já existe',
+            error: process.env.NODE_ENV === 'development' ? err.keyValue : undefined
+        });
+    }
+    
+    // Erro de JWT
+    if (err.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+            success: false,
+            message: 'Token inválido',
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
+    
+    // Erro de JWT expirado
+    if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({
+            success: false,
+            message: 'Token expirado',
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
     
     // Se for erro de timeout do MongoDB
     if (err.message.includes('buffering timed out') || err.message.includes('server selection timeout')) {
-        res.status(503).json({ 
+        return res.status(503).json({ 
             success: false, 
             message: 'Database connection timeout. Please try again.',
             retry: true,
             error: process.env.NODE_ENV === 'development' ? err.message : undefined
         });
-    } else {
-        res.status(500).json({ 
-            success: false, 
-            message: 'Internal server error',
+    }
+    
+    // Erro de upload de arquivo
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+            success: false,
+            message: 'Arquivo muito grande. Tamanho máximo permitido: 5MB',
             error: process.env.NODE_ENV === 'development' ? err.message : undefined
         });
     }
+    
+    // Erro genérico
+    res.status(err.status || 500).json({ 
+        success: false, 
+        message: err.message || 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? {
+            message: err.message,
+            stack: err.stack,
+            name: err.name
+        } : undefined
+    });
 });
 
 const PORT = process.env.PORT || 5000;
