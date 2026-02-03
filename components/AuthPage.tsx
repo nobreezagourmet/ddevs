@@ -69,10 +69,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     const endpoint = mode === AuthMode.LOGIN ? '/auth/login' : '/auth/register';
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
-    // --- TESTE DE ENVIO ---
-    console.log('--- TESTE DE ENVIO ---');
-    console.log('Tentando conectar em:', 'https://ddevs-86w2.onrender.com/api');
-    console.log('Endpoint:', endpoint);
+    // --- LOG DE DEBUG PARA VERIFICAR URL ---
+    console.log('Enviando para:', 'https://ddevs-86w2.onrender.com');
+    console.log('Endpoint completo:', `https://ddevs-86w2.onrender.com/api${endpoint}`);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
 
@@ -100,9 +99,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
              throw new Error(loginData.message || 'Falha ao fazer login após o registro.');
          }
          onAuthSuccess(loginData.data, loginData.data.token);
+         
+         // REDIRECIONAR PARA PAINEL PRINCIPAL APÓS CADASTRO BEM-SUCEDIDO
+         console.log('✅ Cadastro bem-sucedido! Redirecionando para painel...');
+         window.location.href = 'https://ddevss.vercel.app'; // ou '/index.html' se estiver no mesmo domínio
 
       } else {
         onAuthSuccess(data.data, data.data.token);
+        
+        // REDIRECIONAR PARA PAINEL PRINCIPAL APÓS LOGIN BEM-SUCEDIDO
+        console.log('✅ Login bem-sucedido! Redirecionando para painel...');
+        window.location.href = 'https://ddevss.vercel.app'; // ou '/index.html' se estiver no mesmo domínio
       }
 
     } catch (error) {
@@ -115,7 +122,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
       console.error('ERRO COMPLETO:', error);
       console.error('URL FALHOU:', endpoint);
-      console.error('URL COMPLETA TENTADA:', error.config?.url || 'N/A');
+      console.error('URL COMPLETA TENTADA:', `https://ddevs-86w2.onrender.com/api${endpoint}`);
       console.error('BASE URL:', 'https://ddevs-86w2.onrender.com/api');
       
       if (error.message.includes('Unexpected token')) {
