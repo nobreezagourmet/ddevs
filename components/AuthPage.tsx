@@ -8,7 +8,8 @@ import SpinnerIcon from './icons/SpinnerIcon';
 const API_URL = 'https://ddevs-86w2.onrender.com/api'; // FORÇADO MANUALMENTE
 console.log('🎯 API_URL (Environment):', API_URL);
 console.log('🎯 import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🚨 VERSÃO DO BUILD: 2025-02-03-20:40 - CORREÇÃO URL MANUAL');
+console.log('🚨 VERSÃO DO BUILD: 2025-02-03-20:48 - FORÇAR DEPLOY VERCEL');
+console.log('🚨 ARQUIVO JS: index-hoEPQgz6.js');
 
 interface AuthPageProps {
   selectedQuotas: number;
