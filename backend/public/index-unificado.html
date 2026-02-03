@@ -403,7 +403,14 @@
                     console.log('📎 Imagem adicionada ao FormData:', imageFile.name);
                 }
 
-                console.log('📊 FormData criado com', formData.entries().length, 'campos');
+                console.log('📊 FormData criado');
+                console.log('📋 Chaves do FormData:', Array.from(formData.keys()));
+                console.log('📋 Total de campos:', Array.from(formData.keys()).length);
+                
+                // Log detalhado dos valores
+                for (let [key, value] of formData.entries()) {
+                    console.log(`- ${key}:`, value, '(tipo:', typeof value, ')');
+                }
 
                 const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
                     method: 'POST',
@@ -455,7 +462,13 @@
                     console.error('❌ ERRO DO BACKEND:', errorMessage);
                     console.error('Status:', response.status);
                     console.error('Data completa:', data);
-                    showStatus('raffleStatus', errorMessage, 'error');
+                    
+                    // Tratamento específico para erro 400
+                    if (response.status === 400) {
+                        alert(`❌ Erro 400 - Bad Request: ${errorMessage}`);
+                    } else {
+                        showStatus('raffleStatus', errorMessage, 'error');
+                    }
                 }
             } catch (error) {
                 console.error('💥 ERRO DE CONEXÃO COMPLETO:', error);

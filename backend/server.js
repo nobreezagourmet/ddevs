@@ -44,8 +44,9 @@ try {
     process.exit(1);
 }
 
-// MIDDLEWARE NO TOPO ABSOLUTO
-app.use(express.json());
+// MIDDLEWARE NO TOPO ABSOLUTO - COM LIMITES AUMENTADOS
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // MIDDLEWARE CORS OTIMIZADO
 app.use(cors({ 
@@ -57,9 +58,6 @@ app.use(cors({
 
 // MIDDLEWARE PREFLIGHT
 app.options('*', cors());
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // MIDDLEWARE DE LOG MELHORADO
 app.use((req, res, next) => {
@@ -158,10 +156,7 @@ app.get('*', (req, res) => {
 app.get('/api/test', (req, res) => {
     console.log('🧪 TESTE - Conexão validada');
     res.json({ 
-        status: "ok",
-        message: "Backend Online",
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
+        success: true
     });
 });
 
