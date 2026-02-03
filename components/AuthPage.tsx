@@ -4,9 +4,9 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// 🎯 SOLUÇÃO FINAL - URL DIRETA DO RENDER
-const API_URL = 'https://ddevs-86w2.onrender.com/api';
-console.log('🎯 API_URL:', API_URL);
+// 🎯 VARIÁVEL DE AMBIENTE DA VERCEL
+const API_URL = import.meta.env.VITE_API_URL || 'https://ddevs-86w2.onrender.com/api';
+console.log('🎯 API_URL (Environment):', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -14,35 +14,54 @@ interface AuthPageProps {
   onAuthSuccess: (user: User, token: string) => void;
 }
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
 const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSuccess }) => {
   const [mode, setMode] = useState<AuthMode>(AuthMode.REGISTER);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  
+  // 🎯 ÚNICO OBJETO DE ESTADO PARA O FORMULÁRIO
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const handleInputChange = useCallback((field: keyof FormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
   const validateForm = useCallback(() => {
-    if (mode === AuthMode.REGISTER && !name.trim()) {
+    if (mode === AuthMode.REGISTER && !formData.name.trim()) {
       setError('Nome é obrigatório');
       return false;
     }
-    if (!email.trim()) {
+    if (!formData.email.trim()) {
       setError('E-mail é obrigatório');
       return false;
     }
-    if (!password.trim()) {
+    if (!formData.password.trim()) {
       setError('Senha é obrigatória');
       return false;
     }
-    if (password.length < 6) {
+    if (formData.password.length < 6) {
       setError('Senha deve ter pelo menos 6 caracteres');
       return false;
     }
     setError('');
     return true;
-  }, [mode, name, email, password]);
+  }, [mode, formData]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -52,37 +71,52 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // 🎯 URL DIRETA DO RENDER - SEM CONFLITOS
+    // 🎯 URL COMPLETA USANDO VARIÁVEL DE AMBIENTE
     const endpoint = mode === AuthMode.LOGIN 
       ? `${API_URL}/auth/login` 
       : `${API_URL}/auth/register`;
     
+    // 🎯 PAYLOAD CORRETO BASEADO NO MODO
     const payload = mode === AuthMode.LOGIN 
-      ? { email, password } 
-      : { name, email, phone, password };
+      ? { 
+          email: formData.email, 
+          password: formData.password 
+        } 
+      : { 
+          name: formData.name, 
+          email: formData.email, 
+          phone: formData.phone, 
+          password: formData.password 
+        };
 
     console.log('🎯 ENVIANDO PARA:', endpoint);
     console.log('🎯 DADOS:', payload);
 
     try {
+      // 🎯 FETCH COM MÉTODO POST E HEADERS OBRIGATÓRIOS
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', // OBRIGATÓRIO
           'Accept': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload), // OBRIGATÓRIO
       });
 
       console.log('🎯 STATUS:', response.status);
       console.log('🎯 OK:', response.ok);
 
+      // 🚨 CORREÇÃO CRÍTICA - VERIFICAÇÃO ANTES DO JSON
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ ERRO SERVIDOR:', errorText);
         
         if (response.status === 404) {
-          throw new Error('Servidor não encontrado. Tente novamente.');
+          throw new Error('Endpoint não encontrado. Verifique a configuração da API.');
+        }
+        
+        if (errorText.includes('Not Found')) {
+          throw new Error('Rota não encontrada. Verifique se o backend está acessível.');
         }
         
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -100,7 +134,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ 
+              email: formData.email, 
+              password: formData.password 
+            }),
           });
           
           const loginData = await loginResponse.json();
@@ -121,7 +158,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
     } catch (error) {
       console.error('🎯 ERRO:', error);
-      setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      
+      // 🚨 TRATAMENTO ESPECÍFICO PARA ERROS DE JSON
+      if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+        setError('Erro de comunicação com o servidor. Verifique a configuração da API.');
+      } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+        setError('Servidor não encontrado. Verifique a URL da API e o CORS.');
+      } else if (error.message.includes('CORS')) {
+        setError('Erro de CORS. Configure o backend para aceitar requisições do domínio ddevss.vercel.app');
+      } else {
+        setError(error.message || 'Ocorreu um erro. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +177,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/\D/g, '');
     if (rawValue.length <= 11) {
-      setPhone(formatPhoneNumber(e.target.value));
+      handleInputChange('phone', formatPhoneNumber(e.target.value));
     }
   };
 
@@ -153,8 +200,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
             <InputField
               label="Nome completo"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Seu nome completo"
               required
             />
@@ -163,8 +210,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
           <InputField
             label="E-mail"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
             placeholder="seu@email.com"
             required
           />
@@ -173,7 +220,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
             <InputField
               label="Telefone"
               type="tel"
-              value={phone}
+              value={formData.phone}
               onChange={handlePhoneChange}
               placeholder="(11) 99999-9999"
               maxLength={15}
@@ -184,8 +231,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
           <InputField
             label="Senha"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={(e) => handleInputChange('password', e.target.value)}
             placeholder="Mínimo 6 caracteres"
             required
           />
