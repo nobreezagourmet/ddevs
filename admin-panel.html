@@ -374,7 +374,7 @@
             }
         });
 
-        // Create raffle function - VERSÃO GARANTIDA
+        // Create raffle function - VERSÃO GARANTIDA COM DEBUG COMPLETO
         async function createRaffle() {
             console.log('=== CRIAÇÃO DE RIFA INICIADA ===');
             
@@ -391,6 +391,7 @@
             console.log('- Packages:', quickSelectPackages);
             console.log('- Image:', imageFile ? imageFile.name : 'Nenhuma');
             console.log('- Token:', authToken ? 'Presente' : 'AUSENTE');
+            console.log('- API_URL:', API_URL);
             
             // VALIDAÇÃO OBRIGATÓRIA
             if (!authToken) {
@@ -442,42 +443,79 @@
                 console.log('Imagem adicionada:', imageFile.name);
             }
 
-            console.log('FormData criado, campos:', formData.entries());
-            console.log('Enviando requisição para:', `${API_URL}/api/admin/create-raffle`);
+            console.log('FormData criado');
+            console.log('Enviando para:', `${API_URL}/api/admin/create-raffle`);
 
             try {
+                console.log('🚀 ENVIANDO REQUISIÇÃO...');
+                console.log('Headers:', {
+                    'Authorization': `Bearer ${authToken.substring(0, 20)}...`,
+                    'Content-Type': 'multipart/form-data'
+                });
+                
                 const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
+                        // NÃO especificar Content-Type para FormData (browser define automaticamente)
                     },
                     body: formData
                 });
 
-                console.log('RESPOSTA RECEBIDA:');
+                console.log('📥 RESPOSTA RECEBIDA:');
                 console.log('- Status:', response.status);
+                console.log('- Status Text:', response.statusText);
                 console.log('- OK:', response.ok);
+                console.log('- Headers:', Object.fromEntries(response.headers.entries()));
 
-                const data = await response.json();
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                console.log('- Content-Type:', contentType);
+                
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('- Response Text:', text);
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        data = { success: false, message: 'Resposta inválida do servidor' };
+                    }
+                }
+                
                 console.log('- Data:', data);
 
-                if (response.ok && data.success) {
-                    alert('✅ RIFA CRIADA COM SUCESSO!');
-                    showStatus('raffleStatus', 'Rifa criada com sucesso!', 'success');
+                // TRATAMENTO CORRETO DA RESPOSTA DO BACKEND
+                if (response.ok && data.success === true) {
+                    console.log('✅ SUCESSO - Rifa criada');
+                    alert('✅ ' + data.message);
+                    showStatus('raffleStatus', data.message, 'success');
+                    
+                    // Mostrar dados da rifa criada
+                    if (data.data) {
+                        console.log('RIFA CRIADA COM DADOS:', data.data);
+                    }
                     
                     // Limpar formulário
                     document.getElementById('raffleTitle').value = '';
-                    document.getElementById('pricePerQuota').value = '';
-                    document.getElementById('totalQuotas').value = '';
+                    document.getElementById('pricePerQuota').value = '10.00';
+                    document.getElementById('totalQuotas').value = '1000';
                     document.getElementById('quickSelectPackages').value = '10, 50, 100, 500';
                     document.getElementById('raffleImage').value = '';
                     document.getElementById('imagePreview').style.display = 'none';
                 } else {
-                    alert(`❌ ERRO: ${data.message || 'Erro ao criar rifa'}`);
-                    showStatus('raffleStatus', data.message || 'Erro ao criar rifa', 'error');
+                    // TRATAMENTO DE ERRO CORRETO
+                    const errorMessage = data.message || 'Erro ao criar rifa';
+                    console.log('❌ ERRO:', errorMessage);
+                    console.log('Status:', response.status);
+                    alert('❌ ' + errorMessage);
+                    showStatus('raffleStatus', errorMessage, 'error');
                 }
             } catch (error) {
-                console.error('ERRO NA REQUISIÇÃO:', error);
+                console.error('💥 ERRO NA REQUISIÇÃO:', error);
+                console.error('Stack:', error.stack);
                 alert(`❌ ERRO DE CONEXÃO: ${error.message}`);
                 showStatus('raffleStatus', `Erro de conexão: ${error.message}`, 'error');
             }

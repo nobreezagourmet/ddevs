@@ -138,14 +138,33 @@
                 });
 
                 const data = await response.json();
+                console.log('Resposta do backend:', data);
 
-                if (response.ok && data.success) {
-                    showStatus('✅ RIFA CRIADA COM SUCESSO!', 'success');
+                // TRATAMENTO CORRETO DA RESPOSTA DO BACKEND
+                if (response.ok && data.success === true) {
+                    showStatus('✅ ' + data.message, 'success');
+                    
+                    // Mostrar dados da rifa criada
+                    if (data.data) {
+                        console.log('RIFA CRIADA:', data.data);
+                        showStatus(
+                            `✅ ${data.message}<br>
+                            <small>ID: ${data.data._id}<br>
+                            Título: ${data.data.title}<br>
+                            Preço: R$${data.data.pricePerQuota}<br>
+                            Cotas: ${data.data.totalQuotas}</small>`, 
+                            'success'
+                        );
+                    }
+                    
                     // Limpar formulário
                     document.getElementById('raffleForm').reset();
                     document.getElementById('imagePreview').style.display = 'none';
                 } else {
-                    showStatus(`❌ ERRO: ${data.message}`, 'error');
+                    // TRATAMENTO DE ERRO CORRETO
+                    const errorMessage = data.message || 'Erro ao criar rifa';
+                    showStatus('❌ ' + errorMessage, 'error');
+                    console.log('ERRO:', data);
                 }
             } catch (error) {
                 showStatus(`❌ ERRO: ${error.message}`, 'error');

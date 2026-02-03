@@ -47,19 +47,31 @@ try {
 // MIDDLEWARE NO TOPO ABSOLUTO
 app.use(express.json());
 
-app.use(require('cors')({ 
-    origin: '*',  // ABERTO PARA TESTE
-    credentials: true 
+// MIDDLEWARE CORS OTIMIZADO
+app.use(cors({ 
+    origin: ['*', 'http://localhost:3000', 'https://ddevs-86w2.onrender.com'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// MIDDLEWARE PREFLIGHT
+app.options('*', cors());
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MIDDLEWARE DE LOG CRÍTICO - ACIMA DE TUDO
+// MIDDLEWARE DE LOG MELHORADO
 app.use((req, res, next) => {
-    console.log('🚨 REQ RECEBIDA:', req.method, req.url);
-    console.log('🌐 ORIGEM:', req.headers.origin);
-    console.log('📋 PATH:', req.path);
-    console.log('🔗 ORIGINAL URL:', req.originalUrl);
+    const timestamp = new Date().toISOString();
+    console.log('\n� ===== REQUISIÇÃO RECEBIDA =====');
+    console.log(`⏰ Timestamp: ${timestamp}`);
+    console.log(`🔧 Método: ${req.method}`);
+    console.log(`📍 URL: ${req.originalUrl}`);
+    console.log(`🌐 Origem: ${req.headers.origin || 'Direct'}`);
+    console.log(`� Authorization: ${req.headers.authorization ? 'Present' : 'Missing'}`);
+    console.log(`� Content-Type: ${req.headers['content-type'] || 'Not specified'}`);
+    console.log('=====================================\n');
     next();
 });
 
