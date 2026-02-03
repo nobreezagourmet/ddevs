@@ -72,12 +72,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // 🎯 URL COMPLETA USANDO VARIÁVEL DE AMBIENTE
+    // 🎯 URL COMPLETA FORÇADA MANUALMENTE
+    const baseUrl = 'https://ddevs-86w2.onrender.com/api';
     const endpoint = mode === AuthMode.LOGIN 
-      ? `${API_URL}/auth/login` 
-      : `${API_URL}/auth/register`;
+      ? `${baseUrl}/auth/login` 
+      : `${baseUrl}/auth/register`;
     
-    console.log('🚀 DEBUG - API_URL:', API_URL);
+    console.log('🚀 DEBUG - baseUrl:', baseUrl);
     console.log('🚀 DEBUG - endpoint:', endpoint);
     console.log('🚀 DEBUG - mode:', mode);
     
