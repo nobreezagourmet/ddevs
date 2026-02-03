@@ -114,29 +114,29 @@ app.use('/api/admin', adminRoutes);
 // SERVIR ARQUIVOS ESTÁTICOS DA RAIZ DO BACKEND
 app.use(express.static(__dirname));
 
-// ROTA DE ACESSO AO PAINEL ADMIN - ANTES DE QUALQUER ROTA GENÉRICA
-app.get('/admin-painel', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// ROTA ADMIN-PANEL.HTML
-app.get('/admin-panel.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
-});
-
-// ROTA RAIZ - CARREGA O PAINEL ADMIN
+// ROTA RAIZ - CARREGA O PAINEL ADMIN UNIFICADO
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index-unificado.html'));
 });
 
 // ROTA ADMIN PADRÃO
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index-unificado.html'));
 });
 
 // ROTA ADMIN.HTML
 app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index-unificado.html'));
+});
+
+// ROTA ADMIN-PANEL.HTML (REDIRECIONAR)
+app.get('/admin-panel.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index-unificado.html'));
+});
+
+// ROTA ADMIN-PAINEL (REDIRECIONAR)
+app.get('/admin-painel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index-unificado.html'));
 });
 
 // ROTA CORINGA - PEGA TUDO O QUE NÃO É API E SERVE O INDEX
