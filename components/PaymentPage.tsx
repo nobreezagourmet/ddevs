@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { API_ENDPOINTS } from '../src/config/api';
 import CopyIcon from './icons/CopyIcon';
 import SpinnerIcon from './icons/SpinnerIcon';
 import CheckIcon from './icons/CheckIcon';
@@ -36,7 +35,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
       try {
         // DEBUG: Log da URL sendo chamada
         console.log('🚀 CHAMANDO API PAYMENT EM:', manualUrl);
-        console.log('💾 BODY:', { raffleId, quantity });
+        console.log('💾 BODY:', { raffleId, quantity, purchaseType: 'manual' });
         
         const response = await fetch(manualUrl, {
           method: 'POST',
@@ -44,7 +43,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ raffleId, quantity })
+          body: JSON.stringify({ raffleId, quantity, purchaseType: 'manual' })
         });
         
         const data = await response.json();
