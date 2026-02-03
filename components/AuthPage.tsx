@@ -5,9 +5,8 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
-console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
-console.log('🔗 API_URL IMPORTADO:', API_URL);
+// � LOG DE SUCESSO RESETADO
+console.log('� SISTEMA RESETADO - API:', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;

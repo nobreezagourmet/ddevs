@@ -1,12 +1,11 @@
-// Build Version: 2.0.1 - Conexão Render
-// 🚨 FORÇAR NOVO BUNDLE - CACHE BREAKER
+// Build Version: 2.0.2 - Reset via Vercel Env Vars
+// 🚨 FORÇAR NOVO BUNDLE - VITE_API_URL
 
-// CONFIGURAÇÃO GLOBAL MANUAL - FETCH NATIVO
-const API_URL = 'https://ddevs-86w2.onrender.com';
+// CONFIGURAÇÃO VIA VARIÁVEL DE AMBIENTE VITE
+const API_URL = import.meta.env.VITE_API_URL || 'https://ddevs-86w2.onrender.com';
 
-// 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
-console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
-console.log('🔗 API_URL FORÇADO:', API_URL);
+// � LOG DE SUCESSO RESETADO
+console.log('� SISTEMA RESETADO - API:', API_URL);
 
 // EXPORTAR CONSTANTE PARA USO EM TODA APLICAÇÃO
 export { API_URL };
