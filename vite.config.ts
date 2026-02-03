@@ -12,7 +12,9 @@ export default defineConfig(({ mode }) => {
       plugins: [react()],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        // 🚨 FORÇAR API_URL DO RENDER
+        'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'https://ddevs-86w2.onrender.com')
       },
       resolve: {
         alias: {

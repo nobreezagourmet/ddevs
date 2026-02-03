@@ -1,23 +1,13 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import api from '../src/services/api';
+import api, { API_URL } from '../src/services/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// 🚨 DECLARAÇÃO GLOBAL TypeScript
-declare global {
-  interface Window {
-    API_URL: string;
-  }
-}
-
-// 🚨 HARDCODE DE EMERGÊNCIA - CONEXÃO COM RENDER
-window.API_URL = 'https://ddevs-86w2.onrender.com';
-
 // 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
 console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
-console.log('🔗 API_URL FORÇADO:', window.API_URL);
+console.log('🔗 API_URL IMPORTADO:', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -84,8 +74,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
     // --- LOG DE DEBUG PARA VERIFICAR URL ---
-    console.log('Enviando para:', 'https://ddevs-86w2.onrender.com');
-    console.log('Endpoint completo:', `https://ddevs-86w2.onrender.com/api${endpoint}`);
+    console.log('Enviando para:', API_URL);
+    console.log('Endpoint completo:', `${API_URL}/api${endpoint}`);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
 
@@ -136,8 +126,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
       console.error('ERRO COMPLETO:', error);
       console.error('URL FALHOU:', endpoint);
-      console.error('URL COMPLETA TENTADA:', `https://ddevs-86w2.onrender.com/api${endpoint}`);
-      console.error('BASE URL:', 'https://ddevs-86w2.onrender.com/api');
+      console.error('URL COMPLETA TENTADA:', `${API_URL}/api${endpoint}`);
+      console.error('BASE URL:', API_URL);
       
       if (error.message.includes('Unexpected token')) {
         setError('Erro de comunicação com o servidor. Tente novamente.');

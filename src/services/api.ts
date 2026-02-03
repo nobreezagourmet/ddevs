@@ -1,5 +1,15 @@
+// Build Version: 2.0.1 - Conexão Render
+// 🚨 FORÇAR NOVO BUNDLE - CACHE BREAKER
+
 // CONFIGURAÇÃO GLOBAL MANUAL - FETCH NATIVO
-const API_BASE_URL = 'https://ddevs-86w2.onrender.com/api';
+const API_URL = 'https://ddevs-86w2.onrender.com';
+
+// 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
+console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
+console.log('🔗 API_URL FORÇADO:', API_URL);
+
+// EXPORTAR CONSTANTE PARA USO EM TODA APLICAÇÃO
+export { API_URL };
 
 class ApiClient {
   private baseURL: string;
@@ -53,5 +63,5 @@ class ApiClient {
   }
 }
 
-const api = new ApiClient(API_BASE_URL);
+const api = new ApiClient(API_URL + '/api');
 export default api;
