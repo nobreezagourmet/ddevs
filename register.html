@@ -106,11 +106,12 @@
     </div>
 
     <script>
-        const API_URL = 'https://ddevs-86w2.onrender.com';
-
-        // LOG DE DEBUG PARA CONFIRMAR VERSÃO NOVA
-        console.log("Conectando ao Backend em: https://ddevs-86w2.onrender.com");
-        console.log("API_URL configurado:", API_URL);
+        // 🚨 HARDCODE DE EMERGÊNCIA - CONEXÃO COM RENDER
+        window.API_URL = 'https://ddevs-86w2.onrender.com';
+        
+        // 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
+        console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
+        console.log('🔗 API_URL FORÇADO:', window.API_URL);
 
         // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -186,8 +187,8 @@
             }
 
             // LOG DE DEBUG PARA VERIFICAR URL
-            console.log('Enviando para:', API_URL);
-            console.log('Endpoint completo:', `${API_URL}/api/auth/register`);
+            console.log('Enviando para:', window.API_URL);
+            console.log('Endpoint completo:', window.API_URL + '/api/auth/register');
             console.log('Dados enviados:', { name, email, phone, password });
             console.log('Método:', 'POST');
 
@@ -197,7 +198,7 @@
                 
                 showStatus('Cadastrando...', 'info');
 
-                const response = await fetch(`${API_URL}/api/auth/register`, {
+                const response = await fetch(window.API_URL + '/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -224,8 +225,9 @@
                 }
             } catch (error) {
                 console.error('--- ERRO CAPTURADO ---');
+                console.error('Falha na URL:', window.API_URL);
                 console.error('ERRO COMPLETO:', error);
-                console.error('URL COMPLETA TENTADA:', `${API_URL}/api/auth/register`);
+                console.error('URL COMPLETA TENTADA:', window.API_URL + '/api/auth/register');
                 
                 if (error.message.includes('Unexpected token')) {
                     showStatus('Erro de comunicação com o servidor. Tente novamente.', 'error');

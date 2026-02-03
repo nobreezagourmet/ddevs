@@ -5,9 +5,19 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// LOG DE DEBUG PARA CONFIRMAR VERSÃO NOVA
-console.log("Conectando ao Backend em: https://ddevs-86w2.onrender.com");
-console.log("API Client Base URL:", 'https://ddevs-86w2.onrender.com/api');
+// 🚨 DECLARAÇÃO GLOBAL TypeScript
+declare global {
+  interface Window {
+    API_URL: string;
+  }
+}
+
+// 🚨 HARDCODE DE EMERGÊNCIA - CONEXÃO COM RENDER
+window.API_URL = 'https://ddevs-86w2.onrender.com';
+
+// 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
+console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
+console.log('🔗 API_URL FORÇADO:', window.API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;

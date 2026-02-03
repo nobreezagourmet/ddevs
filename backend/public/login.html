@@ -82,11 +82,12 @@
     </div>
 
     <script>
-        const API_URL = 'https://ddevs-86w2.onrender.com';
-
-        // LOG DE DEBUG PARA CONFIRMAR VERSÃO NOVA
-        console.log("Conectando ao Backend em: https://ddevs-86w2.onrender.com");
-        console.log("API_URL configurado:", API_URL);
+        // 🚨 HARDCODE DE EMERGÊNCIA - CONEXÃO COM RENDER
+        window.API_URL = 'https://ddevs-86w2.onrender.com';
+        
+        // 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
+        console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
+        console.log('🔗 API_URL FORÇADO:', window.API_URL);
 
         // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -147,7 +148,7 @@
                 try {
                     showStatus('Autenticando...', 'info');
                     
-                    const response = await fetch(`${API_URL}/api/auth/login`, {
+                    const response = await fetch(window.API_URL + '/api/auth/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

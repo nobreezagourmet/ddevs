@@ -50,11 +50,12 @@
     <div id="logs"></div>
 
     <script>
-        const API_URL = 'https://ddevs-86w2.onrender.com';
-
-        // LOG DE DEBUG PARA CONFIRMAR VERSÃO NOVA
-        console.log("Conectando ao Backend em: https://ddevs-86w2.onrender.com");
-        console.log("API_URL configurado:", API_URL);
+        // 🚨 HARDCODE DE EMERGÊNCIA - CONEXÃO COM RENDER
+        window.API_URL = 'https://ddevs-86w2.onrender.com';
+        
+        // 🚀 CARIMBO DE VERSÃO - IDENTIFICADOR NO CONSOLE
+        console.log('🚀 VERSÃO ATUALIZADA: CONEXÃO COM RENDER ATIVA');
+        console.log('🔗 API_URL FORÇADO:', window.API_URL);
         
         function showStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
@@ -106,7 +107,7 @@
                 
                 addLog('Enviando FormData para API...');
                 
-                const response = await fetch(`${API_URL}/api/admin/create-raffle`, {
+                const response = await fetch(window.API_URL + '/api/admin/create-raffle', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
