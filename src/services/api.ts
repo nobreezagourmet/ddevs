@@ -1,14 +1,9 @@
-// 🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥
-// 🚨 URL FIXA RADICAL - SEM VARIÁVEIS DE AMBIENTE
+// ✅ LINK DIRETO COM RENDER ATIVADO
+console.log('✅ LINK DIRETO COM RENDER ATIVADO');
 
-// URL FIXA DO RENDER - SEM import.meta.env, SEM process.env
-const API_URL = 'https://ddevs-86w2.onrender.com';
+// FORÇAR URL DIRETA - SEM VARIÁVEIS
+const API_URL = 'https://ddevs-86w2.onrender.com/api/';
 
-// 🔥 CARIMBO DE IDENTIFICAÇÃO CRUCIAL
-console.log('🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥');
-console.log('🔗 API_URL FORÇADO:', API_URL);
-
-// EXPORTAR CONSTANTE PARA USO EM TODA APLICAÇÃO
 export { API_URL };
 
 class ApiClient {
@@ -22,10 +17,12 @@ class ApiClient {
     const token = localStorage.getItem('authToken');
     const url = `${this.baseURL}${endpoint}`;
     
+    console.log('🔗 URL COMPLETA:', url);
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json', // FORÇAR JSON
+        'Accept': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
@@ -63,5 +60,5 @@ class ApiClient {
   }
 }
 
-const api = new ApiClient(API_URL + '/api');
+const api = new ApiClient(API_URL);
 export default api;
