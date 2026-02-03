@@ -5,8 +5,9 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// ✅ LINK DIRETO COM RENDER ATIVADO
-console.log('✅ LINK DIRETO COM RENDER ATIVADO');
+// 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
+console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
+console.log('🔗 URL ALVO:', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -68,23 +69,29 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // ✅ LINK DIRETO COM RENDER ATIVADO
-    console.log('✅ LINK DIRETO COM RENDER ATIVADO');
+    // 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
+    console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
+    console.log('🔗 URL ALVO:', API_URL);
 
-    // FORÇAR LINK DIRETO - SEM VARIÁVEIS
-    const registerUrl = 'https://ddevs-86w2.onrender.com/api/auth/register';
-    const loginUrl = 'https://ddevs-86w2.onrender.com/api/auth/login';
+    // AUDITORIA: Construção explícita da URL - SEM RELATIVOS
+    const registerUrl = `${API_URL}/api/auth/register`;
+    const loginUrl = `${API_URL}/api/auth/login`;
     
     const endpoint = mode === AuthMode.LOGIN ? loginUrl : registerUrl;
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
-    console.log('� URL DIRETA:', endpoint);
-    console.log('Dados enviados:', payload);
+    // AUDITORIA: Log completo antes da requisição
+    console.log('🛡️ AUDITORIA PRE-REQUEST:', {
+      endpoint: endpoint,
+      payload: payload,
+      mode: mode,
+      timestamp: new Date().toISOString()
+    });
 
     try {
-      console.log('--- ENVIANDO PARA RENDER DIRETO ---');
+      console.log('🛡️ AUDITORIA: INICIANDO FETCH DIRETO');
       
-      // FORÇAR FETCH COM URL DIRETA
+      // AUDITORIA: Fetch com URL completa - NENHUM RELATIVO
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -94,8 +101,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload),
       });
 
-      console.log('📡 RESPOSTA:', response.status);
-      console.log('🔗 URL CHAMADA:', endpoint);
+      // AUDITORIA: Log completo da resposta
+      console.log('�️ AUDITORIA POST-REQUEST:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: endpoint,
+        timestamp: new Date().toISOString()
+      });
       
       const data = await response.json();
 
@@ -104,8 +116,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       }
 
       if (mode === AuthMode.REGISTER) {
-        // Login após registro
-        console.log('🚀 FAZENDO LOGIN DIRETO:', loginUrl);
+        // AUDITORIA: Login pós-registro com URL explícita
+        console.log('�️ AUDITORIA: LOGIN PÓS-REGISTRO', { url: loginUrl });
          const loginResponse = await fetch(loginUrl, {
            method: 'POST',
            headers: {
@@ -122,23 +134,27 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
          }
          onAuthSuccess(loginData.data, loginData.data.token);
          
-         console.log('✅ Cadastro bem-sucedido! Redirecionando...');
+         console.log('🛡️ AUDITORIA: CADASTRO SUCESSO');
          window.location.href = 'https://ddevss.vercel.app';
 
       } else {
         onAuthSuccess(data.data, data.data.token);
         
-        console.log('✅ Login bem-sucedido! Redirecionando...');
+        console.log('🛡️ AUDITORIA: LOGIN SUCESSO');
         window.location.href = 'https://ddevss.vercel.app';
       }
 
     } catch (error) {
-      console.error('--- ERRO NA CONEXÃO ---');
-      console.error('❌ URL FALHOU:', endpoint);
-      console.error('❌ ERRO:', error);
+      // AUDITORIA: Log completo de erro
+      console.error('🛡️ AUDITORIA ERROR:', {
+        error: error.message,
+        stack: error.stack,
+        endpoint: endpoint,
+        timestamp: new Date().toISOString()
+      });
       
       if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
-        console.error('❌ ERRO JSON - Servidor retornou HTML');
+        console.error('🛡️ AUDITORIA CRITICAL: HTML 404 RECEBIDO - VERIFICAR URL');
         setError('Erro de comunicação. Verificando conexão...');
       } else {
         setError(error.message || 'Ocorreu um erro. Tente novamente.');

@@ -1,8 +1,10 @@
-// ✅ LINK DIRETO COM RENDER ATIVADO
-console.log('✅ LINK DIRETO COM RENDER ATIVADO');
+// 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
+console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
 
-// FORÇAR URL DIRETA - SEM VARIÁVEIS
-const API_URL = 'https://ddevs-86w2.onrender.com/api/';
+// HARDCODE AUDITORIA - SEM VARIÁVEIS, SEM PROCESS.ENV, SEM IMPORT.META.ENV
+const API_URL = 'https://ddevs-86w2.onrender.com';
+
+console.log('🔗 URL ALVO:', API_URL);
 
 export { API_URL };
 
@@ -17,7 +19,13 @@ class ApiClient {
     const token = localStorage.getItem('authToken');
     const url = `${this.baseURL}${endpoint}`;
     
-    console.log('🔗 URL COMPLETA:', url);
+    // AUDITORIA: Log completo da requisição
+    console.log('�️ AUDITORIA REQUEST:', {
+      url: url,
+      method: options.method || 'GET',
+      hasToken: !!token,
+      timestamp: new Date().toISOString()
+    });
     
     const config: RequestInit = {
       headers: {
@@ -30,6 +38,15 @@ class ApiClient {
     };
 
     const response = await fetch(url, config);
+    
+    // AUDITORIA: Log da resposta
+    console.log('🛡️ AUDITORIA RESPONSE:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: url,
+      timestamp: new Date().toISOString()
+    });
+    
     return response;
   }
 
@@ -60,5 +77,5 @@ class ApiClient {
   }
 }
 
-const api = new ApiClient(API_URL);
+const api = new ApiClient(API_URL + '/api');
 export default api;
