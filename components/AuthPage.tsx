@@ -5,8 +5,9 @@ import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
 // 🎯 VARIÁVEL DE AMBIENTE DA VERCEL
-const API_URL = import.meta.env.VITE_API_URL || 'https://ddevs-86w2.onrender.com/api';
+const API_URL = 'https://ddevs-86w2.onrender.com/api'; // FORÇADO MANUALMENTE
 console.log('🎯 API_URL (Environment):', API_URL);
+console.log('🎯 import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
