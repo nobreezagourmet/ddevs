@@ -1,13 +1,13 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import api, { API_URL } from '../src/services/api';
+import api, { BASE_URL } from '../src/services/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
-console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
-console.log('🔗 URL ALVO:', API_URL);
+// ✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026
+console.log('✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026');
+console.log('🔗 ALVO:', BASE_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -69,29 +69,24 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
-    console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
-    console.log('🔗 URL ALVO:', API_URL);
+    // ✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026
+    console.log('✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026');
+    console.log('🔗 ALVO:', BASE_URL);
 
-    // AUDITORIA: Construção explícita da URL - SEM RELATIVOS
-    const registerUrl = `${API_URL}/api/auth/register`;
-    const loginUrl = `${API_URL}/api/auth/login`;
+    // SUBSTITUIÇÃO DE FETCH - USAR BASE_URL SEM RELATIVOS
+    const registerUrl = `${BASE_URL}/auth/register`;
+    const loginUrl = `${BASE_URL}/auth/login`;
     
     const endpoint = mode === AuthMode.LOGIN ? loginUrl : registerUrl;
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
-    // AUDITORIA: Log completo antes da requisição
-    console.log('🛡️ AUDITORIA PRE-REQUEST:', {
-      endpoint: endpoint,
-      payload: payload,
-      mode: mode,
-      timestamp: new Date().toISOString()
-    });
+    console.log('� URL COMPLETA:', endpoint);
+    console.log('Dados enviados:', payload);
 
     try {
-      console.log('🛡️ AUDITORIA: INICIANDO FETCH DIRETO');
+      console.log('--- ENVIANDO PARA RENDER DIRETO ---');
       
-      // AUDITORIA: Fetch com URL completa - NENHUM RELATIVO
+      // FETCH COM BASE_URL - SEM RELATIVOS
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -101,13 +96,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload),
       });
 
-      // AUDITORIA: Log completo da resposta
-      console.log('�️ AUDITORIA POST-REQUEST:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: endpoint,
-        timestamp: new Date().toISOString()
-      });
+      console.log('📡 RESPOSTA:', response.status);
+      console.log('🔗 URL CHAMADA:', endpoint);
       
       const data = await response.json();
 
@@ -116,8 +106,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       }
 
       if (mode === AuthMode.REGISTER) {
-        // AUDITORIA: Login pós-registro com URL explícita
-        console.log('�️ AUDITORIA: LOGIN PÓS-REGISTRO', { url: loginUrl });
+        // Login pós-registro com BASE_URL
+        console.log('🚀 FAZENDO LOGIN COM BASE_URL:', loginUrl);
          const loginResponse = await fetch(loginUrl, {
            method: 'POST',
            headers: {
@@ -134,27 +124,23 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
          }
          onAuthSuccess(loginData.data, loginData.data.token);
          
-         console.log('🛡️ AUDITORIA: CADASTRO SUCESSO');
+         console.log('✅ Cadastro bem-sucedido! Redirecionando...');
          window.location.href = 'https://ddevss.vercel.app';
 
       } else {
         onAuthSuccess(data.data, data.data.token);
         
-        console.log('🛡️ AUDITORIA: LOGIN SUCESSO');
+        console.log('✅ Login bem-sucedido! Redirecionando...');
         window.location.href = 'https://ddevss.vercel.app';
       }
 
     } catch (error) {
-      // AUDITORIA: Log completo de erro
-      console.error('🛡️ AUDITORIA ERROR:', {
-        error: error.message,
-        stack: error.stack,
-        endpoint: endpoint,
-        timestamp: new Date().toISOString()
-      });
+      console.error('--- ERRO NA CONEXÃO ---');
+      console.error('❌ URL FALHOU:', endpoint);
+      console.error('❌ ERRO:', error);
       
       if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
-        console.error('🛡️ AUDITORIA CRITICAL: HTML 404 RECEBIDO - VERIFICAR URL');
+        console.error('❌ ERRO JSON - Servidor retornou HTML');
         setError('Erro de comunicação. Verificando conexão...');
       } else {
         setError(error.message || 'Ocorreu um erro. Tente novamente.');

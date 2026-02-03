@@ -1,12 +1,12 @@
-// 🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render
-console.log('🛡️ AUDITORIA ATIVA: Conectando exclusivamente ao Render');
+// ✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026
+console.log('✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026');
 
-// HARDCODE AUDITORIA - SEM VARIÁVEIS, SEM PROCESS.ENV, SEM IMPORT.META.ENV
-const API_URL = 'https://ddevs-86w2.onrender.com';
+// HARDCODE ABSOLUTO - SEM VITE_API_URL, SEM VARIÁVEIS
+const BASE_URL = 'https://ddevs-86w2.onrender.com/api';
 
-console.log('🔗 URL ALVO:', API_URL);
+console.log('🔗 ALVO:', BASE_URL);
 
-export { API_URL };
+export { BASE_URL };
 
 class ApiClient {
   private baseURL: string;
@@ -19,14 +19,6 @@ class ApiClient {
     const token = localStorage.getItem('authToken');
     const url = `${this.baseURL}${endpoint}`;
     
-    // AUDITORIA: Log completo da requisição
-    console.log('�️ AUDITORIA REQUEST:', {
-      url: url,
-      method: options.method || 'GET',
-      hasToken: !!token,
-      timestamp: new Date().toISOString()
-    });
-    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -38,15 +30,6 @@ class ApiClient {
     };
 
     const response = await fetch(url, config);
-    
-    // AUDITORIA: Log da resposta
-    console.log('🛡️ AUDITORIA RESPONSE:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: url,
-      timestamp: new Date().toISOString()
-    });
-    
     return response;
   }
 
@@ -77,5 +60,5 @@ class ApiClient {
   }
 }
 
-const api = new ApiClient(API_URL + '/api');
+const api = new ApiClient(BASE_URL);
 export default api;
