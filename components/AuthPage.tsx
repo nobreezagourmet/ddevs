@@ -77,6 +77,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       ? `${API_URL}/auth/login` 
       : `${API_URL}/auth/register`;
     
+    console.log('🚀 DEBUG - API_URL:', API_URL);
+    console.log('🚀 DEBUG - endpoint:', endpoint);
+    console.log('🚀 DEBUG - mode:', mode);
+    
     // 🎯 PAYLOAD CORRETO BASEADO NO MODO
     const payload = mode === AuthMode.LOGIN 
       ? { 
