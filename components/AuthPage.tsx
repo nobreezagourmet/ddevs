@@ -165,7 +165,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       } else if (error.message.includes('404') || error.message.includes('Not Found')) {
         setError('Servidor não encontrado. Verifique a URL da API e o CORS.');
       } else if (error.message.includes('CORS')) {
-        setError('Erro de CORS. Configure o backend para aceitar requisições do domínio ddevss.vercel.app');
+        setError('Erro de CORS. Configure o backend para aceitar requisições do domínio devsss-five.vercel.app');
       } else {
         setError(error.message || 'Ocorreu um erro. Tente novamente.');
       }
