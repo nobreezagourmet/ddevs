@@ -109,6 +109,53 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 
+// ROTA DE ESTATÍSTICAS DO ADMIN - GARANTIDA NO server.js
+app.get('/api/admin/stats', async (req, res) => {
+    console.log('📊 BUSCANDO ESTATÍSTICAS DO ADMIN (server.js)');
+    
+    try {
+        const Raffle = require('./models/Raffle');
+        const User = require('./models/User');
+        
+        // Buscar estatísticas
+        const totalRaffles = await Raffle.countDocuments();
+        const activeRaffles = await Raffle.countDocuments({ isActive: true });
+        const totalUsers = await User.countDocuments();
+        
+        // Calcular total de cotas
+        let totalQuotas = 0;
+        const raffles = await Raffle.find({});
+        raffles.forEach(raffle => {
+            totalQuotas += raffle.totalQuotas || 0;
+        });
+        
+        console.log('✅ ESTATÍSTICAS CALCULADAS:', {
+            totalQuotas,
+            totalUsers,
+            activeRaffles,
+            totalRaffles
+        });
+        
+        res.json({
+            success: true,
+            data: {
+                totalQuotas,
+                totalUsers,
+                activeRaffles,
+                totalRaffles
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ ERRO AO BUSCAR ESTATÍSTICAS:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar estatísticas: ' + error.message,
+            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
 // SERVIR ARQUIVOS ESTÁTICOS DA RAIZ DO BACKEND
 app.use(express.static(__dirname));
 

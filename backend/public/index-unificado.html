@@ -307,24 +307,30 @@
                     }
                 });
 
+                // VERIFICAÇÃO CRÍTICA - Se response não for ok, não tentar ler JSON
+                if (!response.ok) {
+                    console.error('❌ ERRO HTTP:', response.status, response.statusText);
+                    if (response.status === 404) {
+                        console.error('❌ ERRO 404: Rota /api/admin/stats não encontrada');
+                    }
+                    return;
+                }
+
                 const data = await response.json();
                 console.log('📋 Resposta das estatísticas:', data);
 
-                if (response.ok && data.success) {
+                if (data.success) {
                     document.getElementById('totalQuotasCard').textContent = data.data.totalQuotas || 0;
                     document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
                     document.getElementById('activeRaffles').textContent = data.data.activeRaffles || 0;
                     console.log('✅ Estatísticas carregadas com sucesso');
                 } else {
                     console.error('❌ Erro ao carregar estatísticas:', data.message);
-                    if (response.status === 404) {
-                        console.error('❌ ERRO 404: Rota /api/admin/stats não encontrada');
-                    }
                 }
             } catch (error) {
                 console.error('❌ Erro ao carregar estatísticas:', error);
-                if (error.message.includes('404')) {
-                    console.error('❌ ERRO 404: Falha ao carregar recurso');
+                if (error.message.includes('Unexpected token')) {
+                    console.error('❌ ERRO JSON: Resposta não é JSON válido - provavelmente 404 Not Found');
                 }
             }
         }
