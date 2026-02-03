@@ -68,26 +68,39 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // FORÇADO: API global com endpoints relativos
-    const endpoint = mode === AuthMode.LOGIN ? '/auth/login' : '/auth/register';
+    // ✅ CONEXÃO SEGURA COM RENDER ESTABELECIDA
+    console.log('✅ CONEXÃO SEGURA COM RENDER ESTABELECIDA');
+
+    // 🚨 CORREÇÃO DEFINITIVA - URL FIXA DO RENDER
+    const registerUrl = 'https://ddevs-86w2.onrender.com/api/auth/register';
+    const loginUrl = 'https://ddevs-86w2.onrender.com/api/auth/login';
+    
+    const endpoint = mode === AuthMode.LOGIN ? loginUrl : registerUrl;
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
     // --- LOG DE DEBUG PARA VERIFICAR URL ---
-    console.log('Enviando para:', API_URL);
-    console.log('Endpoint completo:', `${API_URL}/api${endpoint}`);
+    console.log('🔥 URL FIXA DO RENDER:', endpoint);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
 
     try {
-      console.log('--- INICIANDO FETCH COM API GLOBAL ---');
+      console.log('--- INICIANDO FETCH COM URL FIXA ---');
       
-      const response = await api.post(endpoint, payload);
+      // 🚨 FETCH COM URL FIXA - SEM RELATIVOS
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
       // DEBUG: Mostrar resposta completa
       console.log('📡 RESPOSTA SERVIDOR:', response.status);
-      console.log('🔗 ENDPOINT CHAMADO:', endpoint);
+      console.log('🔗 URL CHAMADA:', endpoint);
       
-      const data = await response.json(); // api.post já retorna o JSON
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');
@@ -95,9 +108,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
 
       if (mode === AuthMode.REGISTER) {
         // Após registro bem-sucedido, tenta fazer login para obter o token
-        console.log('🚀 CHAMANDO API LOGIN EM:', '/auth/login');
-         const loginResponse = await api.post('/auth/login', { email, password });
-         const loginData = await loginResponse.json(); // api.post já retorna o JSON
+        console.log('🚀 CHAMANDO LOGIN COM URL FIXA:', loginUrl);
+         const loginResponse = await fetch(loginUrl, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'Accept': 'application/json',
+           },
+           body: JSON.stringify({ email, password }),
+         });
+         
+         const loginData = await loginResponse.json();
+         
          if (!loginResponse.ok) {
              throw new Error(loginData.message || 'Falha ao fazer login após o registro.');
          }
@@ -105,7 +127,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
          
          // REDIRECIONAR PARA PAINEL PRINCIPAL APÓS CADASTRO BEM-SUCEDIDO
          console.log('✅ Cadastro bem-sucedido! Redirecionando para painel...');
-         window.location.href = 'https://ddevss.vercel.app'; // ou '/index.html' se estiver no mesmo domínio
+         window.location.href = 'https://ddevss.vercel.app';
 
       } else {
         onAuthSuccess(data.data, data.data.token);
@@ -116,20 +138,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
       }
 
     } catch (error) {
-      // ALERTA PARA DEBUG
-      alert(JSON.stringify(error));
-      
-      // CAPTURA DE ERRO REAL
+      // 🚨 TRATAMENTO DE ERRO COM URL EXATA
       console.error('--- ERRO CAPTURADO ---');
-      console.error('STATUS DO ERRO:', error.response?.status);
-      console.error('RESPOSTA DO SERVIDOR:', error.response?.data);
-      console.error('ERRO COMPLETO:', error);
-      console.error('URL FALHOU:', endpoint);
-      console.error('URL COMPLETA TENTADA:', `${API_URL}/api${endpoint}`);
-      console.error('BASE URL:', API_URL);
+      console.error('❌ FALHA NA URL:', endpoint);
+      console.error('❌ URL COMPLETA TENTADA:', endpoint);
+      console.error('❌ SERVIDOR RESPONDEU:', error.response?.status);
+      console.error('❌ ERRO COMPLETO:', error);
       
-      if (error.message.includes('Unexpected token')) {
-        setError('Erro de comunicação com o servidor. Tente novamente.');
+      // Verificar se o erro é de JSON inválido
+      if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+        console.error('❌ ERRO DE JSON - Servidor não retornou JSON válido');
+        console.error('❌ POSSÍVEL CAUSA: Servidor retornou HTML 404 em vez de JSON');
+        setError('Erro de comunicação com o servidor. Verificando conexão...');
       } else {
         setError(error.message || 'Ocorreu um erro. Tente novamente.');
       }
