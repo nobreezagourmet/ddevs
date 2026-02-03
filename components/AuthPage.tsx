@@ -1,13 +1,12 @@
 import React, { useState, useCallback, FormEvent } from 'react';
-import api, { BASE_URL } from '../src/services/api';
+import API_URL from '../src/services/api';
 import { AuthMode, User } from '../types';
 import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// ✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026
-console.log('✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026');
-console.log('🔗 ALVO:', BASE_URL);
+// 🎯 SOLUÇÃO FINAL - BACKEND FUNCIONANDO!
+console.log('🎯 API_URL:', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -21,42 +20,30 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    if (rawValue.length <= 11) {
-      setPhone(formatPhoneNumber(e.target.value));
-    }
-  };
+  const [error, setError] = useState('');
 
   const validateForm = useCallback(() => {
-    if (mode === AuthMode.REGISTER) {
-      if (!name.trim()) {
-        setError('Por favor, insira seu nome completo.');
-        return false;
-      }
-    }
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Por favor, insira um e-mail válido.');
+    if (mode === AuthMode.REGISTER && !name.trim()) {
+      setError('Nome é obrigatório');
       return false;
     }
-
-    if (mode === AuthMode.REGISTER) {
-      const phoneDigits = phone.replace(/\D/g, '');
-      if (phoneDigits.length !== 11) {
-        setError('O telefone deve ter 11 dígitos (DDD + número).');
-        return false;
-      }
-    }
-    
-    if (!password || password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+    if (!email.trim()) {
+      setError('Email é obrigatório');
       return false;
     }
-    
+    if (!email.includes('@')) {
+      setError('Email inválido');
+      return false;
+    }
+    if (mode === AuthMode.REGISTER && !phone.trim()) {
+      setError('Telefone é obrigatório');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('Senha deve ter pelo menos 6 caracteres');
+      return false;
+    }
     setError('');
     return true;
   }, [email, phone, password, mode, name]);
@@ -69,24 +56,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // ✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026
-    console.log('✅ CONEXÃO FORÇADA COM RENDER ESTABELECIDA EM 2026');
-    console.log('🔗 ALVO:', BASE_URL);
-
-    // SUBSTITUIÇÃO DE FETCH - USAR BASE_URL SEM RELATIVOS
-    const registerUrl = `${BASE_URL}/auth/register`;
-    const loginUrl = `${BASE_URL}/auth/login`;
+    // 🎯 SOLUÇÃO FINAL - URL DIRETA
+    const registerUrl = `${API_URL}/auth/register`;
+    const loginUrl = `${API_URL}/auth/login`;
     
     const endpoint = mode === AuthMode.LOGIN ? loginUrl : registerUrl;
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
-    console.log('� URL COMPLETA:', endpoint);
-    console.log('Dados enviados:', payload);
+    console.log('🎯 ENVIANDO PARA:', endpoint);
+    console.log('🎯 DADOS:', payload);
 
     try {
-      console.log('--- ENVIANDO PARA RENDER DIRETO ---');
-      
-      // FETCH COM BASE_URL - SEM RELATIVOS
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -96,25 +76,22 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         body: JSON.stringify(payload),
       });
 
-      console.log('📡 RESPOSTA:', response.status);
-      console.log('🔗 URL CHAMADA:', endpoint);
-      
       const data = await response.json();
+      console.log('🎯 RESPOSTA:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Ocorreu um erro. Tente novamente.');
       }
 
       if (mode === AuthMode.REGISTER) {
-        // Login pós-registro com BASE_URL
-        console.log('🚀 FAZENDO LOGIN COM BASE_URL:', loginUrl);
-         const loginResponse = await fetch(loginUrl, {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-             'Accept': 'application/json',
-           },
-           body: JSON.stringify({ email, password }),
+        // Login após registro
+        const loginResponse = await fetch(loginUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
          });
          
          const loginData = await loginResponse.json();
@@ -124,29 +101,28 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
          }
          onAuthSuccess(loginData.data, loginData.data.token);
          
-         console.log('✅ Cadastro bem-sucedido! Redirecionando...');
+         console.log('🎯 CADASTRO SUCESSO!');
          window.location.href = 'https://ddevss.vercel.app';
 
       } else {
         onAuthSuccess(data.data, data.data.token);
         
-        console.log('✅ Login bem-sucedido! Redirecionando...');
+        console.log('🎯 LOGIN SUCESSO!');
         window.location.href = 'https://ddevss.vercel.app';
       }
 
     } catch (error) {
-      console.error('--- ERRO NA CONEXÃO ---');
-      console.error('❌ URL FALHOU:', endpoint);
-      console.error('❌ ERRO:', error);
-      
-      if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
-        console.error('❌ ERRO JSON - Servidor retornou HTML');
-        setError('Erro de comunicação. Verificando conexão...');
-      } else {
-        setError(error.message || 'Ocorreu um erro. Tente novamente.');
-      }
+      console.error('🎯 ERRO:', error);
+      setError(error.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    if (rawValue.length <= 11) {
+      setPhone(formatPhoneNumber(e.target.value));
     }
   };
 
