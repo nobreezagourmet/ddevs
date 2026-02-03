@@ -5,6 +5,10 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
+// LOG DE DEBUG PARA CONFIRMAR VERSÃO NOVA
+console.log("Conectando ao Backend em: https://ddevs-86w2.onrender.com");
+console.log("API Client Base URL:", 'https://ddevs-86w2.onrender.com/api');
+
 interface AuthPageProps {
   selectedQuotas: number;
   onBack: () => void;
