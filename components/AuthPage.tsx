@@ -5,8 +5,9 @@ import InputField from './InputField';
 import { formatPhoneNumber } from '../utils/formatters';
 import SpinnerIcon from './icons/SpinnerIcon';
 
-// � LOG DE SUCESSO RESETADO
-console.log('� SISTEMA RESETADO - API:', API_URL);
+// 🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥
+console.log('🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥');
+console.log('🔗 API_URL IMPORTADO:', API_URL);
 
 interface AuthPageProps {
   selectedQuotas: number;
@@ -68,10 +69,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     setIsLoading(true);
     setError('');
 
-    // ✅ CONEXÃO SEGURA COM RENDER ESTABELECIDA
-    console.log('✅ CONEXÃO SEGURA COM RENDER ESTABELECIDA');
+    // 🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥
+    console.log('🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥');
 
-    // 🚨 CORREÇÃO DEFINITIVA - URL FIXA DO RENDER
+    // 🚨 URL FIXA RADICAL - SEM VARIÁVEIS, SEM RELATIVOS
     const registerUrl = 'https://ddevs-86w2.onrender.com/api/auth/register';
     const loginUrl = 'https://ddevs-86w2.onrender.com/api/auth/login';
     
@@ -79,14 +80,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
     const payload = mode === AuthMode.LOGIN ? { email, password } : { name, email, phone, password };
 
     // --- LOG DE DEBUG PARA VERIFICAR URL ---
-    console.log('🔥 URL FIXA DO RENDER:', endpoint);
+    console.log('🔥 URL FIXA RADICAL:', endpoint);
+    console.log('🔗 API_URL IMPORTADO:', API_URL);
     console.log('Dados enviados:', payload);
     console.log('Método:', 'POST');
 
     try {
-      console.log('--- INICIANDO FETCH COM URL FIXA ---');
+      console.log('--- INICIANDO FETCH COM URL FIXA RADICAL ---');
       
-      // 🚨 FETCH COM URL FIXA - SEM RELATIVOS
+      // 🚨 FETCH COM URL FIXA COMPLETA - SEM RELATIVOS
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -134,7 +136,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ selectedQuotas, onBack, onAuthSucce
         
         // REDIRECIONAR PARA PAINEL PRINCIPAL APÓS LOGIN BEM-SUCEDIDO
         console.log('✅ Login bem-sucedido! Redirecionando para painel...');
-        window.location.href = 'https://ddevss.vercel.app'; // ou '/index.html' se estiver no mesmo domínio
+        window.location.href = 'https://ddevss.vercel.app';
       }
 
     } catch (error) {

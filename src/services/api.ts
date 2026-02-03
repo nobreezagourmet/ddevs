@@ -1,11 +1,12 @@
-// Build Version: 2.0.2 - Reset via Vercel Env Vars
-// 🚨 FORÇAR NOVO BUNDLE - VITE_API_URL
+// 🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥
+// 🚨 URL FIXA RADICAL - SEM VARIÁVEIS DE AMBIENTE
 
-// CONFIGURAÇÃO VIA VARIÁVEL DE AMBIENTE VITE
-const API_URL = import.meta.env.VITE_API_URL || 'https://ddevs-86w2.onrender.com';
+// URL FIXA DO RENDER - SEM import.meta.env, SEM process.env
+const API_URL = 'https://ddevs-86w2.onrender.com';
 
-// � LOG DE SUCESSO RESETADO
-console.log('� SISTEMA RESETADO - API:', API_URL);
+// 🔥 CARIMBO DE IDENTIFICAÇÃO CRUCIAL
+console.log('🔥🔥🔥 VERSÃO 5.0 - CONEXÃO FORÇADA RENDER ATIVA 🔥🔥🔥');
+console.log('🔗 API_URL FORÇADO:', API_URL);
 
 // EXPORTAR CONSTANTE PARA USO EM TODA APLICAÇÃO
 export { API_URL };

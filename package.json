@@ -1,12 +1,12 @@
 {
   "name": "rafflehub---plataforma-de-rifas",
   "private": true,
-  "version": "2.0.3",
+  "version": "5.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build-force": "npm version 2.0.3 && vite build",
+    "build-force": "npm version 5.0.0 && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
