@@ -19,10 +19,17 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, onNavigate }) => {
           {user.isAdmin && (
             <>
               <button
+                onClick={() => onNavigate?.(AppView.CUSTOMERS)}
+                className="bg-green-600/20 text-green-400 py-2 px-4 rounded-lg hover:bg-green-600/40 hover:text-green-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
+              >
+                <i className="fas fa-users mr-2"></i>
+                Clientes
+              </button>
+              <button
                 onClick={() => onNavigate?.(AppView.LEADS)}
                 className="bg-blue-600/20 text-blue-400 py-2 px-4 rounded-lg hover:bg-blue-600/40 hover:text-blue-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
               >
-                <i className="fas fa-users mr-2"></i>
+                <i className="fas fa-chart-line mr-2"></i>
                 Leads
               </button>
               <a 

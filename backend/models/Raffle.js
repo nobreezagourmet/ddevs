@@ -94,19 +94,26 @@ const raffleSchema = mongoose.Schema({
     timestamps: true,
 });
 
-// Middleware para gerar sequentialId antes de salvar
-raffleSchema.pre('save', async function(next) {
-    if (this.isNew) {
+// Middleware para gerar sequentialId antes de salvar e validação
+raffleSchema.pre('validate', async function(next) {
+    if (this.isNew && !this.sequentialId) {
         try {
             const lastRaffle = await this.constructor.findOne({}, {}, { sort: { sequentialId: -1 } });
             this.sequentialId = lastRaffle ? lastRaffle.sequentialId + 1 : 1;
-            next();
         } catch (error) {
-            next(error);
+            console.error('Erro ao gerar sequentialId:', error);
+            this.sequentialId = 1; // Fallback
         }
-    } else {
-        next();
     }
+    next();
+});
+
+// Middleware adicional para garantir creationId
+raffleSchema.pre('save', async function(next) {
+    if (this.isNew && !this.creationId) {
+        this.creationId = `RFL-${generateUUID()}`;
+    }
+    next();
 });
 
 // Método para obter ID formatado

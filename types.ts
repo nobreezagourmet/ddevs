@@ -15,6 +15,7 @@ export enum AppView {
   RESULTS,
   RULES,
   LEADS,
+  CUSTOMERS,
 }
 
 export enum AuthMode {

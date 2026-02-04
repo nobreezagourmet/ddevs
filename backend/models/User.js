@@ -98,18 +98,26 @@ const userSchema = mongoose.Schema({
     timestamps: true,
 });
 
-userSchema.pre('save', async function(next) {
-    if (this.isNew) {
+// Middleware para gerar sequentialId antes de validação
+userSchema.pre('validate', async function(next) {
+    if (this.isNew && !this.sequentialId) {
         try {
             const lastUser = await this.constructor.findOne({}, {}, { sort: { sequentialId: -1 } });
             this.sequentialId = lastUser ? lastUser.sequentialId + 1 : 1;
-            next();
         } catch (error) {
-            next(error);
+            console.error('Erro ao gerar sequentialId:', error);
+            this.sequentialId = 1; // Fallback
         }
-    } else {
-        next();
     }
+    next();
+});
+
+// Middleware adicional para garantir leadId
+userSchema.pre('save', async function(next) {
+    if (this.isNew && !this.leadId) {
+        this.leadId = `LED-${generateUUID()}`;
+    }
+    next();
 });
 
 userSchema.methods.getFormattedLeadId = function() {

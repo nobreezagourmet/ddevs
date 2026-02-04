@@ -8,6 +8,7 @@ import RulesPage from './components/RulesPage';
 import Header from './components/Header';
 import RaffleList from './components/RaffleList';
 import LeadTable from './components/LeadTable';
+import CustomerList from './components/CustomerList';
 import { AppView, Raffle, User, Purchase } from './types';
 import RaffleService, { Raffle as RaffleServiceType } from './services/raffleService';
 
@@ -146,6 +147,8 @@ const App: React.FC = () => {
         return <RulesPage onBack={() => handleNavigate(AppView.RAFFLE)} />;
       case AppView.LEADS:
         return <LeadTable token={authToken!} />;
+      case AppView.CUSTOMERS:
+        return <CustomerList token={authToken!} />;
       default:
         return (
           <div className="space-y-8">
