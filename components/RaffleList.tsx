@@ -9,9 +9,18 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
   const [raffles, setRaffles] = useState<Raffle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   useEffect(() => {
     loadRaffles();
+    
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(() => {
+      console.log('🔄 Atualizando rifas automaticamente...');
+      loadRaffles();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadRaffles = async () => {
@@ -19,21 +28,31 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
       setLoading(true);
       setError('');
       console.log('🎯 Carregando rifas...');
+      console.log('🕐 Última atualização:', lastUpdate.toLocaleTimeString());
       
       const response = await RaffleService.getRaffles();
       
+      console.log('📊 Resposta recebida:', response);
+      
       if (response.success) {
         setRaffles(response.data);
+        setLastUpdate(new Date());
         console.log(`✅ ${response.count} rifas carregadas`);
+        console.log('📋 IDs das rifas:', response.data.map(r => r.formattedId));
       } else {
         throw new Error('Falha ao carregar rifas');
       }
     } catch (err: any) {
       console.error('❌ Erro ao carregar rifas:', err);
-      setError(err.message || 'Erro ao carregar rifas. Tente novamente.');
+      setError(err.message || 'Erro ao carregar rifas');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    console.log('🔄 Usuário solicitou atualização manual...');
+    loadRaffles();
   };
 
   const handleRaffleClick = (raffle: Raffle) => {
@@ -47,7 +66,7 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-400">Carregando rifas...</p>
         </div>
       </div>
@@ -65,8 +84,8 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
           </div>
           <p className="text-red-400 mb-4">{error}</p>
           <button
-            onClick={loadRaffles}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
+            onClick={handleRefresh}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
           >
             Tentar novamente
           </button>

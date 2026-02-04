@@ -43,6 +43,7 @@ class RaffleService {
   static async getRaffles(): Promise<RaffleResponse> {
     try {
       console.log('🎯 Buscando rifas no backend...');
+      console.log('🔗 URL:', `${API_BASE_URL}/raffles`);
       
       const response = await fetch(`${API_BASE_URL}/raffles`, {
         method: 'GET',
@@ -51,17 +52,27 @@ class RaffleService {
         },
       });
 
+      console.log('📊 Status da resposta:', response.status);
+      console.log('📊 Headers da resposta:', response.headers);
+
       const data = await response.json();
       
       console.log('📊 Resposta das rifas:', data);
+      console.log('📊 Número de rifas recebidas:', data.data?.length || 0);
 
       if (!response.ok) {
+        console.error('❌ Erro na resposta:', data);
         throw new Error(data.message || 'Erro ao buscar rifas');
+      }
+
+      if (!data.success) {
+        console.error('❌ Sucesso false na resposta:', data);
+        throw new Error(data.message || 'Resposta inválida do servidor');
       }
 
       return data;
     } catch (error) {
-      console.error('❌ Erro ao buscar rifas:', error);
+      console.error('❌ Erro completo no RaffleService:', error);
       throw error;
     }
   }
