@@ -1,13 +1,21 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+
+// Função UUID simples sem dependência externa
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 
 const userSchema = mongoose.Schema({
     leadId: {
         type: String,
         required: true,
         unique: true,
-        default: () => `LED-${uuidv4()}`,
+        default: () => `LED-${generateUUID()}`,
         index: true
     },
     sequentialId: {
