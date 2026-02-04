@@ -12,6 +12,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
   const [error, setError] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showStats, setShowStats] = useState(true);
+  const [copiedId, setCopiedId] = useState<string>('');
 
   useEffect(() => {
     loadLeads();
@@ -60,10 +61,20 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
     LeadService.downloadCSV(leads, `leads_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
+  const handleCopyId = async (id: string, formattedId: string) => {
+    const success = await LeadService.copyToClipboard(formattedId);
+    if (success) {
+      setCopiedId(formattedId);
+      setTimeout(() => setCopiedId(''), 2000);
+    }
+  };
+
   const filteredLeads = leads.filter(lead =>
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.phone.toLowerCase().includes(searchTerm.toLowerCase())
+    lead.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    lead.formattedLeadId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    lead.leadId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -106,7 +117,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">👥 Leads Cadastrados</h2>
             <p className="text-gray-400">
-              Total de {leads.length} usuários cadastrados
+              Total de {leads.length} usuários cadastrados com IDs únicos
             </p>
           </div>
           <div className="flex space-x-3 mt-4 lg:mt-0">
@@ -136,20 +147,20 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
               <div className="text-gray-400 text-sm">Total Usuários</div>
             </div>
             <div className="bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-400">{stats.regularUsers}</div>
-              <div className="text-gray-400 text-sm">Clientes</div>
+              <div className="text-2xl font-bold text-green-400">{stats.activeUsers}</div>
+              <div className="text-gray-400 text-sm">Usuários Ativos</div>
             </div>
             <div className="bg-gray-700 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-purple-400">{stats.adminUsers}</div>
               <div className="text-gray-400 text-sm">Administradores</div>
             </div>
             <div className="bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-400">{stats.recentUsers}</div>
-              <div className="text-gray-400 text-sm">Últimos 7 dias</div>
+              <div className="text-2xl font-bold text-yellow-400">{stats.usersWithQuotas}</div>
+              <div className="text-gray-400 text-sm">Com Cotas</div>
             </div>
             <div className="bg-gray-700 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-orange-400">{stats.monthlyUsers}</div>
-              <div className="text-gray-400 text-sm">Últimos 30 dias</div>
+              <div className="text-2xl font-bold text-orange-400">{stats.totalRevenue.toFixed(2)}</div>
+              <div className="text-gray-400 text-sm">Receita Total</div>
             </div>
           </div>
         )}
@@ -158,7 +169,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar por nome, email ou telefone..."
+            placeholder="Buscar por nome, email, telefone ou ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
@@ -176,7 +187,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
             <thead className="bg-gray-900">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  ID
+                  ID do Lead
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Nome
@@ -188,10 +199,16 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
                   Telefone
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Primeira Rifa
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Estatísticas
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Data Cadastro
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Tipo
+                  Status
                 </th>
               </tr>
             </thead>
@@ -199,9 +216,20 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
               {filteredLeads.map((lead) => (
                 <tr key={lead.id} className="hover:bg-gray-700 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-xs text-gray-400 font-mono">
-                      {lead.id.slice(0, 8)}...
-                    </span>
+                    <div className="space-y-1">
+                      <div className="relative group">
+                        <span className="text-xs text-gray-400 font-mono cursor-pointer hover:text-blue-400 transition-colors"
+                              onClick={() => handleCopyId(lead.leadId, lead.formattedLeadId)}>
+                          {lead.formattedLeadId}
+                        </span>
+                        <div className="absolute -top-8 left-0 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          {copiedId === lead.formattedLeadId ? '✓ Copiado!' : 'Clique para copiar'}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 font-mono truncate max-w-[120px]" title={lead.leadId}>
+                        {lead.leadId.slice(0, 20)}...
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-white">
@@ -219,6 +247,33 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                    {lead.firstRaffleAccessed ? (
+                      <div className="space-y-1">
+                        <div className="text-sm text-blue-400 font-medium">
+                          {lead.firstRaffleAccessed.formattedId}
+                        </div>
+                        <div className="text-xs text-gray-400 truncate max-w-[150px]" title={lead.firstRaffleAccessed.title}>
+                          {lead.firstRaffleAccessed.title}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">Nenhuma</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="space-y-1">
+                      <div className="text-sm text-gray-300">
+                        <span className="text-green-400">{lead.totalQuotasPurchased}</span> cotas
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        R$ {lead.totalSpent.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-blue-400">
+                        {lead.participatedRaffles.length} rifas
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-300">
                       {lead.registrationDate}
                     </div>
@@ -227,8 +282,8 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${LeadService.getStatusColor(lead.isAdmin)}`}>
-                      {LeadService.getUserStatus(lead.isAdmin)}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${LeadService.getStatusColor(lead.isAdmin, lead.status)}`}>
+                      {LeadService.getUserStatus(lead.isAdmin, lead.status)}
                     </span>
                   </td>
                 </tr>

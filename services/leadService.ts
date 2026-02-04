@@ -3,14 +3,52 @@
 const API_BASE_URL = 'https://ddevs-86w2.onrender.com/api';
 
 export interface Lead {
+  // IDs cruciais para operações de troca
   id: string;
+  leadId: string;
+  sequentialId: number;
+  formattedLeadId: string;
+  completeLeadId: string;
+  
+  // Dados do lead
   name: string;
   email: string;
   phone: string;
   createdAt: string;
   isAdmin: boolean;
+  status: string;
+  
+  // Estatísticas do lead
+  totalQuotasPurchased: number;
+  totalSpent: number;
+  lastActivityAt: string;
+  
+  // Relacionamento com rifas
+  firstRaffleAccessed: {
+    id: string;
+    creationId: string;
+    sequentialId: number;
+    formattedId: string;
+    title: string;
+  } | null;
+  
+  // Rifas que participou
+  participatedRaffles: Array<{
+    raffleId: string;
+    creationId: string;
+    sequentialId: number;
+    formattedId: string;
+    title: string;
+    quotasPurchased: number;
+    totalSpent: number;
+    participatedAt: string;
+  }>;
+  
+  // Formatação para exibição
   registrationDate: string;
   registrationTime: string;
+  lastActivityDate: string;
+  lastActivityTime: string;
 }
 
 export interface LeadResponse {
@@ -23,8 +61,14 @@ export interface LeadStats {
   totalUsers: number;
   adminUsers: number;
   regularUsers: number;
+  activeUsers: number;
   recentUsers: number;
   monthlyUsers: number;
+  usersWithQuotas: number;
+  totalQuotas: number;
+  totalRevenue: number;
+  avgQuotasPerUser: number;
+  avgSpentPerUser: number;
 }
 
 export interface LeadStatsResponse {
@@ -57,6 +101,34 @@ class LeadService {
       return data;
     } catch (error) {
       console.error('❌ Erro ao buscar leads:', error);
+      throw error;
+    }
+  }
+
+  // 👥 Buscar lead por ID (apenas admin)
+  static async getLeadById(id: string, token: string): Promise<{ success: boolean; data: Lead }> {
+    try {
+      console.log(`👥 Buscando lead ID: ${id}`);
+      
+      const response = await fetch(`${API_BASE_URL}/leads/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      console.log('📊 Resposta do lead:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao buscar lead');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('❌ Erro ao buscar lead:', error);
       throw error;
     }
   }
@@ -107,31 +179,58 @@ class LeadService {
   }
 
   // 👥 Status do usuário
-  static getUserStatus(isAdmin: boolean): string {
-    return isAdmin ? 'Administrador' : 'Cliente';
+  static getUserStatus(isAdmin: boolean, status: string): string {
+    if (isAdmin) return 'Administrador';
+    if (status === 'active') return 'Cliente Ativo';
+    if (status === 'inactive') return 'Cliente Inativo';
+    if (status === 'suspended') return 'Suspenso';
+    return 'Desconhecido';
   }
 
   // 👥 Cor do status
-  static getStatusColor(isAdmin: boolean): string {
-    return isAdmin ? 'text-purple-600 bg-purple-100' : 'text-green-600 bg-green-100';
+  static getStatusColor(isAdmin: boolean, status: string): string {
+    if (isAdmin) return 'text-purple-600 bg-purple-100';
+    if (status === 'active') return 'text-green-600 bg-green-100';
+    if (status === 'inactive') return 'text-gray-600 bg-gray-100';
+    if (status === 'suspended') return 'text-red-600 bg-red-100';
+    return 'text-gray-600 bg-gray-100';
   }
 
   // 👥 Exportar dados para CSV
   static exportToCSV(leads: Lead[]): string {
-    const headers = ['ID', 'Nome', 'Email', 'Telefone', 'Data de Cadastro', 'Hora de Cadastro', 'Tipo'];
+    const headers = [
+      'ID do Lead',
+      'ID Formatado', 
+      'Nome', 
+      'Email', 
+      'Telefone', 
+      'Data de Cadastro', 
+      'Hora de Cadastro',
+      'Status',
+      'Total em Cotas',
+      'Total Gasto',
+      'Primeira Rifa',
+      'Rifas Participadas'
+    ];
+    
     const rows = leads.map(lead => [
-      lead.id,
+      lead.leadId,
+      lead.formattedLeadId,
       lead.name,
       lead.email,
       lead.phone,
       lead.registrationDate,
       lead.registrationTime,
-      this.getUserStatus(lead.isAdmin)
+      this.getUserStatus(lead.isAdmin, lead.status),
+      lead.totalQuotasPurchased.toString(),
+      lead.totalSpent.toFixed(2),
+      lead.firstRaffleAccessed?.formattedId || 'Nenhuma',
+      lead.participatedRaffles.map(pr => pr.formattedId).join('; ') || 'Nenhuma'
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
     return csvContent;
@@ -151,6 +250,17 @@ class LeadService {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+  }
+
+  // 👥 Copiar ID para clipboard
+  static async copyToClipboard(text: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao copiar para clipboard:', error);
+      return false;
     }
   }
 }

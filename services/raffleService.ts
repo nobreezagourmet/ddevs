@@ -3,7 +3,14 @@
 const API_BASE_URL = 'https://ddevs-86w2.onrender.com/api';
 
 export interface Raffle {
+  // IDs cruciais para operações
   id: string;
+  creationId: string;
+  sequentialId: number;
+  formattedId: string;
+  completeId: string;
+  
+  // Dados da rifa
   title: string;
   description: string;
   pricePerQuota: number;
@@ -14,6 +21,10 @@ export interface Raffle {
   createdAt: string;
   status: string;
   progressPercentage: number;
+  
+  // Estatísticas
+  totalParticipants: number;
+  totalRevenue: number;
 }
 
 export interface RaffleResponse {
@@ -82,6 +93,42 @@ class RaffleService {
     }
   }
 
+  // 🎯 Criar nova rifa (admin only)
+  static async createRaffle(raffleData: {
+    title: string;
+    description?: string;
+    pricePerQuota: number;
+    totalQuotas: number;
+    imageUrl?: string;
+    quickSelectPackages?: number[];
+  }, token: string): Promise<SingleRaffleResponse> {
+    try {
+      console.log('🎯 Criando nova rifa...');
+      
+      const response = await fetch(`${API_BASE_URL}/raffles`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(raffleData),
+      });
+
+      const data = await response.json();
+      
+      console.log('📊 Resposta da criação:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao criar rifa');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('❌ Erro ao criar rifa:', error);
+      throw error;
+    }
+  }
+
   // 🎯 Formatar preço para BRL
   static formatPrice(price: number): string {
     return new Intl.NumberFormat('pt-BR', {
@@ -120,6 +167,17 @@ class RaffleService {
     if (progressPercentage >= 50) return 'bg-yellow-500';
     if (progressPercentage >= 25) return 'bg-blue-500';
     return 'bg-green-500';
+  }
+
+  // 🎯 Copiar ID para clipboard
+  static async copyToClipboard(text: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao copiar para clipboard:', error);
+      return false;
+    }
   }
 }
 
