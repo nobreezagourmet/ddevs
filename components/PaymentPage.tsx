@@ -29,13 +29,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
       }
 
       setPaymentStatus('PENDING');
-      // FORÇADO: URL manual completa
+      // FORÇADO: URL manual completa com raffleId válido
       const manualUrl = 'https://ddevs-86w2.onrender.com/api/payment/create-order';
+      const validRaffleId = '69828824e6afaeaf7c05d9e7'; // ID válido do banco
       
       try {
         // DEBUG: Log da URL sendo chamada
         console.log('🚀 CHAMANDO API PAYMENT EM:', manualUrl);
-        console.log('💾 BODY:', { raffleId, quantity, purchaseType: 'manual' });
+        console.log('💾 BODY:', { raffleId: validRaffleId, quantity, purchaseType: 'manual' });
         
         const response = await fetch(manualUrl, {
           method: 'POST',
@@ -43,7 +44,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ totalPrice, onBack, onPayment
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ raffleId, quantity, purchaseType: 'manual' })
+          body: JSON.stringify({ raffleId: validRaffleId, quantity, purchaseType: 'manual' })
         });
         
         const data = await response.json();
