@@ -15,6 +15,12 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
   const [copiedId, setCopiedId] = useState<string>('');
 
   useEffect(() => {
+    console.log('🚀 LeadTable montado - Iniciando carregamento forçado');
+    console.log('🔗 API URL:', import.meta.env.VITE_API_URL);
+    console.log('🕐 Build Time:', import.meta.env.VITE_BUILD_TIME);
+    console.log('📦 Versão:', import.meta.env.VITE_APP_VERSION || '4.0.0-FORCE-REBUILD');
+    console.log('🔑 Token presente:', token ? 'Sim' : 'Não');
+    
     loadLeads();
     loadStats();
   }, [token]);

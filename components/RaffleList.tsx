@@ -12,6 +12,11 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   useEffect(() => {
+    console.log('🚀 RaffleList montado - Iniciando carregamento forçado');
+    console.log('🔗 API URL:', import.meta.env.VITE_API_URL);
+    console.log('🕐 Build Time:', import.meta.env.VITE_BUILD_TIME);
+    console.log('📦 Versão:', import.meta.env.VITE_APP_VERSION || '4.0.0-FORCE-REBUILD');
+    
     loadRaffles();
     
     // Atualizar a cada 30 segundos

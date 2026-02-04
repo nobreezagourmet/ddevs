@@ -11,6 +11,7 @@ import LeadTable from './components/LeadTable';
 import CustomerList from './components/CustomerList';
 import CustomerTab from './components/CustomerTab';
 import CustomerSearch from './components/CustomerSearch';
+import SystemStatus from './components/SystemStatus';
 import { AppView, Raffle, User, Purchase } from './types';
 import RaffleService, { Raffle as RaffleServiceType } from './services/raffleService';
 
@@ -181,6 +182,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 font-inter p-4 flex flex-col items-center">
+      <SystemStatus />
       {(currentUser) && <Header user={currentUser} onLogout={handleLogout} onNavigate={handleNavigate} />}
       <main className="w-full max-w-4xl mx-auto">
         {renderContent()}
