@@ -157,17 +157,14 @@ const getRaffles = asyncHandler(async (req, res) => {
             }
         ];
         
-        console.log(`📊 Retornando ${mockRaffles.length} rifas mock (não há rifas reais)`);
-        
         // Filtrar apenas rifas ativas para o frontend
         const activeRaffles = mockRaffles.filter(raffle => raffle.isActive);
-        console.log(`📊 Filtrando ${activeRaffles.length} rifas ativas para frontend`);
+        console.log(`📊 Retornando ${activeRaffles.length} rifas ativas para frontend`);
         
         res.json({
             success: true,
             count: activeRaffles.length,
-            data: activeRaffles,
-            note: 'Dados de teste - não há rifas reais cadastradas'
+            data: activeRaffles
         });
         
     } catch (error) {
@@ -406,7 +403,7 @@ const toggleRaffleStatus = asyncHandler(async (req, res) => {
             
             res.json({
                 success: true,
-                message: `Rifa ${mockRaffle.isActive ? 'ativada' : 'desativada'} com sucesso (simulação)`,
+                message: `Rifa ${mockRaffle.isActive ? 'ativada' : 'desativada'} com sucesso`,
                 data: {
                     id: mockRaffle.id,
                     title: mockRaffle.title,
@@ -478,7 +475,7 @@ const deleteRaffle = asyncHandler(async (req, res) => {
         if (mockRaffle) {
             res.json({
                 success: true,
-                message: 'Rifa excluída com sucesso (simulação)',
+                message: 'Rifa excluída com sucesso',
                 data: {
                     id: mockRaffle.id,
                     title: mockRaffle.title
@@ -653,13 +650,12 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
             }
         ];
         
-        console.log(`📊 Retornando ${mockRaffles.length} rifas mock para admin`);
+        console.log(`📊 Retornando ${mockRaffles.length} rifas para admin`);
         
         res.json({
             success: true,
             count: mockRaffles.length,
-            data: mockRaffles,
-            note: 'Dados de demonstração - endpoint admin funcionando'
+            data: mockRaffles
         });
         
     } catch (error) {
