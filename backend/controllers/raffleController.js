@@ -188,8 +188,11 @@ const createRaffle = asyncHandler(async (req, res) => {
                 title: raffle.title,
                 pricePerQuota: raffle.pricePerQuota,
                 totalQuotas: raffle.totalQuotas,
+                availableQuotas: raffle.availableQuotas,
                 status: raffle.status,
-                isActive: raffle.isActive
+                isActive: raffle.isActive,
+                createdAt: raffle.createdAt,
+                imageUrl: raffle.imageUrl
             }
         });
         
