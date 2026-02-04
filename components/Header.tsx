@@ -1,13 +1,14 @@
 import React from 'react';
-import { User } from '../types';
+import { User, AppView } from '../types';
 import LogoutIcon from './icons/LogoutIcon';
 
 interface HeaderProps {
   user: User;
   onLogout: () => void;
+  onNavigate?: (view: AppView) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ user, onLogout, onNavigate }) => {
   return (
     <header className="w-full max-w-4xl mx-auto mb-4 py-4 border-b border-gray-700/50">
       <div className="flex justify-between items-center">
@@ -16,13 +17,22 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             Olá, <span className="font-bold text-emerald-400">{user.name.split(' ')[0]}</span>!
           </p>
           {user.isAdmin && (
-            <a 
-              href="/admin.html"
-              className="bg-purple-600/20 text-purple-400 py-2 px-4 rounded-lg hover:bg-purple-600/40 hover:text-purple-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
-            >
-              <i className="fas fa-crown mr-2"></i>
-              Painel Admin
-            </a>
+            <>
+              <button
+                onClick={() => onNavigate?.(AppView.LEADS)}
+                className="bg-blue-600/20 text-blue-400 py-2 px-4 rounded-lg hover:bg-blue-600/40 hover:text-blue-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
+              >
+                <i className="fas fa-users mr-2"></i>
+                Leads
+              </button>
+              <a 
+                href="/admin.html"
+                className="bg-purple-600/20 text-purple-400 py-2 px-4 rounded-lg hover:bg-purple-600/40 hover:text-purple-300 transition-colors duration-200 uppercase text-sm font-bold tracking-wider"
+              >
+                <i className="fas fa-crown mr-2"></i>
+                Painel Admin
+              </a>
+            </>
           )}
         </div>
         <button 

@@ -14,7 +14,7 @@ export enum AppView {
   MY_NUMBERS,
   RESULTS,
   RULES,
-
+  LEADS,
 }
 
 export enum AuthMode {
@@ -33,4 +33,5 @@ export interface Purchase {
   quotas: number;
   numbers: string[];
   date: string;
+  raffleTitle?: string;
 }
