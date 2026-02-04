@@ -37,6 +37,7 @@ export enum AppView {
   RULES,
   LEADS,
   CUSTOMERS,
+  CUSTOMER_SEARCH,
 }
 
 export enum AuthMode {

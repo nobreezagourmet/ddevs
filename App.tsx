@@ -10,6 +10,7 @@ import RaffleList from './components/RaffleList';
 import LeadTable from './components/LeadTable';
 import CustomerList from './components/CustomerList';
 import CustomerTab from './components/CustomerTab';
+import CustomerSearch from './components/CustomerSearch';
 import { AppView, Raffle, User, Purchase } from './types';
 import RaffleService, { Raffle as RaffleServiceType } from './services/raffleService';
 
@@ -163,6 +164,8 @@ const App: React.FC = () => {
         return <LeadTable token={authToken!} />;
       case AppView.CUSTOMERS:
         return <CustomerTab token={authToken!} />;
+      case AppView.CUSTOMER_SEARCH:
+        return <CustomerSearch token={authToken!} />;
       default:
         return (
           <div className="space-y-8">

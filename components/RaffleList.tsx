@@ -29,21 +29,34 @@ const RaffleList: React.FC<RaffleListProps> = ({ onRaffleSelect }) => {
       setError('');
       console.log('🎯 Carregando rifas...');
       console.log('🕐 Última atualização:', lastUpdate.toLocaleTimeString());
+      console.log('🔗 API URL:', import.meta.env.VITE_API_URL);
+      console.log('🕐 Build Time:', import.meta.env.VITE_BUILD_TIME);
       
       const response = await RaffleService.getRaffles();
       
       console.log('📊 Resposta recebida:', response);
+      console.log('📊 Success:', response.success);
+      console.log('📊 Count:', response.count);
+      console.log('📊 Data length:', response.data?.length);
       
-      if (response.success) {
+      if (response.success && response.data && response.data.length > 0) {
         setRaffles(response.data);
         setLastUpdate(new Date());
         console.log(`✅ ${response.count} rifas carregadas`);
-        console.log('📋 IDs das rifas:', response.data.map(r => r.formattedId));
+        console.log('📋 IDs das rifas:', response.data.map(r => ({
+          id: r.id,
+          title: r.title,
+          status: r.status,
+          formattedId: r.formattedId
+        })));
       } else {
-        throw new Error('Falha ao carregar rifas');
+        console.warn('⚠️ Nenhuma rifa encontrada ou resposta inválida');
+        setRaffles([]);
+        setError('Nenhuma rifa disponível no momento');
       }
     } catch (err: any) {
       console.error('❌ Erro ao carregar rifas:', err);
+      console.error('❌ Stack:', err.stack);
       setError(err.message || 'Erro ao carregar rifas');
     } finally {
       setLoading(false);

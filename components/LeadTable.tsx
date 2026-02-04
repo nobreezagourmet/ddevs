@@ -24,17 +24,34 @@ const LeadTable: React.FC<LeadTableProps> = ({ token }) => {
       setLoading(true);
       setError('');
       console.log('👥 Carregando leads...');
+      console.log('🔗 API URL:', import.meta.env.VITE_API_URL);
+      console.log('🕐 Build Time:', import.meta.env.VITE_BUILD_TIME);
+      console.log('🔑 Token presente:', token ? 'Sim' : 'Não');
       
       const response = await LeadService.getLeads(token);
       
-      if (response.success) {
+      console.log('📊 Resposta de leads:', response);
+      console.log('📊 Success:', response.success);
+      console.log('📊 Count:', response.count);
+      console.log('📊 Data length:', response.data?.length);
+      
+      if (response.success && response.data && response.data.length > 0) {
         setLeads(response.data);
         console.log(`✅ ${response.count} leads carregados`);
+        console.log('📋 Primeiros 3 leads:', response.data.slice(0, 3).map(l => ({
+          name: l.name,
+          email: l.email,
+          formattedLeadId: l.formattedLeadId,
+          totalQuotasPurchased: l.totalQuotasPurchased
+        })));
       } else {
-        throw new Error('Falha ao carregar leads');
+        console.warn('⚠️ Nenhum lead encontrado ou resposta inválida');
+        setLeads([]);
+        setError('Nenhum lead encontrado');
       }
     } catch (err: any) {
       console.error('❌ Erro ao carregar leads:', err);
+      console.error('❌ Stack:', err.stack);
       setError(err.message || 'Erro ao carregar leads. Verifique suas permissões de administrador.');
     } finally {
       setLoading(false);
