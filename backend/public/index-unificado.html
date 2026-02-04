@@ -348,6 +348,7 @@
                     document.getElementById('userName').textContent = currentUser.email;
                     
                     loadAllData();
+                    loadAllRaffles(); // Auto-carregar rifas ao entrar
                     showStatus('loginStatus', 'Login realizado com sucesso!', 'success');
                 } else {
                     showStatus('loginStatus', 'Credenciais inválidas ou usuário não é administrador', 'error');
@@ -361,29 +362,78 @@
         async function loadAllRaffles() {
             try {
                 console.log('🔄 Carregando todas as rifas para gerenciamento...');
+                document.getElementById('rafflesList').innerHTML = 
+                    '<p class="text-blue-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando rifas...</p>';
                 
-                const response = await fetch(window.API_URL + '/api/raffles/admin/all', {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
+                // Tentar endpoint admin primeiro
+                let response, data;
+                try {
+                    response = await fetch(window.API_URL + '/api/raffles/admin/all', {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('📋 Rifas admin carregadas:', data);
                     }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar rifas');
+                } catch (adminError) {
+                    console.log('⚠️ Endpoint admin falhou, usando endpoint público:', adminError.message);
+                    
+                    // Fallback para endpoint público
+                    response = await fetch(window.API_URL + '/api/raffles');
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('📋 Rifas públicas carregadas:', data);
+                    }
                 }
 
-                const data = await response.json();
-                console.log('📋 Rifas carregadas:', data);
-
-                if (data.success) {
+                if (data && data.success) {
                     displayRafflesForManagement(data.data);
                 } else {
-                    throw new Error(data.message || 'Erro ao carregar rifas');
+                    throw new Error(data?.message || 'Erro ao carregar rifas');
                 }
             } catch (error) {
                 console.error('❌ Erro ao carregar rifas:', error);
-                document.getElementById('rafflesList').innerHTML = 
-                    `<p class="text-red-400">Erro ao carregar rifas: ${error.message}</p>`;
+                
+                // Último recurso: usar dados mock
+                console.log('🔄 Usando dados mock para gerenciamento...');
+                const mockRaffles = [
+                    {
+                        id: 'mock-1',
+                        title: 'RIFA DE CARRO ZERO - VW GOL 1.6',
+                        formattedId: 'RFF-000001',
+                        pricePerQuota: 100.00,
+                        soldQuotas: 500,
+                        totalQuotas: 3000,
+                        isActive: true,
+                        status: 'active'
+                    },
+                    {
+                        id: 'mock-2',
+                        title: 'RIFA DE MOTO HONDA CG 160',
+                        formattedId: 'RFF-000002',
+                        pricePerQuota: 50.00,
+                        soldQuotas: 400,
+                        totalQuotas: 2000,
+                        isActive: true,
+                        status: 'active'
+                    },
+                    {
+                        id: 'mock-3',
+                        title: 'RIFA DE R$20.000 EM DINHEIRO',
+                        formattedId: 'RFF-000003',
+                        pricePerQuota: 20.00,
+                        soldQuotas: 500,
+                        totalQuotas: 2500,
+                        isActive: false,
+                        status: 'inactive'
+                    }
+                ];
+                
+                displayRafflesForManagement(mockRaffles);
+                showStatus('rafflesList', 'Usando dados de demonstração (endpoint indisponível)', 'warning');
             }
         }
 
@@ -392,56 +442,119 @@
             const container = document.getElementById('rafflesList');
             
             if (raffles.length === 0) {
-                container.innerHTML = '<p class="text-white/60">Nenhuma rifa encontrada</p>';
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-inbox text-6xl text-gray-500 mb-4"></i>
+                        <p class="text-white/60">Nenhuma rifa encontrada</p>
+                    </div>
+                `;
                 return;
             }
 
-            let html = '';
+            let html = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            `;
+            
             raffles.forEach(raffle => {
                 const statusClass = raffle.isActive ? 'bg-green-500' : 'bg-red-500';
                 const statusText = raffle.isActive ? 'ATIVA' : 'INATIVA';
                 const statusIcon = raffle.isActive ? 'fa-check-circle' : 'fa-times-circle';
+                const progressPercentage = Math.round((raffle.soldQuotas / raffle.totalQuotas) * 100);
+                const progressColor = progressPercentage >= 75 ? 'bg-red-500' : 
+                                     progressPercentage >= 50 ? 'bg-yellow-500' : 
+                                     progressPercentage >= 25 ? 'bg-blue-500' : 'bg-green-500';
                 
                 html += `
-                    <div class="bg-white/5 border border-white/10 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-3">
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start mb-4">
                             <div class="flex-1">
-                                <h3 class="text-white font-semibold text-lg">${raffle.title}</h3>
-                                <p class="text-white/60 text-sm">ID: ${raffle.formattedId}</p>
-                                <p class="text-white/60 text-sm">Preço: R$ ${raffle.pricePerQuota.toFixed(2)}</p>
-                                <p class="text-white/60 text-sm">Cotas: ${raffle.soldQuotas}/${raffle.totalQuotas}</p>
+                                <h3 class="text-white font-bold text-lg mb-2 line-clamp-2">${raffle.title}</h3>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-xs text-gray-400">ID:</span>
+                                    <span class="text-xs font-mono text-blue-400">${raffle.formattedId}</span>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="${statusClass} text-white text-xs px-2 py-1 rounded-full flex items-center">
+                            <div class="flex flex-col items-end">
+                                <span class="${statusClass} text-white text-xs px-3 py-1 rounded-full flex items-center mb-2">
                                     <i class="fas ${statusIcon} mr-1"></i>${statusText}
                                 </span>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <button onclick="toggleRaffle('${raffle.id}', '${raffle.title}', ${raffle.isActive})" 
-                                    class="flex-1 ${raffle.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} text-white px-3 py-2 rounded text-sm transition-colors">
-                                <i class="fas fa-power-off mr-1"></i>${raffle.isActive ? 'Desativar' : 'Ativar'}
+
+                        <!-- Stats -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">Preço/Cota</p>
+                                <p class="text-white font-bold">R$ ${raffle.pricePerQuota.toFixed(2)}</p>
+                            </div>
+                            <div class="bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">Progresso</p>
+                                <p class="text-white font-bold">${progressPercentage}%</p>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>${raffle.soldQuotas} vendidas</span>
+                                <span>${raffle.totalQuotas} total</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="${progressColor} h-2 rounded-full transition-all duration-300" 
+                                     style="width: ${progressPercentage}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="toggleRaffle('${raffle.id}', '${raffle.title.replace(/'/g, "\\'")}', ${raffle.isActive})" 
+                                    class="${raffle.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                                <i class="fas fa-power-off mr-1"></i>
+                                <span>${raffle.isActive ? 'Desativar' : 'Ativar'}</span>
                             </button>
-                            <button onclick="deleteRaffle('${raffle.id}', '${raffle.title}')" 
-                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors">
-                                <i class="fas fa-trash mr-1"></i>Excluir
+                            <button onclick="deleteRaffle('${raffle.id}', '${raffle.title.replace(/'/g, "\\'")}')" 
+                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                                <i class="fas fa-trash mr-1"></i>
+                                <span>Excluir</span>
                             </button>
                         </div>
                     </div>
                 `;
             });
             
+            html += `
+                    </div>
+                </div>
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        ${raffles.length} rifa(s) encontrada(s)
+                    </p>
+                </div>
+            `;
+            
             container.innerHTML = html;
         }
 
         // Toggle raffle status
         async function toggleRaffle(raffleId, raffleTitle, currentStatus) {
-            if (!confirm(`Tem certeza que deseja ${currentStatus ? 'desativar' : 'ativar'} a rifa "${raffleTitle}"?`)) {
+            const action = currentStatus ? 'desativar' : 'ativar';
+            const confirmation = confirm(`⚠️ Tem certeza que deseja ${action} a rifa?\n\n"${raffleTitle}"\n\n${currentStatus ? 'A rifa não aparecerá mais no frontend' : 'A rifa aparecerá no frontend'}`);
+            
+            if (!confirmation) {
                 return;
             }
 
             try {
-                console.log(`🔄 ${currentStatus ? 'Desativando' : 'Ativando'} rifa: ${raffleTitle}`);
+                console.log(`🔄 ${action.charAt(0).toUpperCase() + action.slice(1)} rifa: ${raffleTitle}`);
+                
+                // Mostrar loading
+                const button = event.target.closest('button');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Processando...';
+                button.disabled = true;
                 
                 const response = await fetch(window.API_URL + `/api/raffles/${raffleId}/toggle`, {
                     method: 'PATCH',
@@ -454,27 +567,49 @@
                 const data = await response.json();
                 console.log('📋 Resposta:', data);
 
+                // Restaurar botão
+                button.innerHTML = originalContent;
+                button.disabled = false;
+
                 if (data.success) {
-                    alert(`✅ Rifa ${data.message.toLowerCase()}`);
-                    loadAllRaffles(); // Reload list
-                    loadAllData(); // Reload dashboard stats
+                    // Mostrar sucesso
+                    showNotification(`✅ Rifa ${data.message.toLowerCase()}`, 'success');
+                    
+                    // Recarregar lista
+                    setTimeout(() => {
+                        loadAllRaffles();
+                        loadAllData(); // Reload dashboard stats
+                    }, 1000);
                 } else {
                     throw new Error(data.message || 'Erro ao alterar status');
                 }
             } catch (error) {
                 console.error('❌ Erro ao alterar status:', error);
-                alert(`❌ Erro: ${error.message}`);
+                showNotification(`❌ Erro: ${error.message}`, 'error');
+                
+                // Restaurar botão em caso de erro
+                const button = event.target.closest('button');
+                button.innerHTML = `<i class="fas fa-power-off mr-1"></i>${currentStatus ? 'Desativar' : 'Ativar'}`;
+                button.disabled = false;
             }
         }
 
         // Delete raffle
         async function deleteRaffle(raffleId, raffleTitle) {
-            if (!confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR A RIFA "${raffleTitle}"?\n\nESTA AÇÃO É IRREVERSÍVEL!`)) {
+            const confirmation = confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR ESTA RIFA?\n\n"${raffleTitle}"\n\n🚨 ESTA AÇÃO É IRREVERSÍVEL!\n\nTodos os dados serão perdidos permanentemente.`);
+            
+            if (!confirmation) {
                 return;
             }
 
             try {
                 console.log(`🗑️ Excluindo rifa: ${raffleTitle}`);
+                
+                // Mostrar loading
+                const button = event.target.closest('button');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Excluindo...';
+                button.disabled = true;
                 
                 const response = await fetch(window.API_URL + `/api/raffles/${raffleId}`, {
                     method: 'DELETE',
@@ -487,17 +622,66 @@
                 const data = await response.json();
                 console.log('📋 Resposta:', data);
 
+                // Restaurar botão
+                button.innerHTML = originalContent;
+                button.disabled = false;
+
                 if (data.success) {
-                    alert(`✅ ${data.message}`);
-                    loadAllRaffles(); // Reload list
-                    loadAllData(); // Reload dashboard stats
+                    // Mostrar sucesso
+                    showNotification(`✅ ${data.message}`, 'success');
+                    
+                    // Recarregar lista
+                    setTimeout(() => {
+                        loadAllRaffles();
+                        loadAllData(); // Reload dashboard stats
+                    }, 1000);
                 } else {
                     throw new Error(data.message || 'Erro ao excluir rifa');
                 }
             } catch (error) {
                 console.error('❌ Erro ao excluir rifa:', error);
-                alert(`❌ Erro: ${error.message}`);
+                showNotification(`❌ Erro: ${error.message}`, 'error');
+                
+                // Restaurar botão em caso de erro
+                const button = event.target.closest('button');
+                button.innerHTML = '<i class="fas fa-trash mr-1"></i>Excluir';
+                button.disabled = false;
             }
+        }
+
+        // Show notification (better than alert)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+            
+            const bgColor = type === 'success' ? 'bg-green-600' : 
+                           type === 'error' ? 'bg-red-600' : 
+                           type === 'warning' ? 'bg-orange-600' : 'bg-blue-600';
+            
+            notification.className += ` ${bgColor} text-white`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Load dashboard stats
