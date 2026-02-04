@@ -8,13 +8,13 @@ import SpinnerIcon from './icons/SpinnerIcon';
 const API_URL = 'https://ddevs-86w2.onrender.com/api'; // FORÇADO MANUALMENTE
 console.log('🎯 API_URL (Environment):', API_URL);
 console.log('🎯 import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🚨 VERSÃO FINAL: 2025-02-04-17:03 - INTEGRAÇÃO REAL IMPLEMENTADA');
-console.log('🚨 ARQUIVO JS FORÇADO: index-gQBsUD9K.js');
+console.log('🚨 VERSÃO FINAL: 2025-02-04-18:01 - RIFA FICTÍCIA 100% REMOVIDA');
+console.log('🚨 ARQUIVO JS FORÇADO: index-Cy55tec0.js');
 console.log('🚨 BACKEND URL: https://ddevs-86w2.onrender.com/api');
 console.log('🚨 FRONTEND URL: https://dark-fawn-phi.vercel.app');
-console.log('🚨 INTEGRAÇÃO REAL: Frontend ↔ Backend');
-console.log('🚨 DADOS REAIS: Buscando do banco primeiro');
-console.log('🚨 SISTEMA 100% INTEGRADO');
+console.log('🚨 RIFA FICTÍCIA: REMOVIDA COMPLETAMENTE');
+console.log('🚨 APENAS RIFAS REAIS DO BACKEND');
+console.log('🚨 SISTEMA 100% LIMPO');
 
 interface AuthPageProps {
   selectedQuotas: number;
