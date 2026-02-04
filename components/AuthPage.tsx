@@ -8,10 +8,11 @@ import SpinnerIcon from './icons/SpinnerIcon';
 const API_URL = 'https://ddevs-86w2.onrender.com/api'; // FORÇADO MANUALMENTE
 console.log('🎯 API_URL (Environment):', API_URL);
 console.log('🎯 import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🚨 VERSÃO CRÍTICA: 2025-02-04-13:30 - PROBLEMAS PERSISTENTES CORRIGIDOS');
-console.log('🚨 ARQUIVO JS FORÇADO: index-CNuyyR0_.js');
+console.log('🚨 VERSÃO AUDITORIA: 2025-02-04-16:25 - DEBUG COMPLETO IMPLEMENTADO');
+console.log('🚨 ARQUIVO JS FORÇADO: index-CvMt-sWc.js');
 console.log('🚨 BACKEND URL: https://ddevs-86w2.onrender.com/api');
 console.log('🚨 FRONTEND URL: https://dark-fawn-phi.vercel.app');
+console.log('🚨 AUDITORIA COMPLETA COM LOGS DETALHADOS');
 
 interface AuthPageProps {
   selectedQuotas: number;

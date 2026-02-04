@@ -38,7 +38,10 @@ const CustomerList: React.FC<CustomerListProps> = ({ token }) => {
     try {
       setLoading(true);
       setError('');
-      console.log('👥 Carregando clientes...');
+      console.log('� AUDITORIA: Carregando clientes...');
+      console.log('🕐 Timestamp:', new Date().toISOString());
+      console.log('🔗 URL:', `${API_URL}/customers`);
+      console.log('🔑 Token:', token ? `${token.substring(0, 20)}...` : 'NENHUM TOKEN');
       
       const response = await fetch(`${API_URL}/customers`, {
         headers: {
@@ -48,24 +51,47 @@ const CustomerList: React.FC<CustomerListProps> = ({ token }) => {
       });
 
       console.log('📊 Status da resposta:', response.status);
+      console.log('📊 Status Text:', response.statusText);
+      console.log('📊 Headers:', Object.fromEntries(response.headers.entries()));
+      console.log('📊 URL final:', response.url);
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ Erro na resposta:', errorData);
+        console.error('❌ Erro HTTP:', response.status, response.statusText);
+        console.error('❌ Resposta de erro:', errorData);
         throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('📋 Dados recebidos:', data);
+      console.log('📋 Resposta completa dos clientes:', JSON.stringify(data, null, 2));
+      console.log('📊 Número de clientes recebidos:', data.data?.length || 0);
+      console.log('📊 Success:', data.success);
+      console.log('📊 Message:', data.message);
+      console.log('📊 Note:', data.note);
 
       if (data.success) {
         setCustomers(data.data);
         console.log(`✅ ${data.count} clientes carregados`);
+        
+        // Verificar clientes recebidos
+        if (data.data && data.data.length > 0) {
+          console.log('🔍 AUDITORIA: Verificando clientes recebidos...');
+          data.data.forEach((customer: any, index: number) => {
+            console.log(`👤 Cliente ${index + 1}:`, {
+              leadId: customer.leadId,
+              formattedLeadId: customer.formattedLeadId,
+              name: customer.name,
+              email: customer.email,
+              isAdmin: customer.isAdmin
+            });
+          });
+        }
       } else {
         throw new Error(data.message || 'Falha ao carregar clientes');
       }
     } catch (err: any) {
       console.error('❌ Erro ao carregar clientes:', err);
+      console.error('❌ Stack trace:', err.stack);
       setError(err.message || 'Erro ao carregar clientes');
     } finally {
       setLoading(false);
