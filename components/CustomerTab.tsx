@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// 🎯 VARIÁVEL DE AMBIENTE DA VERCEL
+const API_URL = 'https://ddevs-86w2.onrender.com/api';
+
 interface Customer {
   leadId: string;
   sequentialId: number;
@@ -26,43 +29,52 @@ const CustomerList: React.FC<CustomerListProps> = ({ token }) => {
   const [copiedId, setCopiedId] = useState<string>('');
 
   useEffect(() => {
-    loadCustomers();
+    if (token) {
+      loadCustomers();
+    }
   }, [token]);
 
   const loadCustomers = async () => {
     try {
       setLoading(true);
       setError('');
-      console.log('👥 Carregando lista de clientes...');
+      console.log('👥 Carregando clientes...');
       
-      const response = await fetch('https://ddevs-86w2.onrender.com/api/customers', {
-        method: 'GET',
+      const response = await fetch(`${API_URL}/customers`, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
-      const data = await response.json();
-      
-      console.log('📊 Resposta dos clientes:', data);
+      console.log('📊 Status da resposta:', response.status);
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erro ao carregar clientes');
+        const errorData = await response.json();
+        console.error('❌ Erro na resposta:', errorData);
+        throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`);
       }
+
+      const data = await response.json();
+      console.log('📋 Dados recebidos:', data);
 
       if (data.success) {
         setCustomers(data.data);
         console.log(`✅ ${data.count} clientes carregados`);
       } else {
-        throw new Error('Falha ao carregar clientes');
+        throw new Error(data.message || 'Falha ao carregar clientes');
       }
     } catch (err: any) {
       console.error('❌ Erro ao carregar clientes:', err);
-      setError(err.message || 'Erro ao carregar clientes. Verifique suas permissões de administrador.');
+      setError(err.message || 'Erro ao carregar clientes');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    console.log('🔄 Atualizando clientes...');
+    loadCustomers();
   };
 
   const handleCopyId = async (leadId: string, formattedLeadId: string) => {
@@ -167,7 +179,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ token }) => {
           </div>
           <p className="text-red-400 mb-4">{error}</p>
           <button
-            onClick={loadCustomers}
+            onClick={handleRefresh}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
           >
             Tentar novamente
@@ -188,29 +200,27 @@ const CustomerList: React.FC<CustomerListProps> = ({ token }) => {
               Total de {customers.length} clientes cadastrados no sistema
             </p>
           </div>
-          <div className="flex space-x-3 mt-4 lg:mt-0">
-            <button
-              onClick={exportToCSV}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Exportar CSV
-            </button>
-          </div>
+          <button
+            onClick={handleRefresh}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Atualizar
+          </button>
         </div>
-
-        {/* Busca */}
+        
+        {/* Campo de busca */}
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar por nome, email, telefone ou ID do cliente..."
+            placeholder="Buscar por nome, email, telefone ou ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            className="w-full px-4 py-3 pl-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <svg className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>

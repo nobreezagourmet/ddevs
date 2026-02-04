@@ -13,15 +13,7 @@ import CustomerTab from './components/CustomerTab';
 import { AppView, Raffle, User, Purchase } from './types';
 import RaffleService, { Raffle as RaffleServiceType } from './services/raffleService';
 
-// Mock data for the raffle
-const mockRaffle: Raffle = {
-  id: 'rifa-carro-2024',
-  title: '10.000 NO PIX OU IPHONE 17 PRO MAX',
-  imageUrl: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=2070&auto=format&fit=crop',
-  pricePerQuota: 25.50,
-  totalQuotas: 100000,
-  packages: [10, 50, 100, 500],
-};
+// REMOVIDO: Não usar mais rifa fictícia - apenas rifas do backend
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.RAFFLE);
@@ -70,7 +62,7 @@ const App: React.FC = () => {
       quotas: selectedQuotas,
       numbers: Array.from(numbers).sort(),
       date: new Date().toISOString(),
-      raffleTitle: selectedRaffle?.title || mockRaffle.title,
+      raffleTitle: selectedRaffle?.title || 'Rifa não selecionada',
     };
 
     setPurchaseHistory(prev => [...prev, newPurchase]);
@@ -107,7 +99,7 @@ const App: React.FC = () => {
   }, []);
 
   const renderContent = () => {
-    const totalPrice = (selectedQuotas * (selectedRaffle?.pricePerQuota || mockRaffle.pricePerQuota));
+    const totalPrice = (selectedQuotas * (selectedRaffle?.pricePerQuota || 0));
 
     switch (currentView) {
       case AppView.RAFFLE:
@@ -139,7 +131,7 @@ const App: React.FC = () => {
       case AppView.AUTH:
         return <AuthPage selectedQuotas={selectedQuotas} onBack={() => handleNavigate(AppView.RAFFLE)} onAuthSuccess={handleAuthSuccess} />;
       case AppView.PAYMENT:
-        return <PaymentPage totalPrice={totalPrice} onBack={() => handleNavigate(AppView.RAFFLE)} onPaymentSuccess={handlePaymentSuccess} authToken={authToken} raffleId={selectedRaffle?.id || mockRaffle.id} quantity={selectedQuotas} />;
+        return <PaymentPage totalPrice={totalPrice} onBack={() => handleNavigate(AppView.RAFFLE)} onPaymentSuccess={handlePaymentSuccess} authToken={authToken} raffleId={selectedRaffle?.id || ''} quantity={selectedQuotas} />;
       case AppView.MY_NUMBERS:
         return <MyNumbersPage user={currentUser!} onNewPurchase={() => handleNavigate(AppView.RAFFLE)} authToken={authToken} />;
       case AppView.RESULTS:

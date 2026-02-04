@@ -7,7 +7,7 @@ const User = require('../models/User');
 const getAllCustomers = asyncHandler(async (req, res) => {
     try {
         console.log('👥 Buscando todos os clientes...');
-        console.log('🔑 Req.user:', req.user);
+        console.log('🔑 Req.user:', req.user ? req.user.email : 'NÃO DEFINIDO');
         
         // Verificar se req.user existe
         if (!req.user) {
@@ -29,41 +29,36 @@ const getAllCustomers = asyncHandler(async (req, res) => {
         
         console.log('✅ Usuário autorizado, buscando clientes...');
         
-        // Buscar todos os usuários com dados essenciais
+        // Buscar todos os usuários com dados essenciais - SIMPLIFICADO
         const users = await User.find({})
-            .sort({ sequentialId: -1 })
+            .sort({ createdAt: -1 })
+            .limit(20) // Limitar para evitar problemas
             .select('leadId sequentialId name email phone createdAt isAdmin status')
-            .lean(); // lean() para melhor performance
+            .lean();
         
         console.log(`📊 Encontrados ${users.length} clientes cadastrados`);
         
-        // Formatar resposta simplificada
-        const formattedCustomers = users.map(user => {
+        // Formatar resposta simplificada com tratamento de erro robusto
+        const formattedCustomers = users.map((user, index) => {
             try {
+                const sequentialId = user.sequentialId || (index + 1);
                 return {
-                    // IDs cruciais
-                    leadId: user.leadId || 'N/A',
-                    sequentialId: user.sequentialId || 0,
-                    formattedLeadId: user.sequentialId ? `LED-${user.sequentialId.toString().padStart(6, '0')}` : 'LED-000000',
-                    
-                    // Dados do cliente
+                    leadId: user.leadId || `LED-${Date.now()}-${index}`,
+                    sequentialId: sequentialId,
+                    formattedLeadId: `LED-${sequentialId.toString().padStart(6, '0')}`,
                     name: user.name || 'Não informado',
                     email: user.email || 'Não informado',
                     phone: user.phone || 'Não informado',
-                    
-                    // Dados de cadastro
                     createdAt: user.createdAt,
                     registrationDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-BR') : 'N/A',
                     registrationTime: user.createdAt ? new Date(user.createdAt).toLocaleTimeString('pt-BR') : 'N/A',
-                    
-                    // Status
                     isAdmin: user.isAdmin || false,
                     status: user.status || 'active'
                 };
             } catch (error) {
                 console.error('❌ Erro ao formatar usuário:', error);
                 return {
-                    leadId: 'ERRO',
+                    leadId: `ERROR-${index}`,
                     sequentialId: 0,
                     formattedLeadId: 'LED-ERROR',
                     name: 'Erro ao processar',
@@ -78,6 +73,8 @@ const getAllCustomers = asyncHandler(async (req, res) => {
             }
         });
         
+        console.log('✅ Clientes formatados com sucesso');
+        
         res.json({
             success: true,
             count: formattedCustomers.length,
@@ -87,10 +84,13 @@ const getAllCustomers = asyncHandler(async (req, res) => {
     } catch (error) {
         console.error('❌ Erro ao buscar clientes:', error);
         console.error('❌ Stack trace:', error.stack);
+        
+        // Retornar resposta de erro mais detalhada
         res.status(500).json({
             success: false,
             message: 'Erro ao buscar clientes. Tente novamente mais tarde.',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            details: 'Verifique os logs do servidor para mais detalhes'
         });
     }
 });
