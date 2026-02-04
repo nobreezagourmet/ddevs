@@ -8,8 +8,8 @@ import SpinnerIcon from './icons/SpinnerIcon';
 const API_URL = 'https://ddevs-86w2.onrender.com/api'; // FORÇADO MANUALMENTE
 console.log('🎯 API_URL (Environment):', API_URL);
 console.log('🎯 import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🚨 VERSÃO CRÍTICA: 2025-02-04-12:39 - CRIAÇÃO DE RIFA E CLIENTES');
-console.log('🚨 ARQUIVO JS FORÇADO: index-Du8qg1BY.js');
+console.log('🚨 VERSÃO CRÍTICA: 2025-02-04-12:46 - CAST TO NUMBER CORRIGIDO');
+console.log('🚨 ARQUIVO JS FORÇADO: index-XtWJzfhS.js');
 console.log('🚨 BACKEND URL: https://ddevs-86w2.onrender.com/api');
 console.log('🚨 FRONTEND URL: https://dark-fawn-phi.vercel.app');
 

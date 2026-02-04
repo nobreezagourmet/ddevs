@@ -124,6 +124,7 @@ const getRaffleById = asyncHandler(async (req, res) => {
 const createRaffle = asyncHandler(async (req, res) => {
     try {
         console.log('🎯 Criando nova rifa...');
+        console.log('📋 Dados recebidos:', req.body);
         
         const {
             title,
@@ -134,18 +135,46 @@ const createRaffle = asyncHandler(async (req, res) => {
             quickSelectPackages
         } = req.body;
         
-        const raffle = await Raffle.create({
-            title,
-            description,
-            pricePerQuota,
-            totalQuotas,
-            imageUrl,
-            quickSelectPackages,
+        // Validar e limpar dados
+        const raffleData = {
+            title: title?.trim(),
+            description: description?.trim() || 'Rifa emocionante com ótimos prêmios!',
+            pricePerQuota: parseFloat(pricePerQuota) || 0,
+            totalQuotas: parseInt(totalQuotas) || 1,
+            imageUrl: imageUrl?.trim() || null,
+            quickSelectPackages: Array.isArray(quickSelectPackages) 
+                ? quickSelectPackages.filter(p => !isNaN(p)).map(p => parseInt(p))
+                : [10, 50, 100, 500],
             isActive: true,
             status: 'active'
-        });
+        };
+        
+        console.log('📋 Dados limpos:', raffleData);
+        
+        // Remover campos que podem causar problemas
+        const cleanData = {
+            title: raffleData.title,
+            description: raffleData.description,
+            pricePerQuota: raffleData.pricePerQuota,
+            totalQuotas: raffleData.totalQuotas,
+            imageUrl: raffleData.imageUrl,
+            quickSelectPackages: raffleData.quickSelectPackages,
+            isActive: raffleData.isActive,
+            status: raffleData.status
+        };
+        
+        console.log('📋 Dados finais:', cleanData);
+        
+        const raffle = await Raffle.create(cleanData);
         
         console.log(`✅ Rifa criada com sucesso: ${raffle.getCompleteId()}`);
+        console.log('📊 Dados da rifa criada:', {
+            id: raffle._id,
+            creationId: raffle.creationId,
+            sequentialId: raffle.sequentialId,
+            formattedId: raffle.getFormattedId(),
+            title: raffle.title
+        });
         
         res.status(201).json({
             success: true,
@@ -159,12 +188,14 @@ const createRaffle = asyncHandler(async (req, res) => {
                 title: raffle.title,
                 pricePerQuota: raffle.pricePerQuota,
                 totalQuotas: raffle.totalQuotas,
-                status: raffle.status
+                status: raffle.status,
+                isActive: raffle.isActive
             }
         });
         
     } catch (error) {
         console.error('❌ Erro ao criar rifa:', error);
+        console.error('❌ Stack trace:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Erro ao criar rifa. Tente novamente mais tarde.',

@@ -96,13 +96,18 @@ const raffleSchema = mongoose.Schema({
 
 // Middleware para gerar sequentialId antes de salvar e validação
 raffleSchema.pre('validate', async function(next) {
-    if (this.isNew && !this.sequentialId) {
+    if (this.isNew) {
         try {
-            const lastRaffle = await this.constructor.findOne({}, {}, { sort: { sequentialId: -1 } });
-            this.sequentialId = lastRaffle ? lastRaffle.sequentialId + 1 : 1;
+            // Garantir que sequentialId seja um número válido
+            if (!this.sequentialId || isNaN(this.sequentialId)) {
+                console.log('🔧 Gerando sequentialId para nova rifa...');
+                const lastRaffle = await this.constructor.findOne({}, {}, { sort: { sequentialId: -1 } });
+                this.sequentialId = lastRaffle ? (lastRaffle.sequentialId || 0) + 1 : 1;
+                console.log(`✅ SequentialId gerado: ${this.sequentialId}`);
+            }
         } catch (error) {
-            console.error('Erro ao gerar sequentialId:', error);
-            this.sequentialId = 1; // Fallback
+            console.error('❌ Erro ao gerar sequentialId:', error);
+            this.sequentialId = 1; // Fallback seguro
         }
     }
     next();
@@ -112,6 +117,7 @@ raffleSchema.pre('validate', async function(next) {
 raffleSchema.pre('save', async function(next) {
     if (this.isNew && !this.creationId) {
         this.creationId = `RFL-${generateUUID()}`;
+        console.log(`✅ CreationId gerado: ${this.creationId}`);
     }
     next();
 });
