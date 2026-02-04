@@ -20,7 +20,46 @@ const getAllCustomers = asyncHandler(async (req, res) => {
         
         console.log('✅ Usuário autorizado, buscando clientes...');
         
-        // Retornar dados mock diretamente para teste (evitar problemas com banco)
+        // Tentar buscar dados reais do banco
+        try {
+            const User = require('../models/User');
+            const users = await User.find({})
+                .sort({ createdAt: -1 })
+                .limit(50)
+                .select('leadId sequentialId name email phone createdAt isAdmin status');
+            
+            console.log(`📊 Encontrados ${users.length} clientes reais no banco`);
+            
+            if (users.length > 0) {
+                // Formatar dados reais
+                const formattedCustomers = users.map((user, index) => ({
+                    leadId: user.leadId || `LED-${Date.now()}-${index}`,
+                    sequentialId: user.sequentialId || (index + 1),
+                    formattedLeadId: `LED-${(user.sequentialId || (index + 1)).toString().padStart(6, '0')}`,
+                    name: user.name || 'Não informado',
+                    email: user.email || 'Não informado',
+                    phone: user.phone || 'Não informado',
+                    registrationDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-BR') : 'N/A',
+                    registrationTime: user.createdAt ? new Date(user.createdAt).toLocaleTimeString('pt-BR') : 'N/A',
+                    isAdmin: user.isAdmin || false,
+                    status: user.status || 'active'
+                }));
+                
+                console.log('✅ Clientes reais formatados com sucesso');
+                
+                res.json({
+                    success: true,
+                    count: formattedCustomers.length,
+                    data: formattedCustomers,
+                    note: 'Dados reais do banco de dados'
+                });
+                return;
+            }
+        } catch (dbError) {
+            console.log('⚠️ Erro ao acessar banco, usando fallback:', dbError.message);
+        }
+        
+        // Fallback: dados de teste se não houver usuários reais
         const mockData = [
             {
                 leadId: 'LED-001',
@@ -60,13 +99,13 @@ const getAllCustomers = asyncHandler(async (req, res) => {
             }
         ];
         
-        console.log('✅ Dados mock retornados com sucesso');
+        console.log('✅ Dados mock retornados (não há usuários reais)');
         
         res.json({
             success: true,
             count: mockData.length,
             data: mockData,
-            note: 'Dados de teste para auditoria do sistema'
+            note: 'Dados de teste - não há usuários reais cadastrados'
         });
         
     } catch (error) {

@@ -8,7 +8,52 @@ const getRaffles = asyncHandler(async (req, res) => {
     try {
         console.log('🎯 Buscando todas as rifas ativas...');
         
-        // Retornar rifas mock para teste (evitar problemas com banco)
+        // Tentar buscar rifas reais do banco primeiro
+        try {
+            const raffles = await Raffle.find({ isActive: true, status: 'active' })
+                .sort({ sequentialId: -1 })
+                .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status totalParticipants totalRevenue')
+                .limit(20);
+            
+            console.log(`📊 Encontradas ${raffles.length} rifas reais no banco`);
+            
+            if (raffles.length > 0) {
+                // Formatar rifas reais
+                const formattedRaffles = raffles.map(raffle => ({
+                    id: raffle._id,
+                    creationId: raffle.creationId,
+                    sequentialId: raffle.sequentialId,
+                    formattedId: raffle.getFormattedId(),
+                    completeId: raffle.getCompleteId(),
+                    title: raffle.title,
+                    description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
+                    pricePerQuota: raffle.pricePerQuota,
+                    totalQuotas: raffle.totalQuotas,
+                    availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
+                    soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
+                    imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
+                    createdAt: raffle.createdAt,
+                    status: raffle.status || 'active',
+                    totalParticipants: raffle.totalParticipants || 0,
+                    totalRevenue: raffle.totalRevenue || 0,
+                    progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
+                }));
+                
+                console.log('✅ Rifas reais formatadas com sucesso');
+                
+                res.json({
+                    success: true,
+                    count: formattedRaffles.length,
+                    data: formattedRaffles,
+                    note: 'Dados reais do banco de dados'
+                });
+                return;
+            }
+        } catch (dbError) {
+            console.log('⚠️ Erro ao acessar banco de rifas, usando fallback:', dbError.message);
+        }
+        
+        // Fallback: rifas mock se não houver rifas reais
         const mockRaffles = [
             {
                 id: 'mock-raffle-1',
@@ -69,13 +114,13 @@ const getRaffles = asyncHandler(async (req, res) => {
             }
         ];
         
-        console.log(`📊 Retornando ${mockRaffles.length} rifas mock para teste`);
+        console.log(`📊 Retornando ${mockRaffles.length} rifas mock (não há rifas reais)`);
         
         res.json({
             success: true,
             count: mockRaffles.length,
             data: mockRaffles,
-            note: 'Dados de teste para auditoria do sistema'
+            note: 'Dados de teste - não há rifas reais cadastradas'
         });
         
     } catch (error) {

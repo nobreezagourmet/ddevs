@@ -114,12 +114,33 @@ const App: React.FC = () => {
               <div className="mt-8">
                 <RafflePage 
                   raffle={{
+                    // IDs do backend
                     id: selectedRaffle.id,
+                    creationId: selectedRaffle.creationId,
+                    sequentialId: selectedRaffle.sequentialId,
+                    formattedId: selectedRaffle.formattedId,
+                    completeId: selectedRaffle.completeId,
+                    
+                    // Dados principais
                     title: selectedRaffle.title,
+                    description: selectedRaffle.description,
                     imageUrl: selectedRaffle.imageUrl,
                     pricePerQuota: selectedRaffle.pricePerQuota,
                     totalQuotas: selectedRaffle.totalQuotas,
-                    packages: [10, 50, 100, 500]
+                    availableQuotas: selectedRaffle.availableQuotas,
+                    soldQuotas: selectedRaffle.soldQuotas,
+                    status: selectedRaffle.status,
+                    progressPercentage: selectedRaffle.progressPercentage,
+                    
+                    // Estatísticas
+                    totalParticipants: selectedRaffle.totalParticipants,
+                    totalRevenue: selectedRaffle.totalRevenue,
+                    
+                    // Metadados
+                    createdAt: selectedRaffle.createdAt,
+                    
+                    // Compatibilidade
+                    packages: [10, 25, 50, 100, 500]
                   }} 
                   onPurchase={handlePurchaseClick} 
                   onNavigate={handleNavigate} 

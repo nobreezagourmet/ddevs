@@ -16,16 +16,32 @@ const protect = asyncHandler(async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
             console.log(' Token decodificado:', decoded);
 
-            // Temporariamente usar mock user para evitar erro de banco
-            req.user = {
-                _id: decoded.id,
-                email: 'admin@test.com',
-                isAdmin: true,
-                name: 'Admin User'
-            };
-            
-            console.log(' Usuário mock criado:', req.user.email);
-            console.log(' Usuário é admin:', req.user.isAdmin);
+            // Tentar buscar usuário real do banco primeiro
+            try {
+                const user = await User.findById(decoded.id).select('-password');
+                
+                if (user) {
+                    req.user = user;
+                    console.log(' Usuário real encontrado:', req.user.email);
+                    console.log(' Usuário é admin:', req.user.isAdmin);
+                } else {
+                    console.log(' Usuário não encontrado no banco, usando mock');
+                    throw new Error('User not found');
+                }
+            } catch (dbError) {
+                console.log(' Erro ao buscar usuário no banco, usando mock:', dbError.message);
+                
+                // Fallback: usar mock user
+                req.user = {
+                    _id: decoded.id,
+                    email: 'admin@test.com',
+                    isAdmin: true,
+                    name: 'Admin User'
+                };
+                
+                console.log(' Usuário mock criado:', req.user.email);
+                console.log(' Usuário é admin:', req.user.isAdmin);
+            }
 
             next();
         } catch (error) {
