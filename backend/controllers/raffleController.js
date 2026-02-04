@@ -342,8 +342,147 @@ const createRaffle = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Toggle raffle active status (Admin only)
+// @route   PATCH /api/raffles/:id/toggle
+// @access  Private (Admin only)
+const toggleRaffleStatus = asyncHandler(async (req, res) => {
+    try {
+        console.log(`🔄 Alternando status da rifa ID: ${req.params.id}`);
+        
+        const raffle = await Raffle.findById(req.params.id);
+        
+        if (!raffle) {
+            return res.status(404).json({
+                success: false,
+                message: 'Rifa não encontrada'
+            });
+        }
+        
+        // Alternar status
+        raffle.isActive = !raffle.isActive;
+        raffle.status = raffle.isActive ? 'active' : 'inactive';
+        
+        await raffle.save();
+        
+        console.log(`✅ Rifa ${raffle.isActive ? 'ATIVADA' : 'DESATIVADA'}: ${raffle.title}`);
+        
+        res.json({
+            success: true,
+            message: `Rifa ${raffle.isActive ? 'ativada' : 'desativada'} com sucesso`,
+            data: {
+                id: raffle._id,
+                title: raffle.title,
+                isActive: raffle.isActive,
+                status: raffle.status,
+                formattedId: raffle.getFormattedId()
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao alternar status da rifa:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao alternar status da rafa',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// @desc    Delete raffle (Admin only)
+// @route   DELETE /api/raffles/:id
+// @access  Private (Admin only)
+const deleteRaffle = asyncHandler(async (req, res) => {
+    try {
+        console.log(`🗑️ Excluindo rifa ID: ${req.params.id}`);
+        
+        const raffle = await Raffle.findById(req.params.id);
+        
+        if (!raffle) {
+            return res.status(404).json({
+                success: false,
+                message: 'Rifa não encontrada'
+            });
+        }
+        
+        await Raffle.findByIdAndDelete(req.params.id);
+        
+        console.log(`✅ Rifa excluída: ${raffle.title}`);
+        
+        res.json({
+            success: true,
+            message: 'Rifa excluída com sucesso',
+            data: {
+                id: raffle._id,
+                title: raffle.title,
+                formattedId: raffle.getFormattedId()
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao excluir rifa:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao excluir rifa',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// @desc    Get all raffles (Admin only - including inactive)
+// @route   GET /api/raffles/admin/all
+// @access  Private (Admin only)
+const getAllRafflesAdmin = asyncHandler(async (req, res) => {
+    try {
+        console.log('👑 Buscando todas as rifas (admin)...');
+        
+        const raffles = await Raffle.find({})
+            .sort({ sequentialId: -1 })
+            .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status isActive totalParticipants totalRevenue');
+        
+        console.log(`📊 Encontradas ${raffles.length} rifas (admin)`);
+        
+        const formattedRaffles = raffles.map(raffle => ({
+            id: raffle._id,
+            creationId: raffle.creationId,
+            sequentialId: raffle.sequentialId,
+            formattedId: raffle.getFormattedId(),
+            completeId: raffle.getCompleteId(),
+            title: raffle.title,
+            description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
+            pricePerQuota: raffle.pricePerQuota,
+            totalQuotas: raffle.totalQuotas,
+            availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
+            soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
+            imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
+            createdAt: raffle.createdAt,
+            status: raffle.status || 'active',
+            isActive: raffle.isActive,
+            totalParticipants: raffle.totalParticipants || 0,
+            totalRevenue: raffle.totalRevenue || 0,
+            progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
+        }));
+        
+        res.json({
+            success: true,
+            count: formattedRaffles.length,
+            data: formattedRaffles
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar rifas (admin):', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar rifas',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
 module.exports = {
     getRaffles,
     getRaffleById,
-    createRaffle
+    createRaffle,
+    toggleRaffleStatus,
+    deleteRaffle,
+    getAllRafflesAdmin
 };

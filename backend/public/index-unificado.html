@@ -180,6 +180,27 @@
                 <div id="raffleStatus" class="mt-4"></div>
             </div>
 
+            <!-- Raffle Management Section -->
+            <div class="glass rounded-2xl shadow-xl p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-cogs text-green-400"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Gerenciar Rifas</h2>
+                </div>
+                
+                <div class="mb-4">
+                    <button onclick="loadAllRaffles()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sync mr-2"></i>Carregar Todas as Rifas
+                    </button>
+                </div>
+                
+                <div id="rafflesList" class="space-y-4">
+                    <p class="text-white/60">Clique em "Carregar Todas as Rifas" para gerenciar</p>
+                </div>
+            </div>
+
             <!-- Swap Quota Section -->
             <div class="glass rounded-2xl shadow-xl p-8">
                 <div class="flex items-center mb-6">
@@ -335,6 +356,149 @@
                 showStatus('loginStatus', 'Erro ao conectar com o servidor', 'error');
             }
         });
+
+        // Load all raffles for management
+        async function loadAllRaffles() {
+            try {
+                console.log('🔄 Carregando todas as rifas para gerenciamento...');
+                
+                const response = await fetch(window.API_URL + '/api/raffles/admin/all', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar rifas');
+                }
+
+                const data = await response.json();
+                console.log('📋 Rifas carregadas:', data);
+
+                if (data.success) {
+                    displayRafflesForManagement(data.data);
+                } else {
+                    throw new Error(data.message || 'Erro ao carregar rifas');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar rifas:', error);
+                document.getElementById('rafflesList').innerHTML = 
+                    `<p class="text-red-400">Erro ao carregar rifas: ${error.message}</p>`;
+            }
+        }
+
+        // Display raffles for management
+        function displayRafflesForManagement(raffles) {
+            const container = document.getElementById('rafflesList');
+            
+            if (raffles.length === 0) {
+                container.innerHTML = '<p class="text-white/60">Nenhuma rifa encontrada</p>';
+                return;
+            }
+
+            let html = '';
+            raffles.forEach(raffle => {
+                const statusClass = raffle.isActive ? 'bg-green-500' : 'bg-red-500';
+                const statusText = raffle.isActive ? 'ATIVA' : 'INATIVA';
+                const statusIcon = raffle.isActive ? 'fa-check-circle' : 'fa-times-circle';
+                
+                html += `
+                    <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1">
+                                <h3 class="text-white font-semibold text-lg">${raffle.title}</h3>
+                                <p class="text-white/60 text-sm">ID: ${raffle.formattedId}</p>
+                                <p class="text-white/60 text-sm">Preço: R$ ${raffle.pricePerQuota.toFixed(2)}</p>
+                                <p class="text-white/60 text-sm">Cotas: ${raffle.soldQuotas}/${raffle.totalQuotas}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="${statusClass} text-white text-xs px-2 py-1 rounded-full flex items-center">
+                                    <i class="fas ${statusIcon} mr-1"></i>${statusText}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="toggleRaffle('${raffle.id}', '${raffle.title}', ${raffle.isActive})" 
+                                    class="flex-1 ${raffle.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} text-white px-3 py-2 rounded text-sm transition-colors">
+                                <i class="fas fa-power-off mr-1"></i>${raffle.isActive ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button onclick="deleteRaffle('${raffle.id}', '${raffle.title}')" 
+                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                <i class="fas fa-trash mr-1"></i>Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Toggle raffle status
+        async function toggleRaffle(raffleId, raffleTitle, currentStatus) {
+            if (!confirm(`Tem certeza que deseja ${currentStatus ? 'desativar' : 'ativar'} a rifa "${raffleTitle}"?`)) {
+                return;
+            }
+
+            try {
+                console.log(`🔄 ${currentStatus ? 'Desativando' : 'Ativando'} rifa: ${raffleTitle}`);
+                
+                const response = await fetch(window.API_URL + `/api/raffles/${raffleId}/toggle`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('📋 Resposta:', data);
+
+                if (data.success) {
+                    alert(`✅ Rifa ${data.message.toLowerCase()}`);
+                    loadAllRaffles(); // Reload list
+                    loadAllData(); // Reload dashboard stats
+                } else {
+                    throw new Error(data.message || 'Erro ao alterar status');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao alterar status:', error);
+                alert(`❌ Erro: ${error.message}`);
+            }
+        }
+
+        // Delete raffle
+        async function deleteRaffle(raffleId, raffleTitle) {
+            if (!confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR A RIFA "${raffleTitle}"?\n\nESTA AÇÃO É IRREVERSÍVEL!`)) {
+                return;
+            }
+
+            try {
+                console.log(`🗑️ Excluindo rifa: ${raffleTitle}`);
+                
+                const response = await fetch(window.API_URL + `/api/raffles/${raffleId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('📋 Resposta:', data);
+
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+                    loadAllRaffles(); // Reload list
+                    loadAllData(); // Reload dashboard stats
+                } else {
+                    throw new Error(data.message || 'Erro ao excluir rifa');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao excluir rifa:', error);
+                alert(`❌ Erro: ${error.message}`);
+            }
+        }
 
         // Load dashboard stats
         async function loadDashboardStats() {
