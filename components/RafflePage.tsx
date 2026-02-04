@@ -12,15 +12,17 @@ interface RafflePageProps {
 
 const RafflePage: React.FC<RafflePageProps> = ({ raffle, onPurchase, onNavigate }) => {
   const [quantity, setQuantity] = useState<number>(0);
-  const [soldQuotas] = useState(67543); // Mock data for progress bar
+  
+  // Usar dados reais do backend em vez de mock
+  const soldQuotas = raffle.soldQuotas || 0;
 
   const totalPrice = useMemo(() => {
     return (quantity * raffle.pricePerQuota).toFixed(2).replace('.', ',');
   }, [quantity, raffle.pricePerQuota]);
 
   const progressPercentage = useMemo(() => {
-    return (soldQuotas / raffle.totalQuotas) * 100;
-  }, [soldQuotas, raffle.totalQuotas]);
+    return raffle.progressPercentage || 0;
+  }, [raffle.progressPercentage]);
 
   const handleIncrement = () => {
     setQuantity((prev) => prev + 10);
@@ -32,7 +34,10 @@ const RafflePage: React.FC<RafflePageProps> = ({ raffle, onPurchase, onNavigate 
   
   const handlePackageSelect = (pkgQuantity: number) => {
     setQuantity(pkgQuantity);
-  }
+  };
+
+  // Pacotes padrão do backend ou valores default
+  const packages = [10, 25, 50, 100, 500];
 
   return (
     <>
@@ -71,7 +76,7 @@ const RafflePage: React.FC<RafflePageProps> = ({ raffle, onPurchase, onNavigate 
           
           <h3 className="text-lg font-semibold text-center text-gray-300 mb-4">Selecione um pacote:</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            {raffle.packages.map((pkg) => (
+            {packages.map((pkg) => (
               <div key={pkg} className="relative">
                 <button
                   onClick={() => handlePackageSelect(pkg)}

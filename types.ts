@@ -1,10 +1,31 @@
 export interface Raffle {
+  // IDs do backend
   id: string;
+  creationId: string;
+  sequentialId: number;
+  formattedId: string;
+  completeId: string;
+  
+  // Dados principais
   title: string;
+  description: string;
   imageUrl: string;
   pricePerQuota: number;
   totalQuotas: number;
-  packages: number[];
+  availableQuotas: number;
+  soldQuotas: number;
+  status: string;
+  progressPercentage: number;
+  
+  // Estatísticas
+  totalParticipants: number;
+  totalRevenue: number;
+  
+  // Metadados
+  createdAt: string;
+  
+  // Compatibilidade com frontend
+  packages?: number[];
 }
 
 export enum AppView {
