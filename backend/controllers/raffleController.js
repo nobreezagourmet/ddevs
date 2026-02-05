@@ -20,51 +20,58 @@ const getRaffles = asyncHandler(async (req, res) => {
             if (raffles.length > 0) {
                 // Formatar rifas reais
                 const formattedRaffles = raffles.map(raffle => {
-                    try {
-                        return {
-                            id: raffle._id,
-                            creationId: raffle.creationId,
-                            sequentialId: raffle.sequentialId,
-                            formattedId: raffle.getFormattedId ? raffle.getFormattedId() : `RFL-${raffle.sequentialId.toString().padStart(6, '0')}`,
-                            completeId: raffle.getCompleteId ? raffle.getCompleteId() : `${raffle.creationId} (RFL-${raffle.sequentialId.toString().padStart(6, '0')})`,
-                            title: raffle.title,
-                            description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
-                            pricePerQuota: raffle.pricePerQuota,
-                            totalQuotas: raffle.totalQuotas,
-                            availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
-                            soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
-                            imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
-                            createdAt: raffle.createdAt,
-                            status: raffle.status || 'active',
-                            isActive: raffle.isActive,
-                            totalParticipants: raffle.totalParticipants || 0,
-                            totalRevenue: raffle.totalRevenue || 0,
-                            progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
-                        };
-                    } catch (error) {
-                        console.error('❌ Erro ao formatar rifa (getRaffles):', error);
-                        return {
-                            id: raffle._id,
-                            creationId: raffle.creationId,
-                            sequentialId: raffle.sequentialId,
-                            formattedId: `RFL-${raffle.sequentialId.toString().padStart(6, '0')}`,
-                            completeId: `${raffle.creationId} (RFL-${raffle.sequentialId.toString().padStart(6, '0')})`,
-                            title: raffle.title,
-                            description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
-                            pricePerQuota: raffle.pricePerQuota,
-                            totalQuotas: raffle.totalQuotas,
-                            availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
-                            soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
-                            imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
-                            createdAt: raffle.createdAt,
-                            status: raffle.status || 'active',
-                            isActive: raffle.isActive,
-                            totalParticipants: raffle.totalParticipants || 0,
-                            totalRevenue: raffle.totalRevenue || 0,
-                            progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
-                        };
-                    }
-                });
+                try {
+                    // Verificação robusta de sequentialId
+                    const sequentialId = raffle.sequentialId || 0;
+                    const formattedId = raffle.getFormattedId ? raffle.getFormattedId() : `RFL-${sequentialId.toString().padStart(6, '0')}`;
+                    const completeId = raffle.getCompleteId ? raffle.getCompleteId() : `${raffle.creationId} (RFL-${sequentialId.toString().padStart(6, '0')})`;
+                    
+                    return {
+                        id: raffle._id,
+                        creationId: raffle.creationId,
+                        sequentialId: sequentialId,
+                        formattedId: formattedId,
+                        completeId: completeId,
+                        title: raffle.title,
+                        description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
+                        pricePerQuota: raffle.pricePerQuota,
+                        totalQuotas: raffle.totalQuotas,
+                        availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
+                        soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
+                        imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
+                        createdAt: raffle.createdAt,
+                        status: raffle.status || 'active',
+                        isActive: raffle.isActive,
+                        totalParticipants: raffle.totalParticipants || 0,
+                        totalRevenue: raffle.totalRevenue || 0,
+                        progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
+                    };
+                } catch (error) {
+                    console.error('❌ Erro ao formatar raffle (getRaffles):', error);
+                    // Fallback seguro ainda mais robusto
+                    const sequentialId = raffle.sequentialId || 0;
+                    return {
+                        id: raffle._id,
+                        creationId: raffle.creationId,
+                        sequentialId: sequentialId,
+                        formattedId: `RFL-${sequentialId.toString().padStart(6, '0')}`,
+                        completeId: `${raffle.creationId} (RFL-${sequentialId.toString().padStart(6, '0')})`,
+                        title: raffle.title,
+                        description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
+                        pricePerQuota: raffle.pricePerQuota,
+                        totalQuotas: raffle.totalQuotas,
+                        availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
+                        soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
+                        imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
+                        createdAt: raffle.createdAt,
+                        status: raffle.status || 'active',
+                        isActive: raffle.isActive,
+                        totalParticipants: raffle.totalParticipants || 0,
+                        totalRevenue: raffle.totalRevenue || 0,
+                        progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
+                    };
+                }
+            });
                 
                 console.log('✅ Rifas reais formatadas com sucesso');
                 
@@ -392,12 +399,17 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
         if (raffles.length > 0) {
             const formattedRaffles = raffles.map(raffle => {
                 try {
+                    // Verificação robusta de sequentialId
+                    const sequentialId = raffle.sequentialId || 0;
+                    const formattedId = raffle.getFormattedId ? raffle.getFormattedId() : `RFL-${sequentialId.toString().padStart(6, '0')}`;
+                    const completeId = raffle.getCompleteId ? raffle.getCompleteId() : `${raffle.creationId} (RFL-${sequentialId.toString().padStart(6, '0')})`;
+                    
                     return {
                         id: raffle._id,
                         creationId: raffle.creationId,
-                        sequentialId: raffle.sequentialId,
-                        formattedId: raffle.getFormattedId ? raffle.getFormattedId() : `RFL-${raffle.sequentialId.toString().padStart(6, '0')}`,
-                        completeId: raffle.getCompleteId ? raffle.getCompleteId() : `${raffle.creationId} (RFL-${raffle.sequentialId.toString().padStart(6, '0')})`,
+                        sequentialId: sequentialId,
+                        formattedId: formattedId,
+                        completeId: completeId,
                         title: raffle.title,
                         description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
                         pricePerQuota: raffle.pricePerQuota,
@@ -413,13 +425,15 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
                         progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
                     };
                 } catch (error) {
-                    console.error('❌ Erro ao formatar rifa:', error);
+                    console.error('❌ Erro ao formatar raffle:', error);
+                    // Fallback seguro ainda mais robusto
+                    const sequentialId = raffle.sequentialId || 0;
                     return {
                         id: raffle._id,
                         creationId: raffle.creationId,
-                        sequentialId: raffle.sequentialId,
-                        formattedId: `RFL-${raffle.sequentialId.toString().padStart(6, '0')}`,
-                        completeId: `${raffle.creationId} (RFL-${raffle.sequentialId.toString().padStart(6, '0')})`,
+                        sequentialId: sequentialId,
+                        formattedId: `RFL-${sequentialId.toString().padStart(6, '0')}`,
+                        completeId: `${raffle.creationId} (RFL-${sequentialId.toString().padStart(6, '0')})`,
                         title: raffle.title,
                         description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
                         pricePerQuota: raffle.pricePerQuota,

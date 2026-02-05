@@ -157,12 +157,20 @@ raffleSchema.pre('save', async function(next) {
 
 // Método para obter ID formatado
 raffleSchema.methods.getFormattedId = function() {
+    if (!this.sequentialId) {
+        console.error('❌ sequentialId não encontrado em getFormattedId:', this);
+        return 'RFL-000000'; // Fallback seguro
+    }
     return `RFL-${this.sequentialId.toString().padStart(6, '0')}`;
 };
 
 // Método para obter ID completo
 raffleSchema.methods.getCompleteId = function() {
-    return `${this.creationId} (${this.getFormattedId()})`;
+    if (!this.sequentialId) {
+        console.error('❌ sequentialId não encontrado em getCompleteId:', this);
+        return `${this.creationId || 'RFL-000000'} (RFL-000000)`; // Fallback seguro
+    }
+    return `${this.creationId} (${this.sequentialId.toString().padStart(6, '0')})`;
 };
 
 const Raffle = mongoose.model('Raffle', raffleSchema);
