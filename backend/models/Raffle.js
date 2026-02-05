@@ -82,13 +82,46 @@ const raffleSchema = mongoose.Schema({
     // Campo para estatísticas
     totalParticipants: {
         type: Number,
-        default: 0,
-        min: 0
+        default: 0
     },
     totalRevenue: {
         type: Number,
-        default: 0,
-        min: 0
+        default: 0
+    },
+    // Campos de controle de persistência (Protocolo de Correção)
+    deletedAt: {
+        type: Date,
+        default: null,
+        index: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
+    lastStatusChange: {
+        type: Date,
+        default: Date.now
+    },
+    statusHistory: [{
+        status: String,
+        changedAt: {
+            type: Date,
+            default: Date.now
+        },
+        changedBy: {
+            type: String,
+            default: 'system'
+        }
+    }],
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        index: true
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     }
 }, {
     timestamps: true,

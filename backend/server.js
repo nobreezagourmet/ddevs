@@ -7,6 +7,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const raffleRoutes = require('./routes/raffleRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 const path = require('path');
 const cors = require('cors');
 const { configureUploads } = require('./middleware/uploadMiddleware');
@@ -114,6 +115,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/raffles', raffleRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/search', searchRoutes);
 
 // ROTA DE CADASTRO DE USUÁRIO - GARANTIDA NO server.js
 app.post('/api/auth/register', async (req, res) => {

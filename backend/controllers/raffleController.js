@@ -366,13 +366,29 @@ const toggleRaffleStatus = asyncHandler(async (req, res) => {
                 });
             }
             
-            // Alternar status
+            // Protocolo de Correção: Status Toggle com persistência completa
+            console.log(`🔄 Status Toggle (Protocolo de Correção): ${req.params.id}`);
+            
+            // Adicionar ao histórico de status antes de alterar
+            const oldStatus = raffle.status;
+            const newStatus = raffle.isActive ? 'inactive' : 'active';
+            
+            raffle.statusHistory.push({
+                status: newStatus,
+                changedAt: new Date(),
+                changedBy: req.user?.email || 'admin'
+            });
+            
+            // Alternar status com persistência
             raffle.isActive = !raffle.isActive;
-            raffle.status = raffle.isActive ? 'active' : 'inactive';
+            raffle.status = newStatus;
+            raffle.lastStatusChange = new Date();
             
             await raffle.save();
             
-            console.log(`✅ Rifa ${raffle.isActive ? 'ATIVADA' : 'DESATIVADA'}: ${raffle.title}`);
+            console.log(`✅ Status alterado: ${oldStatus} → ${newStatus}`);
+            console.log(`📊 Histórico de status: ${raffle.statusHistory.length} alterações`);
+            console.log(`🔄 Rifa ${raffle.isActive ? 'ATIVADA' : 'DESATIVADA'}: ${raffle.title}`);
             
             res.json({
                 success: true,
@@ -380,9 +396,11 @@ const toggleRaffleStatus = asyncHandler(async (req, res) => {
                 data: {
                     id: raffle._id,
                     title: raffle.title,
+                    formattedId: raffle.getFormattedId(),
                     isActive: raffle.isActive,
                     status: raffle.status,
-                    formattedId: raffle.getFormattedId()
+                    lastStatusChange: raffle.lastStatusChange,
+                    statusHistory: raffle.statusHistory
                 }
             });
             return;
@@ -446,17 +464,38 @@ const deleteRaffle = asyncHandler(async (req, res) => {
                 });
             }
             
-            await Raffle.findByIdAndDelete(req.params.id);
+            // Protocolo de Correção: Soft Delete em vez de exclusão física
+            console.log('🗑️ Aplicando Soft Delete (Protocolo de Correção)...');
             
-            console.log(`✅ Rifa excluída: ${raffle.title}`);
+            // Adicionar ao histórico de status
+            raffle.statusHistory.push({
+                status: 'deleted',
+                changedAt: new Date(),
+                changedBy: req.user?.email || 'admin'
+            });
+            
+            // Soft Delete - Marcar como excluído sem remover do banco
+            raffle.isDeleted = true;
+            raffle.deletedAt = new Date();
+            raffle.isActive = false;
+            raffle.status = 'cancelled';
+            raffle.lastStatusChange = new Date();
+            
+            await raffle.save();
+            
+            console.log(`✅ Soft Delete aplicado: ${raffle.title}`);
+            console.log(`📊 Histórico de status: ${raffle.statusHistory.length} alterações`);
             
             res.json({
                 success: true,
-                message: 'Rifa excluída com sucesso',
+                message: 'Rifa excluída com sucesso (Soft Delete aplicado)',
                 data: {
                     id: raffle._id,
                     title: raffle.title,
-                    formattedId: raffle.getFormattedId()
+                    formattedId: raffle.getFormattedId(),
+                    isDeleted: raffle.isDeleted,
+                    deletedAt: raffle.deletedAt,
+                    statusHistory: raffle.statusHistory
                 }
             });
             return;
