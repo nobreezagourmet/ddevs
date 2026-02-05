@@ -356,57 +356,54 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
     try {
         console.log('👑 Buscando todas as rifas (admin)...');
         
-        // Tentar buscar do banco primeiro
-        try {
-            const raffles = await Raffle.find({})
-                .sort({ sequentialId: -1 })
-                .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status isActive totalParticipants totalRevenue');
+        const raffles = await Raffle.find({})
+            .sort({ sequentialId: -1 })
+            .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status isActive totalParticipants totalRevenue');
+        
+        console.log(`📊 Encontradas ${raffles.length} rifas reais (admin)`);
+        
+        if (raffles.length > 0) {
+            const formattedRaffles = raffles.map(raffle => ({
+                id: raffle._id,
+                creationId: raffle.creationId,
+                sequentialId: raffle.sequentialId,
+                formattedId: raffle.getFormattedId(),
+                completeId: raffle.getCompleteId(),
+                title: raffle.title,
+                description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
+                pricePerQuota: raffle.pricePerQuota,
+                totalQuotas: raffle.totalQuotas,
+                availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
+                soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
+                imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
+                createdAt: raffle.createdAt,
+                status: raffle.status || 'active',
+                isActive: raffle.isActive,
+                totalParticipants: raffle.totalParticipants || 0,
+                totalRevenue: raffle.totalRevenue || 0,
+                progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
+            }));
             
-            console.log(`📊 Encontradas ${raffles.length} rifas reais (admin)`);
-            
-            if (raffles.length > 0) {
-                const formattedRaffles = raffles.map(raffle => ({
-                    id: raffle._id,
-                    creationId: raffle.creationId,
-                    sequentialId: raffle.sequentialId,
-                    formattedId: raffle.getFormattedId(),
-                    completeId: raffle.getCompleteId(),
-                    title: raffle.title,
-                    description: raffle.description || 'Rifa emocionante com ótimos prêmios!',
-                    pricePerQuota: raffle.pricePerQuota,
-                    totalQuotas: raffle.totalQuotas,
-                    availableQuotas: raffle.availableQuotas || raffle.totalQuotas,
-                    soldQuotas: raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas),
-                    imageUrl: raffle.imageUrl || 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
-                    createdAt: raffle.createdAt,
-                    status: raffle.status || 'active',
-                    isActive: raffle.isActive,
-                    totalParticipants: raffle.totalParticipants || 0,
-                    totalRevenue: raffle.totalRevenue || 0,
-                    progressPercentage: ((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100
-                }));
-                
-                res.json({
-                    success: true,
-                    count: formattedRaffles.length,
-                    data: formattedRaffles
-                });
-                return;
-            }
-        } catch (error) {
-            console.error('❌ Erro ao buscar rifas admin:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro ao buscar rifas admin',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            res.json({
+                success: true,
+                count: formattedRaffles.length,
+                data: formattedRaffles
             });
+            return;
         }
         
+        // Se não houver rifas, retornar array vazio
+        res.json({
+            success: true,
+            count: 0,
+            data: []
+        });
+        
     } catch (error) {
-        console.error('❌ Erro ao buscar rifas (admin):', error);
+        console.error('❌ Erro ao buscar rifas admin:', error);
         res.status(500).json({
             success: false,
-            message: 'Erro ao buscar rifas',
+            message: 'Erro ao buscar rifas admin',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
