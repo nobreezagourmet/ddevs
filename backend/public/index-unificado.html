@@ -330,9 +330,8 @@
                     document.getElementById('dashboardSection').classList.remove('hidden');
                     document.getElementById('userName').textContent = currentUser.email;
                     
-                    loadAllData();
-                    loadAllRaffles(); // Auto-carregar rifas ao entrar
-                    loadLeads(); // Carregar leads
+                    console.log('✅ Login bem-sucedido, carregando dados...');
+                    loadAllData(); // ✅ CARREGA TUDO INCLUINDO RIFAS
                     showStatus('loginStatus', 'Login realizado com sucesso!', 'success');
                 } else {
                     showStatus('loginStatus', 'Credenciais inválidas ou usuário não é administrador', 'error');
@@ -346,17 +345,32 @@
         async function loadAllRaffles() {
             try {
                 console.log('🔄 Carregando todas as rifas para gerenciamento...');
+                
+                // Verificar se temos token
+                if (!authToken) {
+                    console.error('❌ Token não encontrado, usuário não está logado');
+                    return;
+                }
+                
                 document.getElementById('rafflesList').innerHTML = 
                     '<p class="text-blue-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando rifas...</p>';
+                
+                // Adicionar timeout para evitar travamento
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Timeout ao carregar rifas')), 30000); // 30 segundos
+                });
                 
                 // Tentar endpoint admin primeiro
                 let response, data;
                 try {
-                    response = await fetch(window.API_URL + '/api/raffles/admin/all', {
+                    const fetchPromise = fetch(window.API_URL + '/api/raffles/admin/all', {
                         headers: {
-                            'Authorization': `Bearer ${authToken}`
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
                         }
                     });
+                    
+                    response = await Promise.race([fetchPromise, timeoutPromise]);
                     
                     if (response.ok) {
                         data = await response.json();
@@ -368,7 +382,13 @@
                     console.log('⚠️ Endpoint admin falhou, usando endpoint público:', adminError.message);
                     
                     // Fallback para endpoint público
-                    response = await fetch(window.API_URL + '/api/raffles');
+                    const fetchPromise = fetch(window.API_URL + '/api/raffles', {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    response = await Promise.race([fetchPromise, timeoutPromise]);
                     if (response.ok) {
                         data = await response.json();
                         console.log('📋 Rifas públicas carregadas:', data);
@@ -1208,7 +1228,8 @@
                 document.getElementById('dashboardSection').classList.remove('hidden');
                 document.getElementById('userName').textContent = currentUser.email;
                 
-                loadDashboardStats();
+                console.log('🔄 Usuário já logado, carregando dados...');
+                loadAllData(); // ✅ CARREGAR TODOS OS DADOS
             }
         };
     </script>
