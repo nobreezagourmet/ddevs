@@ -50,15 +50,8 @@ const getRaffles = asyncHandler(async (req, res) => {
                 return;
             }
         } catch (dbError) {
-            console.log('⚠️ Erro ao acessar banco de rifas, usando fallback:', dbError.message);
+            console.log('⚠️ Erro ao acessar banco de rifas:', dbError.message);
         }
-        
-        // NÃO MAIS DADOS MOCK - ERRO REAL COM TRATAMENTO PROFISSIONAL
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao buscar rifas. Tente novamente mais tarde.',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
         
     } catch (error) {
         console.error('❌ Erro ao buscar rifas:', error);
@@ -276,14 +269,8 @@ const toggleRaffleStatus = asyncHandler(async (req, res) => {
             });
             return;
         } catch (dbError) {
-            console.log('⚠️ Erro ao acessar banco, simulando toggle:', dbError.message);
+            console.log('⚠️ Erro ao acessar banco:', dbError.message);
         }
-        
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao alternar status da rifa',
-            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
-        });
         
     } catch (error) {
         console.error('❌ Erro ao alternar status da rifa:', error);
@@ -349,14 +336,8 @@ const deleteRaffle = asyncHandler(async (req, res) => {
             });
             return;
         } catch (dbError) {
-            console.log('⚠️ Erro ao acessar banco, simulando exclusão:', dbError.message);
+            console.log('⚠️ Erro ao acessar banco:', dbError.message);
         }
-        
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao excluir rifa',
-            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
-        });
         
     } catch (error) {
         console.error('❌ Erro ao excluir rifa:', error);
@@ -413,17 +394,13 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
                 return;
             }
         } catch (error) {
-        console.error('❌ Erro ao buscar rifas admin:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao buscar rifas admin',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }    res.json({
-            success: true,
-            count: 0,
-            data: []
-        });
+            console.error('❌ Erro ao buscar rifas admin:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Erro ao buscar rifas admin',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
         
     } catch (error) {
         console.error('❌ Erro ao buscar rifas (admin):', error);
