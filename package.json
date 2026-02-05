@@ -1,7 +1,7 @@
 {
   "name": "rafflehub---plataforma-de-rifas",
   "private": true,
-  "version": "7.0.0-NOVO-PROJETO-ZERO",
+  "version": "8.0.0-FIX-COMPLETE",
   "type": "module",
   "scripts": {
     "dev": "vite",
