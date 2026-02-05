@@ -378,8 +378,11 @@
                 }
 
                 if (data && data.success) {
+                    console.log('✅ Dados recebidos com sucesso:', data);
+                    console.log('📊 Quantidade de rifas:', data.data.length);
                     displayRafflesForManagement(data.data);
                 } else {
+                    console.error('❌ Dados inválidos recebidos:', data);
                     throw new Error(data?.message || 'Erro ao carregar rifas');
                 }
             } catch (error) {
@@ -401,9 +404,29 @@
 
         // Display raffles for management
         function displayRafflesForManagement(raffles) {
+            console.log('🎯 Iniciando displayRafflesForManagement com:', raffles);
+            
             const container = document.getElementById('rafflesList');
             
+            if (!container) {
+                console.error('❌ Container rafflesList não encontrado!');
+                return;
+            }
+            
+            if (!raffles || !Array.isArray(raffles)) {
+                console.error('❌ Dados inválidos para rifas:', raffles);
+                container.innerHTML = `
+                    <div class="text-red-400 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <p class="text-lg mb-2">Dados inválidos</p>
+                        <p class="text-sm mb-4">Os dados das rifas não são válidos</p>
+                    </div>
+                `;
+                return;
+            }
+            
             if (raffles.length === 0) {
+                console.log('📭 Nenhuma rifa encontrada');
                 container.innerHTML = `
                     <div class="text-center py-8">
                         <i class="fas fa-inbox text-6xl text-gray-500 mb-4"></i>
@@ -413,16 +436,21 @@
                 return;
             }
 
+            console.log(`📊 Processando ${raffles.length} rifas para exibição`);
+            
             let html = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             `;
             
-            raffles.forEach(raffle => {
+            raffles.forEach((raffle, index) => {
+                console.log(`🎯 Processando rifa ${index + 1}:`, raffle);
+                
+                // Verificação robusta de dados
                 const statusClass = raffle.isActive ? 'bg-green-500' : 'bg-red-500';
                 const statusText = raffle.isActive ? 'ATIVA' : 'INATIVA';
                 const statusIcon = raffle.isActive ? 'fa-check-circle' : 'fa-times-circle';
-                const progressPercentage = Math.round((raffle.soldQuotas / raffle.totalQuotas) * 100);
+                const progressPercentage = Math.round(((raffle.totalQuotas - (raffle.availableQuotas || raffle.totalQuotas)) / raffle.totalQuotas) * 100);
                 const progressColor = progressPercentage >= 75 ? 'bg-red-500' : 
                                      progressPercentage >= 50 ? 'bg-yellow-500' : 
                                      progressPercentage >= 25 ? 'bg-blue-500' : 'bg-green-500';
@@ -509,7 +537,9 @@
                 </div>
             `;
             
+            console.log('✅ HTML gerado com sucesso, atualizando container...');
             container.innerHTML = html;
+            console.log('✅ Interface atualizada com sucesso!');
         }
 
         // Toggle raffle status
