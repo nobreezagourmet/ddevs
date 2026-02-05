@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Sistema de Rifas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9InBhdHRlcm4wIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMxMGI5ODEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SSUZBPC90ZXh0PjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9InVybCgjcGF0dGVybjApIi8+PC9zdmc+">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -564,6 +563,12 @@
 
         // Toggle raffle status
         async function toggleRaffle(raffleId, raffleTitle, currentStatus) {
+            // Verificar autenticação
+            if (!authToken) {
+                showNotification('❌ Você não está autenticado', 'error');
+                return;
+            }
+            
             const action = currentStatus ? 'desativar' : 'ativar';
             const confirmation = confirm(`⚠️ Tem certeza que deseja ${action} a rifa?\n\n"${raffleTitle}"\n\n${currentStatus ? 'A rifa não aparecerá mais no frontend' : 'A rifa aparecerá no frontend'}`);
             
@@ -590,6 +595,10 @@
                         'Content-Type': 'application/json'
                     }
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
                 const data = await response.json();
                 console.log('📋 Resposta:', data);
@@ -655,6 +664,12 @@
 
         // Delete raffle
         async function deleteRaffle(raffleId, raffleTitle) {
+            // Verificar autenticação
+            if (!authToken) {
+                showNotification('❌ Você não está autenticado', 'error');
+                return;
+            }
+            
             const confirmation = confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR ESTA RIFA?\n\n"${raffleTitle}"\n\n🚨 ESTA AÇÃO É IRREVERSÍVEL!\n\nTodos os dados serão perdidos permanentemente.`);
             
             if (!confirmation) {
@@ -685,6 +700,10 @@
                         'Content-Type': 'application/json'
                     }
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
                 const data = await response.json();
                 console.log('📋 Resposta:', data);
