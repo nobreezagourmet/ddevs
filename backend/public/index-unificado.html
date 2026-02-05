@@ -361,6 +361,8 @@
                     if (response.ok) {
                         data = await response.json();
                         console.log('📋 Rifas admin carregadas:', data);
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                 } catch (adminError) {
                     console.log('⚠️ Endpoint admin falhou, usando endpoint público:', adminError.message);
@@ -370,6 +372,8 @@
                     if (response.ok) {
                         data = await response.json();
                         console.log('📋 Rifas públicas carregadas:', data);
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                 }
 
@@ -381,43 +385,17 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar rifas:', error);
                 
-                // Último recurso: usar dados mock
-                console.log('🔄 Usando dados mock para gerenciamento...');
-                const mockRaffles = [
-                    {
-                        id: 'mock-raffle-1',
-                        title: 'RIFA DE CARRO ZERO - VW GOL 1.6',
-                        formattedId: 'RFF-000001',
-                        pricePerQuota: 100.00,
-                        soldQuotas: 500,
-                        totalQuotas: 3000,
-                        isActive: true,
-                        status: 'active'
-                    },
-                    {
-                        id: 'mock-raffle-2',
-                        title: 'RIFA DE MOTO HONDA CG 160',
-                        formattedId: 'RFF-000002',
-                        pricePerQuota: 50.00,
-                        soldQuotas: 400,
-                        totalQuotas: 2000,
-                        isActive: true,
-                        status: 'active'
-                    },
-                    {
-                        id: 'mock-raffle-3',
-                        title: 'RIFA DE R$20.000 EM DINHEIRO',
-                        formattedId: 'RFF-000003',
-                        pricePerQuota: 20.00,
-                        soldQuotas: 500,
-                        totalQuotas: 2500,
-                        isActive: false,
-                        status: 'inactive'
-                    }
-                ];
-                
-                displayRafflesForManagement(mockRaffles);
-                console.log('📊 Usando dados mock para gerenciamento (endpoint indisponível)');
+                // NÃO MAIS DADOS MOCK - ERRO REAL COM TRATAMENTO PROFISSIONAL
+                document.getElementById('rafflesList').innerHTML = `
+                    <div class="text-red-400 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <p class="text-lg mb-2">Erro ao carregar rifas</p>
+                        <p class="text-sm mb-4">${error.message}</p>
+                        <button onclick="loadAllRaffles()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+                            <i class="fas fa-redo mr-2"></i>Tentar Novamente
+                        </button>
+                    </div>
+                `;
             }
         }
 
@@ -992,118 +970,179 @@
             }
         });
 
-        // Load Leads
+        // Load leads with real persistence
         async function loadLeads() {
             try {
-                console.log('👥 Carregando leads cadastrados...');
+                console.log('� Carregando leads reais (sem fallback mock)...');
                 document.getElementById('leadsList').innerHTML = 
-                    '<p class="text-blue-400"><i class="fas fa-spinner fa-spin mr-2"></i>Carregando leads...</p>';
+                    '<div class="text-blue-400 text-center py-8"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Carregando leads...</p></div>';
                 
                 const response = await fetch(window.API_URL + '/api/customers', {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
-
+                
                 if (!response.ok) {
-                    console.log('⚠️ Endpoint de leads indisponível, usando dados mock');
-                    throw new Error('Endpoint indisponível');
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-
+                
                 const data = await response.json();
-                console.log('📋 Leads recebidos:', data);
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Erro ao carregar leads');
+                }
+                
+                displayLeadsTable(data.data);
+                console.log('✅ Leads carregados com sucesso:', data.data.length);
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar leads:', error);
+                
+                // NÃO MAIS DADOS MOCK - ERRO REAL COM TRATAMENTO PROFISSIONAL
+                document.getElementById('leadsList').innerHTML = `
+                    <div class="text-red-400 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <p class="text-lg mb-2">Erro ao carregar leads</p>
+                        <p class="text-sm mb-4">${error.message}</p>
+                        <button onclick="loadLeads()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+                            <i class="fas fa-redo mr-2"></i>Tentar Novamente
+                        </button>
+                    </div>
+                `;
+            }
+        }
 
-                if (data.success && data.data.length > 0) {
-                    const leadsHtml = data.data.slice(0, 10).map(lead => `
-                        <div class="bg-white/10 rounded-lg p-4 border border-white/20">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <h3 class="text-white font-semibold text-lg mb-2">${lead.name}</h3>
-                                    <div class="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-white/60">Email:</span>
-                                            <p class="text-white">${lead.email}</p>
-                                        </div>
-                                        <div>
-                                            <span class="text-white/60">Telefone:</span>
-                                            <p class="text-white">${lead.phone || 'Não informado'}</p>
-                                        </div>
-                                        <div>
-                                            <span class="text-white/60">Data de Cadastro:</span>
-                                            <p class="text-white">${new Date(lead.createdAt).toLocaleDateString('pt-BR')}</p>
-                                        </div>
-                                        <div>
-                                            <span class="text-white/60">Status:</span>
-                                            <p class="text-green-400">Ativo</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    document.getElementById('leadsList').innerHTML = leadsHtml + `
-                        <div class="text-center mt-4">
-                            <p class="text-white/60">Mostrando ${Math.min(10, data.data.length)} de ${data.data.length} leads</p>
-                        </div>
+        // Display leads table with search functionality
+        function displayLeadsTable(leads) {
+            const container = document.getElementById('leadsList');
+            
+            if (leads.length === 0) {
+                container.innerHTML = `
+                    <div class="text-white/60 text-center py-8">
+                        <i class="fas fa-users text-3xl mb-4"></i>
+                        <p>Nenhum lead cadastrado</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="mb-6">
+                    <div class="flex gap-4">
+                        <input type="text" 
+                               id="leadSearch" 
+                               placeholder="Buscar por nome, telefone ou número da rifa..."
+                               class="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50"
+                               onkeyup="searchLeads()">
+                        <button onclick="searchLeads()" 
+                                class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
+                    </div>
+                    <div id="searchResults" class="mt-4"></div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white">
+                        <thead class="border-b border-white/20">
+                            <tr>
+                                <th class="px-4 py-3 text-left">ID Cliente</th>
+                                <th class="px-4 py-3 text-left">Nome</th>
+                                <th class="px-4 py-3 text-left">WhatsApp</th>
+                                <th class="px-4 py-3 text-left">Números Adquiridos</th>
+                                <th class="px-4 py-3 text-left">Total Gasto</th>
+                                <th class="px-4 py-3 text-left">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+            `;
+            
+            leads.forEach(lead => {
+                html += `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-4 py-3 font-mono text-sm">${lead.formattedLeadId || `LD-${lead._id.toString().slice(-6).toUpperCase()}`}</td>
+                        <td class="px-4 py-3">${lead.name}</td>
+                        <td class="px-4 py-3">${lead.phone}</td>
+                        <td class="px-4 py-3">${lead.totalQuotasPurchased || 0}</td>
+                        <td class="px-4 py-3">R$ ${(lead.totalSpent || 0).toFixed(2)}</td>
+                        <td class="px-4 py-3">
+                            <button onclick="viewLeadDetails('${lead._id}')" 
+                                    class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-white/60 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        ${leads.length} lead(s) encontrado(s)
+                    </p>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Search leads with real API
+        async function searchLeads() {
+            const query = document.getElementById('leadSearch').value.trim();
+            
+            if (!query) {
+                loadLeads();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_URL}/api/search/customers?query=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayLeadsTable(data.data);
+                    document.getElementById('searchResults').innerHTML = `
+                        <p class="text-green-400 text-sm">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            ${data.count} resultado(s) encontrado(s)
+                        </p>
                     `;
-                } else {
-                    throw new Error('Nenhum lead encontrado');
                 }
             } catch (error) {
-                console.log('⚠️ Usando dados mock para leads:', error.message);
+                console.error('❌ Erro na busca:', error);
+                showNotification('Erro na busca: ' + error.message, 'error');
+            }
+        }
+
+        // View lead details
+        function viewLeadDetails(leadId) {
+            console.log('👁 Visualizando detalhes do lead:', leadId);
+            showNotification('Funcionalidade em desenvolvimento', 'info');
+        }
                 
-                // Dados mock para leads
-                const mockLeads = [
-                    {
-                        name: 'João Silva',
-                        email: 'joao.silva@email.com',
-                        phone: '(11) 98765-4321',
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        name: 'Maria Santos',
-                        email: 'maria.santos@email.com',
-                        phone: '(21) 91234-5678',
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        name: 'Pedro Oliveira',
-                        email: 'pedro.oliveira@email.com',
-                        phone: '(31) 99876-5432',
-                        createdAt: new Date().toISOString()
-                    }
-                ];
+            } catch (error) {
+                console.error('❌ Erro ao carregar leads:', error);
                 
-                const leadsHtml = mockLeads.map(lead => `
-                    <div class="bg-white/10 rounded-lg p-4 border border-white/20">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <h3 class="text-white font-semibold text-lg mb-2">${lead.name}</h3>
-                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <span class="text-white/60">Email:</span>
-                                        <p class="text-white">${lead.email}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-white/60">Telefone:</span>
-                                        <p class="text-white">${lead.phone}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-white/60">Data de Cadastro:</span>
-                                        <p class="text-white">${new Date(lead.createdAt).toLocaleDateString('pt-BR')}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-white/60">Status:</span>
-                                        <p class="text-green-400">Ativo</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                // NÃO MAIS DADOS MOCK - ERRO REAL COM TRATAMENTO PROFISSIONAL
+                document.getElementById('leadsList').innerHTML = `
+                    <div class="text-red-400 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <p class="text-lg mb-2">Erro ao carregar leads</p>
+                        <p class="text-sm mb-4">${error.message}</p>
+                        <button onclick="loadLeads()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
+                            <i class="fas fa-redo mr-2"></i>Tentar Novamente
+                        </button>
                     </div>
-                `).join('');
-                
-                document.getElementById('leadsList').innerHTML = leadsHtml;
+                `;
             }
         }
 
