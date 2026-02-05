@@ -53,149 +53,20 @@ const getRaffles = asyncHandler(async (req, res) => {
             console.log('⚠️ Erro ao acessar banco de rifas, usando fallback:', dbError.message);
         }
         
-        // Fallback: rifas reais (sem fictícia) se não houver rifas no banco
-        const mockRaffles = [
-            {
-                id: 'mock-raffle-1',
-                creationId: 'RFF-20250204-001',
-                sequentialId: 1,
-                formattedId: 'RFF-000001',
-                completeId: 'RFF-000001-RFF-20250204-001',
-                title: 'RIFA DE CARRO ZERO - VW GOL 1.6',
-                description: 'Rifa oficial com carro VW Gol 0km como prêmio principal',
-                pricePerQuota: 100.00,
-                totalQuotas: 3000,
-                availableQuotas: 2500,
-                soldQuotas: 500,
-                imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                isActive: true,
-                totalParticipants: 125,
-                totalRevenue: 50000,
-                progressPercentage: 17
-            },
-            {
-                id: 'mock-raffle-2',
-                creationId: 'RFF-20250204-002',
-                sequentialId: 2,
-                formattedId: 'RFF-000002',
-                completeId: 'RFF-000002-RFF-20250204-002',
-                title: 'RIFA DE MOTO HONDA CG 160',
-                description: 'Rifa com moto Honda CG 160 Start 2025',
-                pricePerQuota: 50.00,
-                totalQuotas: 2000,
-                availableQuotas: 1600,
-                soldQuotas: 400,
-                imageUrl: 'https://images.unsplash.com/photo-1558981000-f29e65676bda?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                isActive: true,
-                totalParticipants: 89,
-                totalRevenue: 20000,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-3',
-                creationId: 'RFF-20250204-003',
-                sequentialId: 3,
-                formattedId: 'RFF-000003',
-                completeId: 'RFF-000003-RFF-20250204-003',
-                title: 'RIFA DE R$20.000 EM DINHEIRO',
-                description: 'Rifa com prêmio de R$20.000 pago via PIX',
-                pricePerQuota: 20.00,
-                totalQuotas: 2500,
-                availableQuotas: 2000,
-                soldQuotas: 500,
-                imageUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 156,
-                totalRevenue: 10000,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-4',
-                creationId: 'RFF-20250204-004',
-                sequentialId: 4,
-                formattedId: 'RFF-000004',
-                completeId: 'RFF-000004-RFF-20250204-004',
-                title: 'RIFA DE IPHONE 15 PRO MAX',
-                description: 'Rifa com iPhone 15 Pro Max 256GB Titanium',
-                pricePerQuota: 25.00,
-                totalQuotas: 1500,
-                availableQuotas: 1200,
-                soldQuotas: 300,
-                imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 78,
-                totalRevenue: 7500,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-5',
-                creationId: 'RFF-20250204-005',
-                sequentialId: 5,
-                formattedId: 'RFF-000005',
-                completeId: 'RFF-000005-RFF-20250204-005',
-                title: 'RIFA DE NOTEBOOK SAMSUNG BOOK3',
-                description: 'Rifa com Samsung Galaxy Book3 Pro 360',
-                pricePerQuota: 75.00,
-                totalQuotas: 1200,
-                availableQuotas: 900,
-                soldQuotas: 300,
-                imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 45,
-                totalRevenue: 22500,
-                progressPercentage: 25
-            }
-        ];
-        
-        // Filtrar apenas rifas ativas para o frontend
-        const activeRaffles = mockRaffles.filter(raffle => raffle.isActive);
-        console.log(`📊 Retornando ${activeRaffles.length} rifas ativas para frontend`);
-        
-        res.json({
-            success: true,
-            count: activeRaffles.length,
-            data: activeRaffles
+        // NÃO MAIS DADOS MOCK - ERRO REAL COM TRATAMENTO PROFISSIONAL
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar rifas. Tente novamente mais tarde.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
         
     } catch (error) {
         console.error('❌ Erro ao buscar rifas:', error);
         
-        // Sempre retornar sucesso com pelo menos uma rifa
-        const fallbackRaffle = [{
-            id: 'fallback-raffle',
-            creationId: 'RFF-FALLBACK',
-            sequentialId: 999,
-            formattedId: 'RFF-000999',
-            completeId: 'RFF-000999-RFF-FALLBACK',
-            title: 'RIFA DE TESTE - FALLBACK',
-            description: 'Rifa fallback para garantir funcionamento',
-            pricePerQuota: 10.00,
-            totalQuotas: 100,
-            availableQuotas: 90,
-            soldQuotas: 10,
-            imageUrl: 'https://via.placeholder.com/400x300/10b981/ffffff?text=RIFA',
-            createdAt: new Date().toISOString(),
-            status: 'active',
-            totalParticipants: 5,
-            totalRevenue: 100,
-            progressPercentage: 10
-        }];
-        
-        res.json({
-            success: true,
-            count: 1,
-            data: fallbackRaffle,
-            note: 'Dados fallback devido a erro crítico'
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar rifas. Tente novamente mais tarde.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
@@ -408,33 +279,11 @@ const toggleRaffleStatus = asyncHandler(async (req, res) => {
             console.log('⚠️ Erro ao acessar banco, simulando toggle:', dbError.message);
         }
         
-        // Fallback: Simular toggle com dados mock
-        const mockRaffles = [
-            { id: 'mock-raffle-1', title: 'RIFA DE CARRO ZERO - VW GOL 1.6', isActive: true },
-            { id: 'mock-raffle-2', title: 'RIFA DE MOTO HONDA CG 160', isActive: true },
-            { id: 'mock-raffle-3', title: 'RIFA DE R$20.000 EM DINHEIRO', isActive: false }
-        ];
-        
-        const mockRaffle = mockRaffles.find(r => r.id === req.params.id);
-        if (mockRaffle) {
-            mockRaffle.isActive = !mockRaffle.isActive;
-            
-            res.json({
-                success: true,
-                message: `Rifa ${mockRaffle.isActive ? 'ativada' : 'desativada'} com sucesso`,
-                data: {
-                    id: mockRaffle.id,
-                    title: mockRaffle.title,
-                    isActive: mockRaffle.isActive,
-                    status: mockRaffle.isActive ? 'active' : 'inactive'
-                }
-            });
-        } else {
-            res.status(404).json({
-                success: false,
-                message: 'Rifa não encontrada'
-            });
-        }
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao alternar status da rifa',
+            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
         
     } catch (error) {
         console.error('❌ Erro ao alternar status da rifa:', error);
@@ -503,29 +352,11 @@ const deleteRaffle = asyncHandler(async (req, res) => {
             console.log('⚠️ Erro ao acessar banco, simulando exclusão:', dbError.message);
         }
         
-        // Fallback: Simular exclusão com dados mock
-        const mockRaffles = [
-            { id: 'mock-raffle-1', title: 'RIFA DE CARRO ZERO - VW GOL 1.6' },
-            { id: 'mock-raffle-2', title: 'RIFA DE MOTO HONDA CG 160' },
-            { id: 'mock-raffle-3', title: 'RIFA DE R$20.000 EM DINHEIRO' }
-        ];
-        
-        const mockRaffle = mockRaffles.find(r => r.id === req.params.id);
-        if (mockRaffle) {
-            res.json({
-                success: true,
-                message: 'Rifa excluída com sucesso',
-                data: {
-                    id: mockRaffle.id,
-                    title: mockRaffle.title
-                }
-            });
-        } else {
-            res.status(404).json({
-                success: false,
-                message: 'Rifa não encontrada'
-            });
-        }
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao excluir rifa',
+            error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
         
     } catch (error) {
         console.error('❌ Erro ao excluir rifa:', error);
@@ -581,120 +412,17 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
                 });
                 return;
             }
-        } catch (dbError) {
-            console.log('⚠️ Erro ao acessar banco, usando dados mock:', dbError.message);
-        }
-        
-        // Fallback: dados mock completos para admin
-        const mockRaffles = [
-            {
-                id: 'mock-raffle-1',
-                creationId: 'RFF-20250204-001',
-                sequentialId: 1,
-                formattedId: 'RFF-000001',
-                completeId: 'RFF-000001-RFF-20250204-001',
-                title: 'RIFA DE CARRO ZERO - VW GOL 1.6',
-                description: 'Rifa oficial com carro VW Gol 0km como prêmio principal',
-                pricePerQuota: 100.00,
-                totalQuotas: 3000,
-                availableQuotas: 2500,
-                soldQuotas: 500,
-                imageUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                isActive: true,
-                totalParticipants: 125,
-                totalRevenue: 50000,
-                progressPercentage: 17
-            },
-            {
-                id: 'mock-raffle-2',
-                creationId: 'RFF-20250204-002',
-                sequentialId: 2,
-                formattedId: 'RFF-000002',
-                completeId: 'RFF-000002-RFF-20250204-002',
-                title: 'RIFA DE MOTO HONDA CG 160',
-                description: 'Rifa com moto Honda CG 160 Start 2025',
-                pricePerQuota: 50.00,
-                totalQuotas: 2000,
-                availableQuotas: 1600,
-                soldQuotas: 400,
-                imageUrl: 'https://images.unsplash.com/photo-1558981000-f29e65676bda?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                isActive: true,
-                totalParticipants: 89,
-                totalRevenue: 20000,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-3',
-                creationId: 'RFF-20250204-003',
-                sequentialId: 3,
-                formattedId: 'RFF-000003',
-                completeId: 'RFF-000003-RFF-20250204-003',
-                title: 'RIFA DE R$20.000 EM DINHEIRO',
-                description: 'Rifa com prêmio de R$20.000 pago via PIX',
-                pricePerQuota: 20.00,
-                totalQuotas: 2500,
-                availableQuotas: 2000,
-                soldQuotas: 500,
-                imageUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 156,
-                totalRevenue: 10000,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-4',
-                creationId: 'RFF-20250204-004',
-                sequentialId: 4,
-                formattedId: 'RFF-000004',
-                completeId: 'RFF-000004-RFF-20250204-004',
-                title: 'RIFA DE IPHONE 15 PRO MAX',
-                description: 'Rifa com iPhone 15 Pro Max 256GB Titanium',
-                pricePerQuota: 25.00,
-                totalQuotas: 1500,
-                availableQuotas: 1200,
-                soldQuotas: 300,
-                imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 78,
-                totalRevenue: 7500,
-                progressPercentage: 20
-            },
-            {
-                id: 'mock-raffle-5',
-                creationId: 'RFF-20250204-005',
-                sequentialId: 5,
-                formattedId: 'RFF-000005',
-                completeId: 'RFF-000005-RFF-20250204-005',
-                title: 'RIFA DE NOTEBOOK SAMSUNG BOOK3',
-                description: 'Rifa com Samsung Galaxy Book3 Pro 360',
-                pricePerQuota: 75.00,
-                totalQuotas: 1200,
-                availableQuotas: 900,
-                soldQuotas: 300,
-                imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2070&auto=format&fit=crop',
-                createdAt: new Date().toISOString(),
-                status: 'inactive',
-                isActive: false,
-                totalParticipants: 45,
-                totalRevenue: 22500,
-                progressPercentage: 25
-            }
-        ];
-        
-        console.log(`📊 Retornando ${mockRaffles.length} rifas para admin`);
-        
-        res.json({
+        } catch (error) {
+        console.error('❌ Erro ao buscar rifas admin:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar rifas admin',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }    res.json({
             success: true,
-            count: mockRaffles.length,
-            data: mockRaffles
+            count: 0,
+            data: []
         });
         
     } catch (error) {
