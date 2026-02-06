@@ -11,5 +11,5 @@ module.exports = {
     XFLOW_SECRET_KEY: '7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg',
     XFLOW_WEBHOOK_URL: 'https://ddevs-86w2.onrender.com/api/payment/webhook',
     XFLOW_WEBHOOK_SECRET: '2wkDHXXB1S83ptPveRWdEnpCYHX12893mk123jH899', // Senha secreta atualizada
-    XFLOW_API_URL: 'https://app.xflowpayments.com.br' // URL corrigida para plataforma real
+    XFLOW_API_URL: 'https://api.xflowpay.com/v1' // URL REAL da API XFLOW
 };

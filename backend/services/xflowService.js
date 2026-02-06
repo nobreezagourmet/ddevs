@@ -1,9 +1,9 @@
 const axios = require('axios');
 const { generateRealPixQRCode } = require('./realPixGenerator');
 
-// XFLOW PAYMENTS BRASIL - API REAL
-// URL CORRETA DA API XFLOW BRASIL
-const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://app.xflowpayments.com.br';
+// XFLOW PAYMENTS - API REAL
+// URL CORRETA DA API XFLOW
+const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://api.xflowpay.com/v1';
 
 // MODO REAL - PAGAMENTO PIX FUNCIONAL
 const generatePixPayment = async (amount, orderId, description) => {
@@ -32,10 +32,9 @@ const generatePixPayment = async (amount, orderId, description) => {
             webhook_secret: '2wkDHXXB1S83ptPveRWdEnpCYHX12893mk123jH899'
         };
 
-        // Headers para API XFLOW
+        // Headers para API XFLOW REAL
         const requestHeaders = {
             'Content-Type': 'application/json',
-            'X-Client-ID': 'e1c98954cc404cbcb2868af9b40c7a33',
             'Authorization': `Bearer 7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg`
         };
 
