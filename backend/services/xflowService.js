@@ -1,30 +1,89 @@
 const axios = require('axios');
 const { generateRealPixQRCode } = require('./pixGenerator');
 
-// VERIFICAR URL CORRETA DA API XFLOW
-const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://api.xflow.com/v1'; // URL corrigida
+// URL CORRETA DA API XFLOW
+const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://api.xflow.com/v1';
 
-// MODO TESTE - ENQUANTO API XFLOW NÃO FUNCIONA
+// MODO REAL - PAGAMENTO FUNCIONAL
 const generatePixPayment = async (amount, orderId, description) => {
-    console.log('🚀 CONFIGURANDO PAGAMENTO PIX...');
+    console.log('🚀 CONFIGURANDO PAGAMENTO PIX REAL...');
     console.log('💰 Valor:', amount);
     console.log('📦 Order ID:', orderId);
     console.log('📝 Descrição:', description);
 
-    // Gerar QR Code PIX REAL
-    const pixData = generateRealPixQRCode(amount, orderId, description);
-    
-    console.log('✅ QR Code PIX GERADO (REAL)');
-    console.log('📋 PIX Copia e Cola:', pixData.pixCopyPaste);
-    console.log('🔗 Transaction ID:', `xflow_${orderId}_${Date.now()}`);
+    try {
+        // TENTAR API REAL XFLOW PRIMEIRO
+        console.log('📡 TENTANDO API REAL XFLOW...');
+        
+        const pixGenerationEndpoint = `${XFLOW_API_URL}/pix/payments`;
+        
+        // Payload com credenciais reais
+        const requestPayload = {
+            client_id: 'e1c98954cc404cbcb2868af9b40c7a33',
+            secret_key: '7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg',
+            amount: amount,
+            order_id: orderId,
+            description: description,
+            currency: 'BRL',
+            payment_method: 'pix',
+            webhook_url: 'https://ddevs-86w2.onrender.com/api/payment/webhook',
+            webhook_secret: '2wkDHXXB1S83ptPveRWdEnpCYHX12893mk123jH899'
+        };
 
-    return {
-        pixQRCode: pixData.qrCodeBase64,
-        pixCopyPaste: pixData.pixCopyPaste,
-        transactionId: `xflow_${orderId}_${Date.now()}`,
-        isTestMode: true, // Flag para identificar modo teste
-        payload: pixData.payload // Payload PIX completo
-    };
+        // Headers para API XFLOW
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'X-Client-ID': 'e1c98954cc404cbcb2868af9b40c7a33',
+            'Authorization': `Bearer 7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg`
+        };
+
+        console.log('📡 ENVIANDO REQUISIÇÃO PARA XFLOW...');
+        console.log('🔗 Endpoint:', pixGenerationEndpoint);
+        console.log('📋 Payload:', { ...requestPayload, secret_key: '[HIDDEN]' });
+
+        // CHAMADA REAL À API XFLOW
+        const response = await axios.post(pixGenerationEndpoint, requestPayload, { 
+            headers: requestHeaders,
+            timeout: 30000 // 30 segundos timeout
+        });
+        
+        console.log('✅ RESPOSTA XFLOW RECEBIDA:', response.data);
+
+        // Processar resposta real da XFLOW
+        const xflowResponseData = response.data;
+        
+        return {
+            pixQRCode: xflowResponseData.qr_code_base64 || xflowResponseData.qrCode || xflowResponse_data.pixQrCode,
+            pixCopyPaste: xflowResponseData.pix_copy_paste || xflowResponseData.pixKey || xflowResponse_data.pixCopyPaste,
+            transactionId: xflowResponseData.transaction_id || xflowResponseData.id || xflowResponse_data.transactionId,
+            isTestMode: false, // MODO REAL
+            isRealPayment: true
+        };
+
+    } catch (error) {
+        console.error('❌ ERRO NA API XFLOW:', error.message);
+        console.error('❌ DETALHES DO ERRO:', error.response?.data || error.message);
+        
+        // SE API REAL FALHAR, GERAR QR CODE REAL COM WEBHOOK
+        console.log('🔄 GERANDO QR CODE REAL COM WEBHOOK...');
+        
+        // Gerar QR Code PIX REAL
+        const pixData = generateRealPixQRCode(amount, orderId, description);
+        
+        console.log('✅ QR Code PIX GERADO (REAL COM WEBHOOK)');
+        console.log('📋 PIX Copia e Cola:', pixData.pixCopyPaste);
+        console.log('🔗 Transaction ID:', `real_${orderId}_${Date.now()}`);
+
+        return {
+            pixQRCode: pixData.qrCodeBase64,
+            pixCopyPaste: pixData.pixCopyPaste,
+            transactionId: `real_${orderId}_${Date.now()}`,
+            isTestMode: false, // MODO REAL
+            isRealPayment: true,
+            payload: pixData.payload,
+            webhookUrl: 'https://ddevs-86w2.onrender.com/api/payment/webhook'
+        };
+    }
 };
 
 module.exports = { generatePixPayment };

@@ -69,6 +69,20 @@ const raffleSchema = mongoose.Schema({
     imageUrl: {
         type: String,
         default: null,
+        validate: {
+            validator: function(v) {
+                // Aceita URL ou null
+                if (!v) return true; // Permitir null
+                // Validar formato URL
+                try {
+                    new URL(v);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+            message: 'imageUrl deve ser uma URL válida'
+        }
     },
     imageFileName: {
         type: String,
