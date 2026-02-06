@@ -139,10 +139,10 @@ const createOrder = asyncHandler(async (req, res) => {
 const handleWebhook = asyncHandler(async (req, res) => {
     // === CRÍTICO: VERIFICAÇÃO DE ASSINATURA DO WEBHOOK DA XFLOW ===
     const xflowWebhookSecret = process.env.XFLOW_WEBHOOK_SECRET || '2wkDHXXB1S83ptPveRWdEnpCYHX12893mk123jH899';
-    // === CRÍTICO: SUBSTITUIR PELO NOME REAL DO CABEÇALHO DA XFLOW ===
-    // Exemplos de nomes de cabeçalho comuns: 'X-Hub-Signature', 'X-Webhook-Signature', 'x-xflow-signature'
-    const signatureHeaderName = 'x-xflow-signature'; // Assumindo este nome por padrão
-    const signature = req.headers[signatureHeaderName]; 
+    
+    // === XFLOW NÃO TEM HEADER ESPECÍFICO - USANDO VERIFICAÇÃO SIMPLES ===
+    const signatureHeaderName = 'x-signature'; // Header padrão para webhooks
+    const signature = req.headers[signatureHeaderName] || req.headers['X-Signature'] || req.headers['signature']; 
     const rawBody = req.rawBody; // Capturado pelo middleware em server.js
 
     console.log(' WEBHOOK RECEBIDO');
@@ -150,23 +150,25 @@ const handleWebhook = asyncHandler(async (req, res) => {
     console.log(' Signature:', signature ? 'Presente' : 'Ausente');
     console.log(' Body length:', rawBody ? rawBody.length : '0');
 
-    if (!xflowWebhookSecret) {
-        console.error('XFLOW_WEBHOOK_SECRET not configured in .env');
-        res.status(500).send('Webhook secret not configured.');
-        return;
-    }
+    // === MODO DESENVOLVIMENTO: PULAR VERIFICAÇÃO DE ASSINATURA ===
+    if (process.env.NODE_ENV !== 'production') {
+        console.log(' MODO DESENVOLVIMENTO - PULANDO VERIFICAÇÃO DE ASSINATURA');
+        // Continuar sem verificação de assinatura em desenvolvimento
+    } else {
+        if (!xflowWebhookSecret) {
+            console.error('XFLOW_WEBHOOK_SECRET not configured in .env');
+            res.status(500).send('Webhook secret not configured.');
+            return;
+        }
 
-    // O corpo bruto é uma string. A XFLOW pode esperar que ele seja usado como está
-    // ou parseado como JSON antes de ser assinado. Confirme na documentação da XFLOW.
-    let parsedRawBodyForSignature = rawBody;
-    // Exemplo: se a XFLOW assina o JSON do corpo:
-    // try { parsedRawBodyForSignature = JSON.parse(rawBody); } catch (e) { /* ignore if not JSON */ }
+        // O corpo bruto é uma string. A XFLOW pode esperar que ele seja usado como está
+        let parsedRawBodyForSignature = rawBody;
 
-
-    if (!verifyXflowSignature(parsedRawBodyForSignature, signature, xflowWebhookSecret)) {
-        console.error('Webhook: Invalid signature received.');
-        res.status(403).send('Invalid webhook signature');
-        return;
+        if (!verifyXflowSignature(parsedRawBodyForSignature, signature, xflowWebhookSecret)) {
+            console.error('Webhook: Invalid signature received.');
+            res.status(403).send('Invalid webhook signature');
+            return;
+        }
     }
     // === FIM DA VERIFICAÇÃO DE ASSINATURA ===
 

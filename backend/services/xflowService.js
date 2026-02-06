@@ -3,7 +3,7 @@ const { generateRealPixQRCode } = require('./realPixGenerator');
 
 // XFLOW PAYMENTS BRASIL - API REAL
 // URL CORRETA DA API XFLOW BRASIL
-const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://api.xflowpayments.com.br/v1';
+const XFLOW_API_URL = process.env.XFLOW_API_URL || 'https://app.xflowpayments.com.br';
 
 // MODO REAL - PAGAMENTO PIX FUNCIONAL
 const generatePixPayment = async (amount, orderId, description) => {
@@ -17,7 +17,7 @@ const generatePixPayment = async (amount, orderId, description) => {
         // TENTAR API REAL XFLOW BRASIL
         console.log(' TENTANDO API REAL XFLOW BRASIL...');
         
-        const pixGenerationEndpoint = `${XFLOW_API_URL}/pix/payments`;
+        const pixGenerationEndpoint = `${XFLOW_API_URL}/payments/pix`;
         
         // Payload com credenciais reais
         const requestPayload = {
