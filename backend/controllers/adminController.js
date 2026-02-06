@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose;
 const Raffle = require('../models/Raffle');
 const Quota = require('../models/Quota');
 const User = require('../models/User');
@@ -11,32 +12,50 @@ const { deleteImage } = require('../middleware/uploadMiddleware');
 const swapQuota = asyncHandler(async (req, res) => {
     const { originUserId, destinationUserId, raffleId, quotaNumber } = req.body;
 
+    // Validar todos os campos obrigatórios
     if (!originUserId || !destinationUserId || !raffleId || !quotaNumber) {
-        res.status(400);
-        throw new Error('Please provide all required fields for quota swap');
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Por favor, forneça todos os campos obrigatórios para a troca de cota' 
+        });
+    }
+
+    // Validar e converter ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(originUserId) || 
+        !mongoose.Types.ObjectId.isValid(destinationUserId) || 
+        !mongoose.Types.ObjectId.isValid(raffleId)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'IDs inválidos fornecidos' 
+        });
     }
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+        // Converter strings para ObjectIds
+        const originId = new ObjectId(originUserId);
+        const destinationId = new ObjectId(destinationUserId);
+        const raffleObjectId = new ObjectId(raffleId);
+
         const quota = await Quota.findOne({
-            raffleId,
+            raffleId: raffleObjectId,
             number: quotaNumber,
-            ownerId: originUserId,
+            ownerId: originId,
         }).session(session);
 
         if (!quota) {
             throw new Error('Quota not found or does not belong to the origin user');
         }
 
-        const destinationUser = await User.findById(destinationUserId).session(session);
+        const destinationUser = await User.findById(destinationId).session(session);
 
         if (!destinationUser) {
             throw new Error('Destination user not found');
         }
 
-        quota.ownerId = destinationUserId;
+        quota.ownerId = destinationId;
         await quota.save({ session });
 
         await session.commitTransaction();
@@ -47,8 +66,16 @@ const swapQuota = asyncHandler(async (req, res) => {
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        res.status(400);
-        throw new Error(`Error swapping quota: ${error.message}`);
+        
+        console.error('❌ Erro detalhado na troca de cota:', error);
+        
+        // Retornar status HTTP correto baseado no tipo de erro
+        const statusCode = error.name === 'ValidationError' ? 400 : 500;
+        res.status(statusCode).json({ 
+            success: false, 
+            message: `Erro ao trocar cota: ${error.message}`,
+            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
