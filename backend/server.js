@@ -54,7 +54,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // MIDDLEWARE CORS OTIMIZADO
 app.use(cors({ 
-    origin: ['*', 'http://localhost:3000', 'https://ddevs-86w2.onrender.com', 'https://ddevss.vercel.app', 'https://devsss-five.vercel.app', 'https://dark-fawn-phi.vercel.app', 'https://rifa-jet-zeta.vercel.app'],
+    origin: ['*', 'http://localhost:3000', 'https://ddevs-86w2.onrender.com', 'https://ddevss.vercel.app', 'https://devsss-five.vercel.app', 'https://dark-fawn-phi.vercel.app', 'https://rifa-jet-zeta.vercel.app', 'https://devvss.vercel.app'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
