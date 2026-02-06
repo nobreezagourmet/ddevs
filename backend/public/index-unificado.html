@@ -476,13 +476,23 @@
                 
                 html += `
                     <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-                        <!-- Header -->
+                        <!-- Header com Imagem -->
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex-1">
-                                <h3 class="text-white font-bold text-lg mb-2 line-clamp-2">${raffle.title}</h3>
-                                <div class="flex items-center space-x-2 mb-2">
-                                    <span class="text-xs text-gray-400">ID:</span>
-                                    <span class="text-xs font-mono text-blue-400">${raffle.formattedId}</span>
+                                <div class="flex items-center space-x-4 mb-3">
+                                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
+                                        <img src="${raffle.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiMxMGI5ODEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SSUZBPC90ZXh0Pjwvc3ZnPg=='}" 
+                                             alt="${raffle.title}" 
+                                             class="w-full h-full object-cover"
+                                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiMxMGI5ODEiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SSUZBPC90ZXh0Pjwvc3ZnPg=='">
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-white font-bold text-lg line-clamp-2">${raffle.title}</h3>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span class="text-xs text-gray-400">ID:</span>
+                                            <span class="text-xs font-mono text-blue-400">${raffle.formattedId}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex flex-col items-end">

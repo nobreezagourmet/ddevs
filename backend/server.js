@@ -181,13 +181,13 @@ app.get('/api/admin/stats', async (req, res) => {
         const User = require('./models/User');
         
         // Buscar estatísticas
-        const totalRaffles = await Raffle.countDocuments();
-        const activeRaffles = await Raffle.countDocuments({ isActive: true });
+        const totalRaffles = await Raffle.countDocuments({ isDeleted: false });
+        const activeRaffles = await Raffle.countDocuments({ isActive: true, isDeleted: false });
         const totalUsers = await User.countDocuments();
         
         // Calcular total de cotas
         let totalQuotas = 0;
-        const raffles = await Raffle.find({});
+        const raffles = await Raffle.find({ isDeleted: false });
         raffles.forEach(raffle => {
             totalQuotas += raffle.totalQuotas || 0;
         });

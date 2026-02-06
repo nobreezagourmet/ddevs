@@ -163,15 +163,22 @@ const createRaffle = asyncHandler(async (req, res) => {
     try {
         console.log('🎯 Criando nova rifa...');
         console.log('📋 Dados recebidos:', req.body);
+        console.log('📎 Arquivo recebido:', req.file);
         
         const {
             title,
             description,
             pricePerQuota,
             totalQuotas,
-            imageUrl,
             quickSelectPackages
         } = req.body;
+        
+        // Processar imagem se foi enviada
+        let imageUrl = null;
+        if (req.file) {
+            console.log('📎 Processando imagem:', req.file.filename);
+            imageUrl = `/uploads/${req.file.filename}`;
+        }
         
         // Validar e limpar dados
         const raffleData = {
@@ -179,7 +186,7 @@ const createRaffle = asyncHandler(async (req, res) => {
             description: description?.trim() || 'Rifa emocionante com ótimos prêmios!',
             pricePerQuota: parseFloat(pricePerQuota) || 0,
             totalQuotas: parseInt(totalQuotas) || 1,
-            imageUrl: imageUrl?.trim() ? `/uploads/${imageUrl.trim()}` : null,
+            imageUrl: imageUrl,
             quickSelectPackages: Array.isArray(quickSelectPackages) 
                 ? quickSelectPackages.filter(p => !isNaN(p)).map(p => parseInt(p))
                 : [10, 50, 100, 500],
