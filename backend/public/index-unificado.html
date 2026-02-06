@@ -824,6 +824,12 @@
 
         // Exibir PIX para pagamento
         function exibirPixPagamento(paymentData) {
+            // Validar dados do pagamento
+            if (!paymentData || !paymentData.pixCopyPaste) {
+                showNotification('Erro ao gerar pagamento. Tente novamente.', 'error');
+                return;
+            }
+            
             const pixModal = document.createElement('div');
             pixModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             pixModal.innerHTML = `
@@ -834,14 +840,16 @@
                     </div>
                     
                     <div class="mb-4">
-                        <p class="text-gray-700 mb-2"><strong>Valor:</strong> R$ ${paymentData.totalAmount.toFixed(2)}</p>
-                        <p class="text-gray-700 mb-2"><strong>Cotas:</strong> ${paymentData.reservedQuotaNumbers.join(', ')}</p>
+                        <p class="text-gray-700 mb-2"><strong>Valor:</strong> R$ ${(paymentData.totalAmount || 0).toFixed(2)}</p>
+                        <p class="text-gray-700 mb-2"><strong>Cotas:</strong> ${(paymentData.reservedQuotaNumbers || []).join(', ')}</p>
                         <p class="text-gray-700 text-sm mb-4">Escaneie o QR Code ou copie o código PIX</p>
                     </div>
                     
                     <div class="mb-4 text-center">
-                        <img src="${paymentData.pixQRCode}" alt="QR Code PIX" 
-                             class="w-48 h-48 mx-auto mb-4 border">
+                        <img src="${paymentData.pixQRCode || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5RUlIgQ09ERTwvdGV4dD48L3N2Zz4='}" 
+                             alt="QR Code PIX" 
+                             class="w-48 h-48 mx-auto mb-4 border rounded-lg"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5RUlIgQ09ERTwvdGV4dD48L3N2Zz4='">
                     </div>
                     
                     <div class="mb-4">
