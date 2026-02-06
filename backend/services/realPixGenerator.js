@@ -1,12 +1,21 @@
 // 🚀 GERADOR DE QR CODE PIX REAL - BANCO CENTRAL
 const crypto = require('crypto');
+const { pixKey, merchantName, merchantCity } = require('../config/pixConfig');
 
 // Função para gerar QR Code PIX REAL (Banco Central)
 const generateRealPixQRCode = (amount, orderId, description) => {
-    // Chave PIX real (precisa ser configurada)
-    const pixKey = process.env.PIX_KEY || 'e1c98954cc404cbcb2868af9b40c7a33'; // Chave temporária
-    const merchantName = process.env.MERCHANT_NAME || 'RaffleHub';
-    const merchantCity = process.env.MERCHANT_CITY || 'Sao Paulo';
+    console.log('🚀 GERANDO QR Code PIX REAL...');
+    console.log('💰 Valor:', amount);
+    console.log('📦 Order ID:', orderId);
+    console.log('📝 Descrição:', description);
+    console.log('🔑 Chave PIX:', pixKey);
+    
+    // Verificar se a chave PIX foi configurada
+    if (!pixKey || pixKey === 'sua-chave-pix-aqui') {
+        console.error('❌ CHAVE PIX NÃO CONFIGURADA! Configure sua chave PIX real em config/pixConfig.js');
+        throw new Error('Chave PIX não configurada. Configure sua chave PIX real.');
+    }
+    
     const txid = orderId;
     
     // Formatar valor para PIX (centavos)
@@ -38,10 +47,11 @@ const generateRealPixQRCode = (amount, orderId, description) => {
     // Gerar PIX Copia e Cola
     const pixCopyPaste = fullPayload;
     
-    console.log('🚀 QR Code PIX REAL GERADO');
+    console.log('✅ QR Code PIX REAL GERADO');
     console.log('💰 Valor:', amountFormatted);
     console.log('📋 PIX Copia e Cola:', pixCopyPaste);
     console.log('🔑 Chave PIX:', pixKey);
+    console.log('💾 Payload:', fullPayload);
     
     return {
         qrCodeBase64: qrCodeBase64,
@@ -51,7 +61,9 @@ const generateRealPixQRCode = (amount, orderId, description) => {
         merchantName: merchantName,
         merchantCity: merchantCity,
         txid: txid,
-        pixKey: pixKey
+        pixKey: pixKey,
+        isRealPix: true,
+        requiresRealPayment: true
     };
 };
 

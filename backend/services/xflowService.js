@@ -64,27 +64,34 @@ const generatePixPayment = async (amount, orderId, description) => {
         };
 
     } catch (error) {
-        console.error(' ERRO NA API XFLOW BRASIL:', error.message);
-        console.error(' DETALHES DO ERRO:', error.response?.data || error.message);
+        console.error('❌ ERRO NA API XFLOW BRASIL:', error.message);
+        console.error('❌ DETALHES DO ERRO:', error.response?.data || error.message);
         
         // SE API REAL FALHAR, GERAR QR CODE REAL COM WEBHOOK
-        console.log(' GERANDO QR CODE REAL COM WEBHOOK...');
+        console.log('🔄 GERANDO QR Code PIX REAL (Banco Central)...');
         
         // Gerar QR Code PIX REAL
         const pixData = generateRealPixQRCode(amount, orderId, description);
         
-        console.log(' QR Code PIX GERADO (REAL COM WEBHOOK)');
-        console.log(' PIX Copia e Cola:', pixData.pixCopyPaste);
-        console.log(' Transaction ID:', `real_${orderId}_${Date.now()}`);
+        console.log('✅ QR Code PIX REAL GERADO');
+        console.log('📋 PIX Copia e Cola:', pixData.pixCopyPaste);
+        console.log('🔑 Chave PIX:', pixData.pixKey);
+        console.log('💾 Payload:', pixData.payload);
 
         return {
             pixQRCode: pixData.qrCodeBase64,
             pixCopyPaste: pixData.pixCopyPaste,
-            transactionId: `real_${orderId}_${Date.now()}`,
+            transactionId: `pix_real_${orderId}_${Date.now()}`,
             isTestMode: false, // MODO REAL
             isRealPayment: true,
             isRealPix: true, // PIX REAL DO BANCO CENTRAL
+            requiresRealPayment: true, // EXIGE PAGAMENTO REAL
             payload: pixData.payload,
+            amount: pixData.amount,
+            merchantName: pixData.merchantName,
+            merchantCity: pixData.merchantCity,
+            txid: pixData.txid,
+            pixKey: pixData.pixKey,
             webhookUrl: 'https://ddevs-86w2.onrender.com/api/payment/webhook'
         };
     }
