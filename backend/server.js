@@ -119,6 +119,10 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/search', searchRoutes);
 
+// 🚀 ROTA DE SIMULAÇÃO DE PAGAMENTO PIX (PARA TESTES)
+const { simulatePixPayment } = require('./controllers/webhookSimulator');
+app.post('/api/payment/simulate', simulatePixPayment);
+
 // ROTA DE CADASTRO DE USUÁRIO - GARANTIDA NO server.js
 app.post('/api/auth/register', async (req, res) => {
     console.log('👤 CADASTRO DE USUÁRIO (server.js)');
