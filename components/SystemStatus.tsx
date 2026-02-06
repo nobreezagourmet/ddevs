@@ -10,11 +10,11 @@ const SystemStatus: React.FC = () => {
         console.log('🔍 Verificando status do sistema...');
         
         // Verificar API de rifas
-        const rafflesResponse = await fetch('https://ddevs-86w2.onrender.com/api/raffles');
+        const rafflesResponse = await fetch(`${import.meta.env.VITE_API_URL}/raffles`);
         const rafflesData = await rafflesResponse.json();
         
         // Verificar API de leads
-        const leadsResponse = await fetch('https://ddevs-86w2.onrender.com/api/customers', {
+        const leadsResponse = await fetch(`${import.meta.env.VITE_API_URL}/customers`, {
           headers: { 'Authorization': 'Bearer test' }
         });
         const leadsData = await leadsResponse.json();
@@ -24,7 +24,7 @@ const SystemStatus: React.FC = () => {
           console.log('✅ Sistema online:', {
             rifas: rafflesData.count,
             leads: leadsData.count,
-            api: 'https://ddevs-86w2.onrender.com/api',
+            api: import.meta.env.VITE_API_URL,
             buildTime: import.meta.env.VITE_BUILD_TIME,
             version: import.meta.env.VITE_APP_VERSION || '4.0.0-FORCE-REBUILD'
           });
