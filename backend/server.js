@@ -11,6 +11,8 @@ const searchRoutes = require('./routes/searchRoutes');
 const path = require('path');
 const cors = require('cors');
 const { configureUploads } = require('./middleware/uploadMiddleware');
+const { protect } = require('../middleware/authMiddleware');
+const { XFLOW_CLIENT_ID, XFLOW_SECRET_KEY, XFLOW_WEBHOOK_URL, XFLOW_WEBHOOK_SECRET } = require('./config/xflow');
 
 // Carregar variáveis de ambiente primeiro
 dotenv.config();
@@ -218,6 +220,12 @@ app.get('/api/admin/stats', async (req, res) => {
         });
     }
 });
+
+// 🚀 CONFIGURAÇÃO XFLOW WEBHOOK - LOG INICIAL
+console.log('🎯 XFLOW API CONFIGURADO');
+console.log('🔑 Client ID:', XFLOW_CLIENT_ID);
+console.log('🔑 Webhook URL:', XFLOW_WEBHOOK_URL);
+console.log('🔑 Webhook Secret:', XFLOW_WEBHOOK_SECRET ? 'Configurado' : 'Não configurado');
 
 // SERVIR ARQUIVOS ESTÁTICOS DA RAIZ DO BACKEND
 app.use(express.static(__dirname));
