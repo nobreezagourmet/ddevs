@@ -11,7 +11,7 @@ const searchRoutes = require('./routes/searchRoutes');
 const path = require('path');
 const cors = require('cors');
 const { configureUploads } = require('./middleware/uploadMiddleware');
-const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('./middleware/authMiddleware');
 const { XFLOW_CLIENT_ID, XFLOW_SECRET_KEY, XFLOW_WEBHOOK_URL, XFLOW_WEBHOOK_SECRET } = require('./config/xflow');
 
 // Carregar variáveis de ambiente primeiro
