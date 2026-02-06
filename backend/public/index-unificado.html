@@ -948,7 +948,7 @@
                     console.log(`- ${key}:`, value, '(tipo:', typeof value, ')');
                 }
 
-                const response = await fetch(window.API_URL + '/api/admin/create-raffle', {
+                const response = await fetch(window.API_URL + '/api/raffles', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authToken}`
