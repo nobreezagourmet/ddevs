@@ -12,8 +12,7 @@ const getRaffles = asyncHandler(async (req, res) => {
         try {
             const raffles = await Raffle.find({ isActive: true, status: 'active', isDeleted: false })
                 .sort({ sequentialId: -1 })
-                .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status totalParticipants totalRevenue')
-                .limit(20);
+                .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status totalParticipants totalRevenue');
             
             console.log(`📊 Encontradas ${raffles.length} rifas reais no banco`);
             
@@ -180,7 +179,7 @@ const createRaffle = asyncHandler(async (req, res) => {
             description: description?.trim() || 'Rifa emocionante com ótimos prêmios!',
             pricePerQuota: parseFloat(pricePerQuota) || 0,
             totalQuotas: parseInt(totalQuotas) || 1,
-            imageUrl: imageUrl?.trim() || null,
+            imageUrl: imageUrl?.trim() ? `/uploads/${imageUrl.trim()}` : null,
             quickSelectPackages: Array.isArray(quickSelectPackages) 
                 ? quickSelectPackages.filter(p => !isNaN(p)).map(p => parseInt(p))
                 : [10, 50, 100, 500],
