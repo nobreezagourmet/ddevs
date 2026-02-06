@@ -10,7 +10,7 @@ const getRaffles = asyncHandler(async (req, res) => {
         
         // Tentar buscar rifas reais do banco primeiro
         try {
-            const raffles = await Raffle.find({ isActive: true, status: 'active' })
+            const raffles = await Raffle.find({ isActive: true, status: 'active', isDeleted: false })
                 .sort({ sequentialId: -1 })
                 .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status totalParticipants totalRevenue')
                 .limit(20);
@@ -390,7 +390,7 @@ const getAllRafflesAdmin = asyncHandler(async (req, res) => {
     try {
         console.log('👑 Buscando todas as rifas (admin)...');
         
-        const raffles = await Raffle.find({})
+        const raffles = await Raffle.find({ isDeleted: false })
             .sort({ sequentialId: -1 })
             .select('creationId sequentialId title description pricePerQuota totalQuotas availableQuotas imageUrl createdAt status isActive totalParticipants totalRevenue');
         

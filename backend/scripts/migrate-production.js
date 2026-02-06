@@ -9,8 +9,9 @@ async function migrateProductionRaffles() {
         // Conectar ao MongoDB de produção
         const mongoUri = 'mongodb+srv://nobreezagourmet:cluster0.8r4.mongodb.net/raffle-system?retryWrites=true&w=majority';
         await mongoose.connect(mongoUri);
-        console.log('✅ Conectado ao MongoDB de produção:', mongoUri);
+        console.log('✅ Conectado ao MongoDB de produção');
         
+        // Encontrar rifas sem sequentialId
         const rifasSemSequentialId = await Raffle.find({ sequentialId: { $exists: false } });
         
         if (rifasSemSequentialId.length > 0) {
@@ -19,6 +20,8 @@ async function migrateProductionRaffles() {
             // Encontrar o último sequentialId existente
             const lastRaffle = await Raffle.findOne({}, {}, { sort: { sequentialId: -1 } });
             let nextSequentialId = lastRaffle ? (lastRaffle.sequentialId || 0) + 1 : 1;
+            
+            console.log(`🔢 Iniciando sequentialId a partir de: ${nextSequentialId}`);
             
             for (let i = 0; i < rifasSemSequentialId.length; i++) {
                 const raffle = rifasSemSequentialId[i];
