@@ -1,7 +1,7 @@
 {
   "name": "rafflehub---plataforma-de-rifas",
   "private": true,
-  "version": "8.0.0-FIX-COMPLETE",
+  "version": "9.0.0-NOVA-URL-ddevsss.vercel.app",
   "type": "module",
   "scripts": {
     "dev": "vite",
