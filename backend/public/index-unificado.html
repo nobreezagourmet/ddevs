@@ -51,6 +51,156 @@
             </div>
         </header>
 
+        <!-- Public Raffles Section -->
+        <div id="publicRafflesSection" class="hidden">
+            <div class="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+                <!-- Header -->
+                <header class="bg-black/50 backdrop-blur-sm border-b border-white/10">
+                    <div class="container mx-auto px-4 py-4">
+                        <div class="flex justify-between items-center">
+                            <h1 class="text-2xl font-bold text-white">🎯 Nossas Rifas</h1>
+                            <div class="flex gap-4">
+                                <button onclick="showLoginModal()" 
+                                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                                </button>
+                                <button onclick="showRegisterModal()" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-user-plus mr-2"></i>Cadastrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Main Content -->
+                <main class="container mx-auto px-4 py-8">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-4xl font-bold text-white mb-4">🎉 Rifas Disponíveis</h2>
+                        <p class="text-gray-300 text-lg">Escolha suas cotas e concorra a prêmios incríveis!</p>
+                    </div>
+
+                    <div id="publicRafflesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Rifas serão carregadas aqui dinamicamente -->
+                        <div class="text-center text-white/60 py-16">
+                            <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                            <p>Carregando rifas...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+                <div class="text-center mb-6">
+                    <i class="fas fa-user-circle text-5xl text-purple-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold">Entrar na Conta</h2>
+                </div>
+                
+                <form id="publicLoginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="publicEmail" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+                        <div class="relative">
+                            <input type="password" id="publicPassword" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <button type="button" onclick="togglePasswordVisibility('publicPassword', 'publicPasswordToggle')"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                <i id="publicPasswordToggle" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">
+                        Não tem conta? 
+                        <button onclick="showRegisterModal()" class="text-purple-600 hover:underline font-medium">
+                            Cadastre-se
+                        </button>
+                    </p>
+                </div>
+                
+                <button onclick="closeLoginModal()" 
+                        class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+                <div class="text-center mb-6">
+                    <i class="fas fa-user-plus text-5xl text-green-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold">Criar Conta</h2>
+                </div>
+                
+                <form id="publicRegisterForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                        <input type="text" id="registerName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="registerEmail" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                        <input type="tel" id="registerPhone" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+                        <div class="relative">
+                            <input type="password" id="registerPassword" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <button type="button" onclick="togglePasswordVisibility('registerPassword', 'registerPasswordToggle')"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                <i id="registerPasswordToggle" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-user-plus mr-2"></i>Cadastrar
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">
+                        Já tem conta? 
+                        <button onclick="showLoginModal()" class="text-green-600 hover:underline font-medium">
+                            Faça login
+                        </button>
+                    </p>
+                </div>
+                
+                <button onclick="closeRegisterModal()" 
+                        class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+
         <!-- Login Section -->
         <div id="loginSection" class="glass rounded-2xl shadow-xl p-8">
             <div class="max-w-md mx-auto">
@@ -340,6 +490,505 @@
             }
         });
 
+        // Public Functions
+        let publicAuthToken = null;
+        let cotasSelecionadas = [];
+        let modoSelecao = 'manual';
+        let pacoteSelecionado = null;
+        let raffleAtual = null;
+
+        // Show public raffles section
+        function showPublicRaffles() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.add('hidden');
+            document.getElementById('publicRafflesSection').classList.remove('hidden');
+            loadPublicRaffles();
+        }
+
+        // Load public raffles
+        async function loadPublicRaffles() {
+            try {
+                const response = await fetch(window.API_URL + '/api/raffles');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayPublicRaffles(data.data);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar rifas públicas:', error);
+            }
+        }
+
+        // Display public raffles
+        function displayPublicRaffles(raffles) {
+            const container = document.getElementById('publicRafflesList');
+            
+            if (raffles.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-white/60 py-16">
+                        <i class="fas fa-ticket-alt text-6xl mb-4"></i>
+                        <p class="text-xl">Nenhuma rifa disponível no momento</p>
+                        <p class="text-sm">Volte em breve para novas oportunidades!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            raffles.forEach(raffle => {
+                const statusClass = raffle.isActive ? 'bg-green-500' : 'bg-red-500';
+                const statusText = raffle.isActive ? 'ATIVA' : 'INATIVA';
+                const statusIcon = raffle.isActive ? 'fa-check-circle' : 'fa-times-circle';
+                
+                html += `
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <!-- Header com Imagem -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-4 mb-3">
+                                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
+                                        <img src="${raffle.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjEyOCIgZmlsbD0iIzEwYjgxIj48Lz4+PHJlY3QgY2x0PSI2MDAiIGhlaWdodD0iMCIgZmlsbD0iIzEwYjgxIj48Lz48LzRleHQ+PC9zdmc+PC9zdmc+Jw=='}" 
+                                             alt="${raffle.title}" 
+                                             class="w-full h-full object-cover"
+                                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjEyOCIgZmlsbD0iIzEwYjgxIj48Lz4+PHJlY3QgY2x0PSI2MDAiIGhlaWdodD0iMCIgZmlsbD0iIzEwYjgxIj48Lz48LzRleHQ+PC9zdmc+PC9zdmc+Jw=='}">
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-white font-bold text-lg line-clamp-2">${raffle.title}</h3>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span class="text-xs text-gray-400">ID:</span>
+                                            <span class="text-xs font-mono text-blue-400">${raffle.formattedId}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="${statusClass} text-white text-xs px-3 py-1 rounded-full flex items-center mb-2">
+                                        <i class="fas ${statusIcon} mr-1"></i>${statusText}
+                                    </span>
+                                    <button onclick="comprarCotas('${raffle._id}')" 
+                                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105">
+                                        <i class="fas fa-shopping-cart mr-2"></i>Comprar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stats -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">Preço/Cota</p>
+                                <p class="text-white font-bold">R$ ${raffle.pricePerQuota.toFixed(2)}</p>
+                            </div>
+                            <div class="bg-gray-700/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">Cotas Disponíveis</p>
+                                <p class="text-white font-bold">${raffle.availableQuotas || 0}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <p class="text-gray-300 text-sm">${raffle.description || 'Rifa emocionante com ótimos prêmios!'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Comprar cotas
+        async function comprarCotas(raffleId) {
+            try {
+                // Carregar dados da rifa
+                const response = await fetch(window.API_URL + `/api/raffles/${raffleId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    raffleAtual = data.data;
+                    abrirModalSelecaoCotas(raffleId);
+                } else {
+                    showNotification('Erro ao carregar dados da rifa', 'error');
+                }
+            } catch (error) {
+                showNotification('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Abrir modal de seleção de cotas
+        function abrirModalSelecaoCotas(raffleId) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Selecione suas Cotas</h2>
+                        <button onclick="fecharModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Forma de Seleção:</label>
+                        <div class="flex gap-4">
+                            <button onclick="setModoSelecao('manual')" id="btnManual" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded">
+                                Seleção Manual
+                            </button>
+                            <button onclick="setModoSelecao('pacote')" id="btnPacote"
+                                    class="px-4 py-2 bg-green-600 text-white rounded">
+                                Pacotes
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="selecaoManual" class="hidden">
+                        <h3 class="text-lg font-bold mb-4">Selecione as cotas desejadas:</h3>
+                        <div id="gradeCotas" class="grid grid-cols-10 gap-2 mb-4 max-h-60 overflow-y-auto">
+                            <!-- Cotas serão carregadas aqui -->
+                        </div>
+                    </div>
+                    
+                    <div id="selecaoPacote" class="hidden">
+                        <h3 class="text-lg font-bold mb-4">Escolha um pacote:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500" 
+                                 onclick="selecionarPacote(10, 'R$ 50,00')">
+                                <h3 class="font-bold">10 Cotas</h3>
+                                <p class="text-2xl">R$ 50,00</p>
+                            </div>
+                            <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500" 
+                                 onclick="selecionarPacote(50, 'R$ 200,00')">
+                                <h3 class="font-bold">50 Cotas</h3>
+                                <p class="text-2xl">R$ 200,00</p>
+                            </div>
+                            <div class="border rounded-lg p-4 cursor-pointer hover:border-blue-500" 
+                                 onclick="selecionarPacote(100, 'R$ 350,00')">
+                                <h3 class="font-bold">100 Cotas</h3>
+                                <p class="text-2xl">R$ 350,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-4 mt-6">
+                        <button onclick="fecharModal()" 
+                                class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button onclick="processarCompra('${raffleId}')" id="btnFinalizar"
+                                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50" 
+                                disabled>
+                            Finalizar Compra
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            carregarCotasDisponiveis(raffleId);
+        }
+
+        // Carregar cotas disponíveis
+        async function carregarCotasDisponiveis(raffleId) {
+            try {
+                const response = await fetch(window.API_URL + `/api/raffles/${raffleId}/quotas`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const gradeCotas = document.getElementById('gradeCotas');
+                    gradeCotas.innerHTML = '';
+                    
+                    data.data.forEach(cota => {
+                        const isSelected = cotasSelecionadas.includes(cota.number);
+                        const buttonClass = isSelected ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300';
+                        
+                        const button = document.createElement('button');
+                        button.className = `${buttonClass} px-3 py-2 rounded text-sm font-medium`;
+                        button.textContent = cota.number;
+                        button.onclick = () => toggleCota(cota.number);
+                        
+                        gradeCotas.appendChild(button);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cotas:', error);
+            }
+        }
+
+        // Toggle cota selection
+        function toggleCota(cotaNumber) {
+            const index = cotasSelecionadas.indexOf(cotaNumber);
+            if (index > -1) {
+                cotasSelecionadas.splice(index, 1);
+            } else {
+                cotasSelecionadas.push(cotaNumber);
+            }
+            
+            // Atualizar visual
+            const gradeCotas = document.getElementById('gradeCotas');
+            const buttons = gradeCotas.querySelectorAll('button');
+            buttons.forEach(button => {
+                const numero = button.textContent;
+                if (cotasSelecionadas.includes(numero)) {
+                    button.className = 'bg-green-500 text-white px-3 py-2 rounded text-sm font-medium';
+                } else {
+                    button.className = 'bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded text-sm font-medium';
+                }
+            });
+            
+            // Atualizar botão finalizar
+            const btnFinalizar = document.getElementById('btnFinalizar');
+            btnFinalizar.disabled = cotasSelecionadas.length === 0;
+        }
+
+        // Set modo de seleção
+        function setModoSelecao(modo) {
+            modoSelecao = modo;
+            cotasSelecionadas = [];
+            pacoteSelecionado = null;
+            
+            // Atualizar botões
+            const btnManual = document.getElementById('btnManual');
+            const btnPacote = document.getElementById('btnPacote');
+            const selecaoManual = document.getElementById('selecaoManual');
+            const selecaoPacote = document.getElementById('selecaoPacote');
+            
+            if (modo === 'manual') {
+                btnManual.className = 'px-4 py-2 bg-blue-600 text-white rounded';
+                btnPacote.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded';
+                selecaoManual.classList.remove('hidden');
+                selecaoPacote.classList.add('hidden');
+            } else {
+                btnManual.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded';
+                btnPacote.className = 'px-4 py-2 bg-green-600 text-white rounded';
+                selecaoManual.classList.add('hidden');
+                selecaoPacote.classList.remove('hidden');
+            }
+            
+            // Resetar botão finalizar
+            const btnFinalizar = document.getElementById('btnFinalizar');
+            btnFinalizar.disabled = true;
+        }
+
+        // Selecionar pacote
+        function selecionarPacote(quantidade, preco) {
+            pacoteSelecionado = quantidade;
+            cotasSelecionadas = [];
+            
+            // Atualizar botão finalizar
+            const btnFinalizar = document.getElementById('btnFinalizar');
+            btnFinalizar.disabled = false;
+            
+            showNotification(`Pacote selecionado: ${quantidade} cotas por ${preco}`, 'success');
+        }
+
+        // Processar compra
+        async function processarCompra(raffleId) {
+            const selectedNumbers = cotasSelecionadas;
+            const purchaseType = modoSelecao === 'manual' ? 'manual' : 'package';
+            const quantity = modoSelecao === 'manual' ? selectedNumbers.length : pacoteSelecionado;
+            const packageId = modoSelecao === 'pacote' ? 'basic' : null;
+            
+            if (quantity === 0 || (modoSelecao === 'manual' && selectedNumbers.length === 0)) {
+                showNotification('Por favor, selecione as cotas desejadas', 'error');
+                return;
+            }
+            
+            try {
+                showNotification('Processando compra...', 'info');
+                
+                const response = await fetch(window.API_URL + '/api/payment/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${publicAuthToken}`
+                    },
+                    body: JSON.stringify({
+                        raffleId: raffleId,
+                        purchaseType: purchaseType,
+                        quantity: quantity,
+                        packageId: packageId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.orderId) {
+                    fecharModal();
+                    exibirPixPagamento(data);
+                } else {
+                    showNotification(data.message || 'Erro ao processar compra', 'error');
+                }
+            } catch (error) {
+                showNotification('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Exibir PIX para pagamento
+        function exibirPixPagamento(paymentData) {
+            const pixModal = document.createElement('div');
+            pixModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            pixModal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-qrcode text-6xl text-green-600 mb-4"></i>
+                        <h2 class="text-2xl font-bold">Pague via PIX</h2>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-700 mb-2"><strong>Valor:</strong> R$ ${paymentData.totalAmount.toFixed(2)}</p>
+                        <p class="text-gray-700 mb-2"><strong>Cotas:</strong> ${paymentData.reservedQuotaNumbers.join(', ')}</p>
+                        <p class="text-gray-700 text-sm mb-4">Escaneie o QR Code ou copie o código PIX</p>
+                    </div>
+                    
+                    <div class="mb-4 text-center">
+                        <img src="${paymentData.pixQRCode}" alt="QR Code PIX" 
+                             class="w-48 h-48 mx-auto mb-4 border">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="bg-gray-100 p-3 rounded border">
+                            <code class="text-sm break-all">${paymentData.pixCopyPaste}</code>
+                        </div>
+                        <button onclick="copyToClipboard('${paymentData.pixCopyPaste}')" 
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-copy mr-2"></i>Copiar Código PIX
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-sm text-gray-600">
+                        <p class="mb-2"><i class="fas fa-clock mr-1"></i>Aguarde a confirmação do pagamento...</p>
+                        <p>As cotas serão liberadas automaticamente após a confirmação.</p>
+                        <p class="mt-2"><strong>Tempo de expiração:</strong> 30 minutos</p>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button onclick="fecharModalPix()" 
+                                class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(pixModal);
+        }
+
+        // Fechar modal
+        function fecharModal() {
+            const modals = document.querySelectorAll('.fixed.inset-0');
+            modals.forEach(modal => modal.remove());
+        }
+
+        function fecharModalPix() {
+            fecharModal();
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Código PIX copiado!', 'success');
+            }).catch(err => {
+                showNotification('Erro ao copiar código', 'error');
+            });
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        // Show register modal
+        function showRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+
+        // Close login modal
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        // Close register modal
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, toggleId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                toggle.className = 'fas fa-eye';
+            }
+        }
+
+        // Public login
+        document.getElementById('publicLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('publicEmail').value;
+            const password = document.getElementById('publicPassword').value;
+
+            try {
+                const response = await fetch(window.API_URL + '/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.data && data.data.token) {
+                    publicAuthToken = data.data.token;
+                    localStorage.setItem('publicToken', publicAuthToken);
+                    
+                    closeLoginModal();
+                    showPublicRaffles();
+                    showNotification('Login realizado com sucesso!', 'success');
+                } else {
+                    showNotification('Credenciais inválidas', 'error');
+                }
+            } catch (error) {
+                showNotification('Erro ao conectar com o servidor', 'error');
+            }
+        });
+
+        // Public register
+        document.getElementById('publicRegisterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(window.API_URL + '/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    closeRegisterModal();
+                    showNotification('Cadastro realizado com sucesso! Faça login para continuar.', 'success');
+                } else {
+                    showNotification(data.message || 'Erro ao cadastrar', 'error');
+                }
+            } catch (error) {
+                showNotification('Erro ao conectar com o servidor', 'error');
+            }
+        });
+
         // Load all raffles for management
         async function loadAllRaffles() {
             try {
@@ -499,6 +1148,10 @@
                                 <span class="${statusClass} text-white text-xs px-3 py-1 rounded-full flex items-center mb-2">
                                     <i class="fas ${statusIcon} mr-1"></i>${statusText}
                                 </span>
+                                <button onclick="comprarCotas('${raffle._id}')" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Comprar
+                                </button>
                             </div>
                         </div>
 
