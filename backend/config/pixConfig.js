@@ -2,7 +2,7 @@
 // Configure aqui sua chave PIX real do banco
 
 // 🔑 CHAVE PIX REAL (configure sua chave aqui)
-const REAL_PIX_KEY = process.env.REAL_PIX_KEY || 'sua-chave-pix-aqui';
+const REAL_PIX_KEY = process.env.REAL_PIX_KEY || '12345678909'; // Exemplo: seu CPF
 
 // 🏢 DADOS DA CONTA
 const MERCHANT_NAME = process.env.MERCHANT_NAME || 'Seu Nome';
