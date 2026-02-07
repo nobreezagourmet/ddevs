@@ -34,6 +34,9 @@ const getLeadsQuotas = asyncHandler(async (req, res) => {
                 }
                 
                 const customerKey = quota.ownerId._id.toString();
+                if (!acc.customers) {
+                    acc.customers = {};
+                }
                 if (!acc.customers[customerKey]) {
                     acc.customers[customerKey] = {
                         customerId: quota.ownerId._id,
