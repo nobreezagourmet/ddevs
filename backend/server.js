@@ -115,6 +115,7 @@ app.use('/api/auth', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/raffles', raffleRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/search', searchRoutes);
