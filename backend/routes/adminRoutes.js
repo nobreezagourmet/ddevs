@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect, admin } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const { swapQuota, createRaffle, deleteRaffle, getRaffles, getRaffle } = require('../controllers/adminController');
+const { getAllCustomerQuotas, searchQuota } = require('../controllers/customerQuotaController');
 
 // ROTA DE ESTATÍSTICAS - SEM AUTENTICAÇÃO PARA TESTE
 router.get('/stats', async (req, res) => {
@@ -64,5 +65,9 @@ router.delete('/raffle/:id', protect, admin, deleteRaffle);
 
 // Rotas existentes
 router.post('/swap-quota', protect, admin, swapQuota);
+
+// Novas rotas de cotas de clientes
+router.get('/customer-quotas', protect, admin, getAllCustomerQuotas);
+router.get('/search-quota', protect, admin, searchQuota);
 
 module.exports = router;

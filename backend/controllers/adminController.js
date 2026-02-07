@@ -179,6 +179,19 @@ const createRaffle = asyncHandler(async (req, res) => {
                 raffleData.imageUrl = `/uploads/${req.file.filename}`;
                 raffleData.imageFileName = req.file.filename;
             }
+
+            // Adicionar URL da imagem se fornecida no corpo da requisição
+            if (req.body.imageUrl && typeof req.body.imageUrl === 'string') {
+                // Validar se é uma URL válida
+                try {
+                    new URL(req.body.imageUrl);
+                    raffleData.imageUrl = req.body.imageUrl;
+                    raffleData.imageFileName = null; // Não há arquivo local
+                    console.log('🖼️ Usando URL da imagem:', req.body.imageUrl);
+                } catch (error) {
+                    console.warn('⚠️ URL da imagem inválida, ignorando:', req.body.imageUrl);
+                }
+            }
             
             const raffle = await Raffle.create([raffleData], { session });
             const createdRaffle = raffle[0];
