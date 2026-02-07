@@ -22,7 +22,7 @@ const generatePixPayment = async (amount, orderId, description) => {
         // Payload com credenciais reais
         const requestPayload = {
             client_id: 'e1c98954cc404cbcb2868af9b40c7a33',
-            secret_key: '7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg',
+            secret_key: 'CJCS1_P9-x9lbXttUme5ar-IBteWqUuV0zLRiovMCP7LWdsVyhOaPQXQmAmc_KVPL-zCI46QpB5_lwHn-yfYuA',
             amount: amount,
             order_id: orderId,
             description: description,
@@ -35,7 +35,7 @@ const generatePixPayment = async (amount, orderId, description) => {
         // Headers para API XFLOW REAL
         const requestHeaders = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer 7RomIIydlFl1ZqAqtb5UKgUGyqm-cQqoS9Rrf6Zb9UazSU-gTmdLD0w_DFWXUocU0L_ZwWic2QNMtmxVNb_nWg`
+            'Authorization': `Bearer CJCS1_P9-x9lbXttUme5ar-IBteWqUuV0zLRiovMCP7LWdsVyhOaPQXQmAmc_KVPL-zCI46QpB5_lwHn-yfYuA`
         };
 
         console.log(' ENVIANDO REQUISIÇÃO PARA XFLOW BRASIL...');
