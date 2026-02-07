@@ -4,6 +4,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const { swapQuota, createRaffle, deleteRaffle, getRaffles, getRaffle } = require('../controllers/adminController');
 const { getAllCustomerQuotas, searchQuota } = require('../controllers/customerQuotaController');
+const { getLeadsQuotas, searchQuotaEnhanced } = require('../controllers/leadsQuotaController');
 
 // ROTA DE ESTATÍSTICAS - SEM AUTENTICAÇÃO PARA TESTE
 router.get('/stats', async (req, res) => {
@@ -53,7 +54,7 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-// Rotas com upload de imagem
+// Rotas com upload de imagem (OPCIONAL - suporta URL também)
 router.post('/create-raffle', protect, admin, upload.single('image'), createRaffle);
 
 // Rotas de listagem
@@ -69,5 +70,9 @@ router.post('/swap-quota', protect, admin, swapQuota);
 // Novas rotas de cotas de clientes
 router.get('/customer-quotas', protect, admin, getAllCustomerQuotas);
 router.get('/search-quota', protect, admin, searchQuota);
+
+// Rotas de leads/cotas detalhadas
+router.get('/leads-quotas', protect, admin, getLeadsQuotas);
+router.get('/search-quota-enhanced', protect, admin, searchQuotaEnhanced);
 
 module.exports = router;
