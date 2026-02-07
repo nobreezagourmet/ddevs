@@ -38,6 +38,7 @@ export enum AppView {
   LEADS,
   CUSTOMERS,
   CUSTOMER_SEARCH,
+  CREATE_RAFFLE,
 }
 
 export enum AuthMode {

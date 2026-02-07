@@ -12,6 +12,7 @@ import CustomerList from './components/CustomerList';
 import CustomerTab from './components/CustomerTab';
 import CustomerSearch from './components/CustomerSearch';
 import SystemStatus from './components/SystemStatus';
+import CreateRaffle from './components/CreateRaffle';
 import { AppView, Raffle, User, Purchase } from './types';
 import RaffleService, { Raffle as RaffleServiceType } from './services/raffleService';
 
@@ -110,6 +111,14 @@ const App: React.FC = () => {
             <div className="text-center">
               <h1 className="text-4xl font-bold text-white mb-4">🎯 Rifas Disponíveis</h1>
               <p className="text-gray-400">Escolha uma rifa para participar</p>
+            </div>
+            <div className="mb-6">
+              <button
+                onClick={() => setCurrentView(AppView.CREATE_RAFFLE)}
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 mb-4"
+              >
+                🎲 Criar Nova Rifa
+              </button>
             </div>
             <RaffleList onRaffleSelect={handleRaffleSelect} />
             {selectedRaffle && (
