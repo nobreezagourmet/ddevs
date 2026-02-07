@@ -71,9 +71,15 @@ const raffleSchema = mongoose.Schema({
         default: null,
         validate: {
             validator: function(v) {
-                // Aceita URL ou null
+                // Aceita URL, caminho de upload ou null
                 if (!v) return true; // Permitir null
-                // Validar formato URL
+                
+                // Se começar com /uploads/ ou http/https, aceitar
+                if (v.startsWith('/uploads/') || v.startsWith('http://') || v.startsWith('https://')) {
+                    return true;
+                }
+                
+                // Validar formato URL para outros casos
                 try {
                     new URL(v);
                     return true;
@@ -81,7 +87,7 @@ const raffleSchema = mongoose.Schema({
                     return false;
                 }
             },
-            message: 'imageUrl deve ser uma URL válida'
+            message: 'imageUrl deve ser uma URL válida ou caminho de upload'
         }
     },
     imageFileName: {
